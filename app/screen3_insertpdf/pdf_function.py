@@ -1,7 +1,7 @@
 import os
 import re
 import uuid
-import fitz  # PyMuPDF
+import fitz
 from docx import Document
 from docx.shared import Inches
 from pdf2image import convert_from_path
@@ -45,6 +45,7 @@ def adicionar_item(self, caminho_pdf, tipo):
         )
         item.add_widget(MDListItemHeadlineText(text=f"[CAR] {texto}"))
         self.file_list.add_widget(item)
+        print(f'item {item}')
     elif tipo == "cit":
         item = MDListItem(
             on_release=lambda x, f=caminho_pdf: selecionar_pdf_cit(self,f)
@@ -110,6 +111,8 @@ def inserir_pdf_no_word(self, caminho_pdf, placeholder):
     if not hasattr(self, "doc"):
         print("Documento Word não inicializado!")
         return
+    else:
+        print("Documento iniciado")
 
     def substituir_em_paragrafos(paragrafos):
         for par in paragrafos:

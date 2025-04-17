@@ -7,6 +7,7 @@ from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from app.screen4_dadosp.dados_function import extrair_dados_pdf
+from app.screen3_insertpdf.pdf_function import *
 import os
 import re
 from docx import Document
@@ -86,6 +87,10 @@ class DadosScreen(MDScreen):
         """
         Também um método da classe: gera o Word com os valores dos campos.
         """
+        doc = getattr(self, 'doc', None)
+        if not doc:
+            modelo_path = os.path.join(os.getcwd(), "models", "MODELO_LAUDO.docx")
+            doc = Document(modelo_path)
         nome = self.proponente.text
         cpf  = self.cpf.text
 
@@ -107,6 +112,7 @@ class DadosScreen(MDScreen):
                             run.text = run.text.replace("#PROPONENTE", nome)
                             run.text = run.text.replace("#CPF_PROPONENTE", cpf)
 
+        self.doc = doc
         nome_limpo = re.sub(r"[^\w\s-]", "", nome)
         saida = os.path.join(os.getcwd(), f"LAUDO DE AVALIAÇÃO {nome_limpo}.docx")
         doc.save(saida)
