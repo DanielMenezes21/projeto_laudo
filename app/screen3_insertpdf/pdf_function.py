@@ -155,4 +155,4 @@ def inserir_pdf_no_word(self, caminho_pdf, placeholder):
             print(f"❌ Placeholder '{placeholder}' não encontrado no documento.")
 
     except Exception as e:
-        print(f"Erro ao inserir PDF no Word: {e}")
+        print(f"Erro e ao inserir PDF no Word: {e}")
