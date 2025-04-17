@@ -1,0 +1,3 @@
+2025-04-09 10:56:17,089 ERROR: Error connecting to email: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'
+2025-04-09 11:02:27,997 ERROR: Error connecting to email: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'
+2025-04-09 11:07:30,224 ERROR: Error connecting to email: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'. Verifique se a senha é de aplicativo (caso a verificação em 2 fatores esteja ativada) ou se há algum bloqueio por segurança na sua conta Gmail.
