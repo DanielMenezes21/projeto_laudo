@@ -8,12 +8,14 @@ from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from app.screen4_dadosp.dados_function import extrair_dados_pdf
 import os
+import re
+from docx import Document
 
 class DadosScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.layout = MDFloatLayout()
-        self.add_widget(self.layout)
+
 
         self.label = MDLabel(
             text="Dados do Proponente",
@@ -50,9 +52,11 @@ class DadosScreen(MDScreen):
 
         self.file_manager = MDFileManager(
             exit_manager=self.fechar_arquivo,
-            select_path=self.carregar_dados_pdf,
+            select_path=self.on_pdf_selecionado,
             ext=[".pdf"]
-        )
+        )        
+        
+        self.add_widget(self.layout)
 
     def abrir_seletor_pdf(self, *args):
         self.file_manager.show(os.getcwd())
@@ -60,8 +64,50 @@ class DadosScreen(MDScreen):
     def fechar_arquivo(self, *args):
         self.file_manager.close()
 
-    def carregar_dados_pdf(self, caminho_pdf):
+    def on_pdf_selecionado(self, caminho_pdf):
+        """
+        Callback do FileManager. Recebe apenas 1 parâmetro,
+        extrai nome/CPF do PDF selecionado e preenche os campos.
+        """
         self.fechar_arquivo()
         nome, cpf = extrair_dados_pdf(caminho_pdf)
         self.proponente.text = nome
+        self.cpf.text        = cpf
+
+    def preencher_com_dados(self, caminho_car, caminho_cit):
+        # chamada pelo go_next da tela anterior
+        self.caminho_car = caminho_car
+        self.caminho_cit = caminho_cit
+        nome, cpf = extrair_dados_pdf(caminho_car)
+        self.proponente.text = nome
         self.cpf.text = cpf
+
+    def receber_dados(self):
+        """
+        Também um método da classe: gera o Word com os valores dos campos.
+        """
+        nome = self.proponente.text
+        cpf  = self.cpf.text
+
+        modelo_path = os.path.join(os.getcwd(), "models", "MODELO_LAUDO.docx")
+        doc = Document(modelo_path)
+
+        # substituição em parágrafos
+        for par in doc.paragraphs:
+            for run in par.runs:
+                run.text = run.text.replace("#PROPONENTE", nome)
+                run.text = run.text.replace("#CPF_PROPONENTE", cpf)
+
+        # substituição em tabelas
+        for tabela in doc.tables:
+            for linha in tabela.rows:
+                for celula in linha.cells:
+                    for p in celula.paragraphs:
+                        for run in p.runs:
+                            run.text = run.text.replace("#PROPONENTE", nome)
+                            run.text = run.text.replace("#CPF_PROPONENTE", cpf)
+
+        nome_limpo = re.sub(r"[^\w\s-]", "", nome)
+        saida = os.path.join(os.getcwd(), f"LAUDO DE AVALIAÇÃO {nome_limpo}.docx")
+        doc.save(saida)
+        print(f"✅ Documento salvo em: {saida}")

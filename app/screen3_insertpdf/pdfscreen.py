@@ -21,7 +21,6 @@ class PDFInsert(MDScreen):
         super().__init__(**kwargs)
         self.pastas_abertas = set()
 
-
         self.root_path = r"C:\Users\DESKTOP\Desktop\automacao_laudo\anexos"
         self.current_path = self.root_path
 
@@ -106,5 +105,8 @@ class PDFInsert(MDScreen):
         self.layout.add_widget(self.scroll2)
 
         self.add_widget(self.layout)
-
+        self.caminho_car = ""
+        self.caminho_cit = ""
         initialize_word(self)
+
+   
