@@ -7,13 +7,18 @@ from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.metrics import dp
 from kivy.uix.widget import Widget
+from kivymd.app import MDApp
 
-from app.screen3_insertpdf.pdf_function import (
+from app.screen5_insertpdf.pdf_function import (
     go_back,
-    go_next,
     carregar_estrutura,
     initialize_word,
     entrar_em_pasta,
+    inserir_pdf_no_word,
+    selecionar_pdf_car,
+    selecionar_pdf_cit,
+    load_directory,
+    gerar_documento
 )
 
 class PDFInsert(MDScreen):
@@ -46,7 +51,6 @@ class PDFInsert(MDScreen):
             size=(dp(56), dp(56)),
             theme_text_color="Custom",
             text_color=(1, 1, 1, 1),
-            on_release=lambda x: go_next(self),
         )
         buttons.add_widget(self.button_next)
 
@@ -89,6 +93,23 @@ class PDFInsert(MDScreen):
             on_release=lambda x: carregar_estrutura(self, tipo="cit")
         )
 
+        self.button_gerar = MDButton(
+            MDButtonIcon(
+                icon="file-word",
+                theme_icon_color="Custom",
+                icon_color=(1, 1, 1, 1),
+            ),
+            MDButtonText(
+                text="Gerar Documento Word",
+                theme_text_color="Custom",
+                text_color=(1, 1, 1, 1),
+            ),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            size_hint=(0.5, None),
+            on_release=lambda x: gerar_documento(self)
+        )
+        
+
         self.scroll = MDScrollView()
         self.file_list = MDList()
         self.scroll.add_widget(self.file_list)
@@ -103,6 +124,7 @@ class PDFInsert(MDScreen):
         self.layout.add_widget(self.button2)
         self.layout.add_widget(self.scroll)
         self.layout.add_widget(self.scroll2)
+        self.layout.add_widget(self.button_gerar)
 
         self.add_widget(self.layout)
         self.caminho_car = ""
