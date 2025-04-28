@@ -1,105 +1,124 @@
-import os
 from kivymd.app import MDApp
-from kivy.metrics import dp
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDIconButton
-from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
-from kivymd.uix.list import MDList, MDListItem, MDListItemHeadlineText
+from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.scrollview import MDScrollView
+from kivymd.uix.textfield import MDTextField, MDTextFieldHelperText
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.label import MDLabel
+from kivymd.uix.menu import MDDropdownMenu
+from kivy.metrics import dp
 
-class LeitorScreen(MDScreen):
+
+class DadosScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.root_path = r"C:\Users\DESKTOP\Desktop\automacao_laudo\anexos"
-        self.current_path = self.root_path
+        scroll = MDScrollView()
+        self.layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20, size_hint_y=None)
+        self.layout.bind(minimum_height=self.layout.setter("height"))
 
-        self.layout = MDBoxLayout(orientation="vertical")
+        # === SEÇÃO: PROONENTE ===
+        self.layout.add_widget(MDLabel(text="Dados do Proponente", halign="center", bold=True))
+        cliente = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
 
-        self.label = MDLabel(
-            text="Explorador de Arquivos KML",
-            halign="center",
+        # Tratamento
+        self.tratamento = ""
+        self.tratamento_botao = MDButton(
+            MDButtonText(text="Tratamento"),
+            size_hint_x=0.3,
+            on_release=self.abrir_dropdown
+        )
+        cliente.add_widget(self.tratamento_botao)
+
+        self.dropdown = MDDropdownMenu(
+            caller=self.tratamento_botao,
+            items=[
+                {"text": "Sr.", "on_release": lambda x="Sr.": self.set_tratamento(x)},
+                {"text": "Srª", "on_release": lambda x="Srª": self.set_tratamento(x)},
+            ],
+            width_mult=3
+        )
+
+        # Nome e CPF
+        self.proponente = MDTextField(
+            hint_text="Nome completo",
+            size_hint_x=0.7,
+            height=dp(48)
+        )
+        cliente.add_widget(self.proponente)
+
+        self.layout.add_widget(cliente)
+        self.cpf = MDTextField(hint_text="CPF", size_hint_y=None, height=dp(48))
+        self.layout.add_widget(self.cpf)
+
+        # Situação civil
+        self.civil = MDTextField(
+            MDTextFieldHelperText(text="Casado, solteiro, etc."),
+            hint_text="Situação civil",
+            
             size_hint_y=None,
-            height=dp(56),
+            height=dp(48)
         )
+        self.layout.add_widget(self.civil)
 
-        self.button = MDIconButton(
-            icon="folder",
+        # === SEÇÃO: IMÓVEL ===
+        self.layout.add_widget(MDLabel(text="Dados do Imóvel", halign="center", bold=True))
+
+        self.nome_imovel = MDTextField(hint_text="Nome do imóvel", size_hint_y=None, height=dp(48))
+        self.matricula = MDTextField(hint_text="Matrícula", size_hint_y=None, height=dp(48))
+        self.municipio = MDTextField(hint_text="Município", size_hint_y=None, height=dp(48))
+        self.estado = MDTextField(hint_text="Estado", size_hint_y=None, height=dp(48))
+
+        self.layout.add_widget(self.nome_imovel)
+        self.layout.add_widget(self.matricula)
+        self.layout.add_widget(self.municipio)
+        self.layout.add_widget(self.estado)
+
+        # === SEÇÃO: COORDENADAS ===
+        self.layout.add_widget(MDLabel(text="Coordenadas", halign="center", bold=True))
+
+        linha_coords = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
+        self.latitude = MDTextField(hint_text="Latitude", size_hint_y=None, height=dp(48))
+        self.longitude = MDTextField(hint_text="Longitude", size_hint_y=None, height=dp(48))
+        linha_coords.add_widget(self.latitude)
+        linha_coords.add_widget(self.longitude)
+        self.layout.add_widget(linha_coords)
+
+        # === BOTÃO DE CONTINUAÇÃO ===
+        self.botao_continuar = MDButton(
+            MDButtonText(text="Continuar"),
             pos_hint={"center_x": 0.5},
-            on_release=self.load_directory
+            size_hint=(None, None),
+            size=(dp(150), dp(48)),
+            on_release=self.proxima_tela
         )
+        self.layout.add_widget(self.botao_continuar)
 
-        self.scroll = MDScrollView()
-        self.file_list = MDList()
-        self.scroll.add_widget(self.file_list)
+        scroll.add_widget(self.layout)
+        self.add_widget(scroll)
 
-        self.layout.add_widget(self.label)
-        self.layout.add_widget(self.button)
-        self.layout.add_widget(self.scroll)
+    def abrir_dropdown(self, *args):
+        self.dropdown.open()
 
-        self.add_widget(self.layout)
+    def set_tratamento(self, valor):
+        self.tratamento = valor
+        self.tratamento_botao.children[0].text = valor
+        self.dropdown.dismiss()
 
-        self.load_directory()
-
-    def load_directory(self, *args):
-        self.file_list.clear_widgets()
-
-        # Adiciona botão de voltar se não estiver no diretório raiz
-        if self.current_path != self.root_path:
-            voltar_item = MDListItem(
-                on_release=self.go_up
-            )
-            voltar_item.add_widget(MDListItemHeadlineText(text=".. (voltar)"))
-            self.file_list.add_widget(voltar_item)
-
-        try:
-            itens = os.listdir(self.current_path)
-        except FileNotFoundError:
-            itens = []
-
-        for nome in sorted(itens):
-            caminho = os.path.join(self.current_path, nome)
-
-            if os.path.isdir(caminho):
-                item = MDListItem(
-                    on_release=lambda x, p=caminho: self.entrar_em_pasta(p)
-                )
-                item.add_widget(MDListItemHeadlineText(text=f"[DIR] {nome}"))
-                self.file_list.add_widget(item)
-
-            elif nome.lower().endswith(".kml"):
-                item = MDListItem(
-                    on_release=lambda x, f=caminho: self.on_file_selected(f)
-                )
-                item.add_widget(MDListItemHeadlineText(text=nome))
-                self.file_list.add_widget(item)
-
-    def entrar_em_pasta(self, pasta):
-        self.current_path = pasta
-        self.load_directory()
-
-    def go_up(self, *args):
-        self.current_path = os.path.dirname(self.current_path)
-        self.load_directory()
-
-    def on_file_selected(self, caminho):
-        MDSnackbar(
-            MDSnackbarText(text=f"Selecionado:\n{caminho}"),
-            y=dp(24),
-            pos_hint={"center_x": 0.5},
-            size_hint_x=0.8,
-        ).open()
-        # Aqui você pode processar o .kml selecionado
+    def proxima_tela(self, *args):
+        print("Tratamento:", self.tratamento)
+        print("Nome:", self.proponente.text)
+        # ... continue com a lógica
 
 
 class MainApp(MDApp):
     def build(self):
-        self.title = "Leitor KML"
+        self.title = "Tela de Dados Refinada"
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.theme_style = "Dark"
-        return LeitorScreen()
+        return DadosScreen()
+
 
 if __name__ == "__main__":
     MainApp().run()
