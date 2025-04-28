@@ -173,18 +173,23 @@ def gerar_documento(self):
     try:
         processo = ""
         if self.current_path:
-            pasta_anexos = os.path.join(self.current_path, "anexos")
+            # Use o diretório atual, que já é "anexos"
+            pasta_anexos = self.current_path  
             if os.path.exists(pasta_anexos):
                 for subpasta in os.listdir(pasta_anexos):
                     subpasta_completa = os.path.join(pasta_anexos, subpasta)
                     if os.path.isdir(subpasta_completa):
                         print(f"Subpasta encontrada: '{subpasta}'")
-                        match = re.search(r"PROCESSO\s*Nº\s*(\d+)", subpasta)
+                        match = re.search(r"(?i)processo\s*n[°º]\s*(\d+)", subpasta, re.IGNORECASE)
                         if match:
                             processo = match.group(1)
                             print(f"Número do processo encontrado: {processo}")
                         else:
                             print(f"Processo não encontrado na subpasta: {subpasta}")
+                if processo == "":
+                    print("❌ Número do processo não foi achado")
+                else:
+                    print(f"Número do processo: {processo}")
             else:
                 print(f"Pasta 'anexos' não encontrada em: {self.current_path}")
 
@@ -200,7 +205,8 @@ def gerar_documento(self):
             "#LATITUDE": self.latitude,
             "#LONGITUDE": self.longitude,
             "#NMATRICULA": self.matricula,
-            "#AGENCIA": self.agencia
+            "#AGENCIA": self.agencia,
+            "#NPROCESSO": processo,
         }
 
         def substituir_em_runs(par):

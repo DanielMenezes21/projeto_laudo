@@ -9,4 +9,4 @@ def formatar_data(argumento='argumento'):
     mes = meses[data.month - 1]
     ano = data.year
     
-    return f"{dia} de {mes} de {ano}."
+    return f"{dia} de {mes} de {ano}"
