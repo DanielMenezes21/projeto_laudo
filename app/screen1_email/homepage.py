@@ -8,7 +8,7 @@ from threading import Thread
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex
 from kivymd.uix.dialog import MDDialog
-from app.homepage.hp_function import (
+from app.screen1_email.hp_function import (
     next_screen,
     download_file,
     after_download,

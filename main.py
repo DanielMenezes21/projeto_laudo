@@ -1,9 +1,11 @@
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
-from app.homepage.homepage import MenuScreen
+from app.screen1_email.homepage import MenuScreen
 from app.screen2_kml.leitor import LeitorScreen
-from app.screen5_insertpdf.pdfscreen import PDFInsert
 from app.screen3_dadosp.dadosscreen import DadosScreen
+from app.screen4_territorio.soloscreen import SoloScreen
+from app.screen5_insertpdf.pdfscreen import PDFInsert
+
 from kivy.config import Config
 
 Config.set('kivy', 'exit_on_escape', '0')
@@ -17,8 +19,9 @@ class MainApp(MDApp):
         sm = ScreenManager()
         sm.add_widget(MenuScreen(name='main'))
         sm.add_widget(LeitorScreen(name='leitor'))
-        sm.add_widget(PDFInsert(name='pdf'))
         sm.add_widget(DadosScreen(name='dados'))
+        sm.add_widget(SoloScreen(name='territorio'))
+        sm.add_widget(PDFInsert(name='pdf'))
         return sm
 
 if __name__ == '__main__':

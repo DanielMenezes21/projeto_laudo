@@ -1,5 +1,7 @@
 import os
 import re
+from docx.shared import Inches
+from docx.oxml.ns import qn
 import uuid
 import fitz
 from docx import Document
@@ -13,7 +15,7 @@ from app.screen5_insertpdf.pdf_function2 import extrair_paginas_como_imagens
 from app.screen3_dadosp.dados_function import *
 
 def go_back(self, *args):
-    self.manager.current_screen.manager.current = "dados"
+    self.manager.current_screen.manager.current = "territorio"
 
 def selecionar_pdf_car(self, caminho_pdf):
     self.caminho_car = caminho_pdf
@@ -25,7 +27,6 @@ def selecionar_pdf_cit(self, caminho_pdf):
 
 def carregar_estrutura_pasta(self, caminho_pasta, tipo):
     """Função para carregar arquivos PDF dentro de uma pasta"""
-    print(f"Carregando arquivos na pasta: {caminho_pasta}")
     for nome in sorted(os.listdir(caminho_pasta)):
         caminho_completo = os.path.join(caminho_pasta, nome)
         if os.path.isdir(caminho_completo):
@@ -33,10 +34,12 @@ def carregar_estrutura_pasta(self, caminho_pasta, tipo):
             if match:
                 numero_processo = match.group(1)
                 self.numero_processo = numero_processo  
-                if numero_processo != "":
-                    print(f"Processo encontrado: {numero_processo}")
-                else:
-                    print("numero não encontrado")
+                if numero_processo == "":
+                    MDSnackbar(
+                        MDSnackbarText(text="Número do processo não encontrado!"),
+                        y=dp(24)
+                    ).open()
+                    return
                 carregar_estrutura_pasta(self, caminho_completo, tipo)
         elif os.path.isfile(caminho_completo) and nome.lower().endswith(".pdf"):
             adicionar_item(self, caminho_completo, tipo)
@@ -49,7 +52,6 @@ def adicionar_item(self, caminho_pdf, tipo):
         )
         item.add_widget(MDListItemHeadlineText(text=f"[CAR] {texto}"))
         self.file_list.add_widget(item)
-        print(f'item {item}')
     elif tipo == "cit":
         item = MDListItem(
             on_release=lambda x, f=caminho_pdf: selecionar_pdf_cit(self,f)
@@ -60,8 +62,10 @@ def adicionar_item(self, caminho_pdf, tipo):
 def carregar_estrutura(self, tipo):
     print(f"Carregando estrutura para: {tipo}")
     if not os.path.exists(self.current_path):
-        print(f"Caminho não encontrado: {self.current_path}")
-        self.mostrar_erro(f"Caminho não encontrado: {self.current_path}")
+        MDSnackbar(
+            MDSnackbarText(text="Caminho não encontrado!"),
+            y=dp(24)
+        ).open()
         return
 
     if tipo == "car":
@@ -82,7 +86,10 @@ def carregar_estrutura(self, tipo):
             arquivos_adicionados += 1
 
     if arquivos_adicionados == 0:
-        print(f"Nenhum arquivo PDF encontrado no diretório {self.current_path}")
+        MDSnackbar(
+            MDSnackbarText(text="Nenhum arquivo PDF encontrado na pasta."),
+            y=dp(24)
+        ).open()
 
 
 def load_directory(self,tipo, *args):
@@ -100,14 +107,20 @@ def entrar_em_pasta(self, caminho_pasta, tipo):
 def go_up(self, *args):
     self.current_path = os.path.dirname(self.current_path)
     if not os.path.exists(self.current_path):
-        print(f"Diretório não encontrado: {self.current_path}")
+        MDSnackbar(
+            MDSnackbarText(text="Caminho não encontrado!"),
+            y=dp(24)
+        ).open()
         return
     carregar_estrutura(self)
 
 def initialize_word(self):
     modelo_path = os.path.join(os.getcwd(), "models","MODELO_LAUDO.docx")
     if not os.path.exists(modelo_path):
-        print(f"Modelo não encontrado: {modelo_path}")
+        MDSnackbar(
+            MDSnackbarText(text="Modelo de documento não encontrado!"),
+            y=dp(24)
+        ).open()
         return
     self.doc = Document(modelo_path)
 
@@ -127,14 +140,16 @@ def inserir_pdf_no_word(self, caminho_pdf, placeholder):
                 for imagem_path in imagens:
                     novo_run = par.add_run()
                     novo_run.add_picture(imagem_path, width=Inches(6))
-                print(f"Imagem inserida em {placeholder}")
                 return True
         return False
 
     try:
         imagens = extrair_paginas_como_imagens(caminho_pdf)
         if not imagens:
-            print("Nenhuma imagem extraída do PDF.")
+            MDSnackbar(
+                MDSnackbarText(text="Nenhuma imagem encontrada no PDF."),
+                y=dp(24)
+            ).open()
             return
 
         encontrado = substituir_em_paragrafos(self.doc.paragraphs)
@@ -152,15 +167,15 @@ def inserir_pdf_no_word(self, caminho_pdf, placeholder):
                     break
 
         if encontrado:
-            print(f"PDF '{caminho_pdf}' inserido com sucesso no local '{placeholder}'.")
             if not hasattr(self, "pdfs_inseridos"):
                 self.pdfs_inseridos = set()
             self.pdfs_inseridos.add(placeholder)
-        else:
-            print(f"❌ Placeholder '{placeholder}' não encontrado no documento.")
 
     except Exception as e:
-        print(f"Erro e ao inserir PDF no Word: {e}")
+        MDSnackbar(
+            MDSnackbarText(text=f"Erro ao inserir PDF: {str(e)}"),
+            y=dp(24)
+        ).open()
 
 def substituir_texto_formatado(paragrafos, substituicoes):
     for par in paragrafos:
@@ -169,29 +184,33 @@ def substituir_texto_formatado(paragrafos, substituicoes):
                 if placeholder in run.text:
                     run.text = run.text.replace(placeholder, valor)
 
+def inserir_imagem_no_placeholder(self, placeholder, caminho_imagem):
+    for par in self.doc.paragraphs:
+        if placeholder in par.text:
+            for run in par.runs:
+                if placeholder in run.text:
+                    run.text = run.text.replace(placeholder, "")
+            if os.path.exists(caminho_imagem):
+                novo_run = par.add_run()
+                novo_run.add_picture(caminho_imagem, width=Inches(6))
+                print(f"✅ Imagem '{caminho_imagem}' inserida no placeholder '{placeholder}'")
+            else:
+                print(f"❌ Caminho inválido: {caminho_imagem}")
+            return
+    print(f"❌ Placeholder '{placeholder}' não encontrado no documento.")
+
 def gerar_documento(self):
     try:
         processo = ""
         if self.current_path:
-            # Use o diretório atual, que já é "anexos"
             pasta_anexos = self.current_path  
             if os.path.exists(pasta_anexos):
                 for subpasta in os.listdir(pasta_anexos):
                     subpasta_completa = os.path.join(pasta_anexos, subpasta)
                     if os.path.isdir(subpasta_completa):
-                        print(f"Subpasta encontrada: '{subpasta}'")
                         match = re.search(r"(?i)processo\s*n[°º]\s*(\d+)", subpasta, re.IGNORECASE)
                         if match:
                             processo = match.group(1)
-                            print(f"Número do processo encontrado: {processo}")
-                        else:
-                            print(f"Processo não encontrado na subpasta: {subpasta}")
-                if processo == "":
-                    print("❌ Número do processo não foi achado")
-                else:
-                    print(f"Número do processo: {processo}")
-            else:
-                print(f"Pasta 'anexos' não encontrada em: {self.current_path}")
 
         substituicoes = {
             "#TRATAMENTO": self.tratamento,
@@ -206,8 +225,20 @@ def gerar_documento(self):
             "#LONGITUDE": self.longitude,
             "#NMATRICULA": self.matricula,
             "#AGENCIA": self.agencia,
+            "#DESCRICAO_IMOVEL": self.descricao_imovel,
+            "#REGIAO_CIDADE": self.descricao_cidade,
+            "#ATIVIDADE_IMOVEL": self.atividade_imovel,
+            "#REGIAO_IMOVEL": self.regiao_imovel,
+            "#DECLIVIDADE_I": self.declividade,
+            "#HIDROGRAFIA_I": self.hidrografia,
+            "#TIPO_SOLO": self.resumo_solo,
+            "#DESCRICAO_SOLO": self.texto_solos,
             "#NPROCESSO": processo,
         }
+        if hasattr(self, "caminho_declividade"):
+            inserir_imagem_no_placeholder(self, "#IMAGEM_DECLIVIDADE", self.caminho_declividade)
+        if hasattr(self, "caminho_hidrografia"):
+            inserir_imagem_no_placeholder(self, "#IMAGEM_HIDROGRAFIA", self.caminho_hidrografia)
 
         def substituir_em_runs(par):
             for run in par.runs:
@@ -250,19 +281,14 @@ def gerar_documento(self):
         if self.caminho_cit:
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
 
-        if processo != "":
-            print("não foi achado o numero do processo")
-        else:
-            print(f"numero {processo}")
         nome_arquivo = f"LAUDO DE AVALIAÇÃO {processo} {self.nome}.docx"
         output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
         os.startfile(output_path)
-        print(f"✅ Documento salvo em: {output_path}")
 
         MDSnackbar(
-            MDSnackbarText(text="Documento gerado com sucesso!"),
+            MDSnackbarText(text="✅Documento gerado com sucesso!"),
             y=dp(24)
         ).open()
 

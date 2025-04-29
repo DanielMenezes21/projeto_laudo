@@ -1,124 +1,98 @@
-from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.textfield import MDTextField, MDTextFieldHelperText
-from kivymd.uix.button import MDButton, MDButtonText
-from kivymd.uix.label import MDLabel
-from kivymd.uix.menu import MDDropdownMenu
-from kivy.metrics import dp
+import geopandas as gpd
+import math
+import requests
+from PIL import Image
+from io import BytesIO
+import os
 
+# 1. CONFIGURAÇÕES -------------------------------
 
-class DadosScreen(MDScreen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+# CAMINHO DO SEU ARQUIVO .shp
+CAMINHO_ARQUIVO = r"anexos\Processo nº 123456789 - JOELSON SOUSA JUNIOR\CERT_INTEIRO_TEOR_M.11173.shp"  # <<< AJUSTAR AQUI
 
-        scroll = MDScrollView()
-        self.layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20, size_hint_y=None)
-        self.layout.bind(minimum_height=self.layout.setter("height"))
+# DATA DA IMAGEM QUE QUER PEGAR
+DATA_IMAGEM = "2024-04-26"
 
-        # === SEÇÃO: PROONENTE ===
-        self.layout.add_widget(MDLabel(text="Dados do Proponente", halign="center", bold=True))
-        cliente = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
+# CAMADA GIBS QUE VOCÊ QUER
+CAMADA = "VIIRS_SNPP_CorrectedReflectance_TrueColor"
 
-        # Tratamento
-        self.tratamento = ""
-        self.tratamento_botao = MDButton(
-            MDButtonText(text="Tratamento"),
-            size_hint_x=0.3,
-            on_release=self.abrir_dropdown
-        )
-        cliente.add_widget(self.tratamento_botao)
+# Nível de zoom
+ZOOM_LEVEL = 9  # <<< Recomendo aumentar (tipo 10, 11 ou 12) para áreas pequenas
 
-        self.dropdown = MDDropdownMenu(
-            caller=self.tratamento_botao,
-            items=[
-                {"text": "Sr.", "on_release": lambda x="Sr.": self.set_tratamento(x)},
-                {"text": "Srª", "on_release": lambda x="Srª": self.set_tratamento(x)},
-            ],
-            width_mult=3
-        )
+# Pasta para salvar imagens baixadas
+PASTA_IMAGENS = "imagens_tiles"
 
-        # Nome e CPF
-        self.proponente = MDTextField(
-            hint_text="Nome completo",
-            size_hint_x=0.7,
-            height=dp(48)
-        )
-        cliente.add_widget(self.proponente)
+# 2. FUNÇÕES AUXILIARES ---------------------------
 
-        self.layout.add_widget(cliente)
-        self.cpf = MDTextField(hint_text="CPF", size_hint_y=None, height=dp(48))
-        self.layout.add_widget(self.cpf)
+def lonlat_to_tilexy_gibs(lon, lat, zoom):
+    """Converte longitude/latitude para coordenadas X/Y no GIBS EPSG:4326"""
+    num_tiles = 2 ** zoom
+    tile_x = int((lon + 180) / 360 * num_tiles)
+    tile_y = int((90 - lat) / 180 * num_tiles)
+    return tile_x, tile_y
 
-        # Situação civil
-        self.civil = MDTextField(
-            MDTextFieldHelperText(text="Casado, solteiro, etc."),
-            hint_text="Situação civil",
-            
-            size_hint_y=None,
-            height=dp(48)
-        )
-        self.layout.add_widget(self.civil)
+def montar_url_tile(layer, date, tile_matrix_set, zoom, tile_row, tile_col):
+    """Monta a URL para pegar um tile do GIBS"""
+    return f"https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/{layer}/default/{date}/{tile_matrix_set}/{zoom}/{tile_row}/{tile_col}.png"
 
-        # === SEÇÃO: IMÓVEL ===
-        self.layout.add_widget(MDLabel(text="Dados do Imóvel", halign="center", bold=True))
+# 3. LER O SHAPEFILE E PEGAR BOUNDING BOX ----------------
 
-        self.nome_imovel = MDTextField(hint_text="Nome do imóvel", size_hint_y=None, height=dp(48))
-        self.matricula = MDTextField(hint_text="Matrícula", size_hint_y=None, height=dp(48))
-        self.municipio = MDTextField(hint_text="Município", size_hint_y=None, height=dp(48))
-        self.estado = MDTextField(hint_text="Estado", size_hint_y=None, height=dp(48))
+print(f"Lendo arquivo: {CAMINHO_ARQUIVO}")
+gdf = gpd.read_file(CAMINHO_ARQUIVO)
 
-        self.layout.add_widget(self.nome_imovel)
-        self.layout.add_widget(self.matricula)
-        self.layout.add_widget(self.municipio)
-        self.layout.add_widget(self.estado)
+# Bounding box (minx, miny, maxx, maxy)
+minx, miny, maxx, maxy = gdf.total_bounds
+print(f"Bounding box: {minx}, {miny}, {maxx}, {maxy}")
 
-        # === SEÇÃO: COORDENADAS ===
-        self.layout.add_widget(MDLabel(text="Coordenadas", halign="center", bold=True))
+# 4. CONVERTER BBOX PARA TILES -----------------------
 
-        linha_coords = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
-        self.latitude = MDTextField(hint_text="Latitude", size_hint_y=None, height=dp(48))
-        self.longitude = MDTextField(hint_text="Longitude", size_hint_y=None, height=dp(48))
-        linha_coords.add_widget(self.latitude)
-        linha_coords.add_widget(self.longitude)
-        self.layout.add_widget(linha_coords)
+x_min, y_min = lonlat_to_tilexy_gibs(minx, miny, ZOOM_LEVEL)
+x_max, y_max = lonlat_to_tilexy_gibs(maxx, maxy, ZOOM_LEVEL)
 
-        # === BOTÃO DE CONTINUAÇÃO ===
-        self.botao_continuar = MDButton(
-            MDButtonText(text="Continuar"),
-            pos_hint={"center_x": 0.5},
-            size_hint=(None, None),
-            size=(dp(150), dp(48)),
-            on_release=self.proxima_tela
-        )
-        self.layout.add_widget(self.botao_continuar)
+print(f"Tile range: x {x_min} -> {x_max}, y {y_min} -> {y_max}")
 
-        scroll.add_widget(self.layout)
-        self.add_widget(scroll)
+# Corrige ordem
+x_start, x_end = sorted([x_min, x_max])
+y_start, y_end = sorted([y_min, y_max])
 
-    def abrir_dropdown(self, *args):
-        self.dropdown.open()
+# 5. BAIXAR TODOS OS TILES ---------------------------
 
-    def set_tratamento(self, valor):
-        self.tratamento = valor
-        self.tratamento_botao.children[0].text = valor
-        self.dropdown.dismiss()
+os.makedirs(PASTA_IMAGENS, exist_ok=True)
 
-    def proxima_tela(self, *args):
-        print("Tratamento:", self.tratamento)
-        print("Nome:", self.proponente.text)
-        # ... continue com a lógica
+tiles_baixados = []
 
+for x in range(x_start, x_end + 1):
+    for y in range(y_start, y_end + 1):
+        url = montar_url_tile(CAMADA, DATA_IMAGEM, "250m", ZOOM_LEVEL, y, x)
+        print(f"Baixando {url}...")
+        resp = requests.get(url)
 
-class MainApp(MDApp):
-    def build(self):
-        self.title = "Tela de Dados Refinada"
-        self.theme_cls.primary_palette = "Blue"
-        self.theme_cls.theme_style = "Dark"
-        return DadosScreen()
+        if resp.status_code == 200:
+            img = Image.open(BytesIO(resp.content))
+            caminho_tile = os.path.join(PASTA_IMAGENS, f"tile_{x}_{y}.png")
+            img.save(caminho_tile)
+            tiles_baixados.append((x, y, caminho_tile))
+        else:
+            print(f"Falha ao baixar tile {x},{y} ({resp.status_code})")
 
+# 6. JUNTAR TILES EM UMA ÚNICA IMAGEM ----------------
 
-if __name__ == "__main__":
-    MainApp().run()
+if tiles_baixados:
+    xs = [tile[0] for tile in tiles_baixados]
+    ys = [tile[1] for tile in tiles_baixados]
+
+    largura_total = (max(xs) - min(xs) + 1) * 256
+    altura_total = (max(ys) - min(ys) + 1) * 256
+
+    imagem_final = Image.new('RGB', (largura_total, altura_total))
+
+    for x, y, caminho_tile in tiles_baixados:
+        img = Image.open(caminho_tile)
+        pos_x = (x - min(xs)) * 256
+        pos_y = (y - min(ys)) * 256
+        imagem_final.paste(img, (pos_x, pos_y))
+
+    imagem_final.save("imagem_area_completa.png")
+    print("Imagem final salva como 'imagem_area_completa.png'!")
+else:
+    print("Nenhum tile baixado.")

@@ -55,7 +55,7 @@ def go_next(self):
     tela_pdf.matricula = campos["Matricula"]
     tela_pdf.agencia = campos["Agencia"]
 
-    self.manager.current = 'pdf'
+    self.manager.current = 'territorio'
 
 def go_back(self):
     self.manager.current_screen.manager.current = "leitor"
