@@ -8,10 +8,11 @@ from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon, MDIconButton
 from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHelperText, MDTextFieldTrailingIcon
 from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
+from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.core.window import Window
-from app.screen4_territorio.solofunction import go_back, go_next, open_file_manager, open_file_hidrografia, preencher_cidade, abrir_dropdown
+from app.screen4_territorio.solofunction import go_back, go_next1, open_file_manager, open_file_hidrografia, preencher_cidade, abrir_dropdown, open_file_rotas
 
 class SoloScreen(MDScreen):
     def __init__(self, **kwargs):
@@ -24,7 +25,7 @@ class SoloScreen(MDScreen):
 
         self.layout = MDBoxLayout(orientation="vertical", size_hint_y=None, padding = 20, spacing = 20)
         self.layout.bind(minimum_height=self.layout.setter("height"))
-        buttons = MDFloatLayout(size_hint_y=0.2, pos_hint={"top": 1}, height=dp(56))
+        buttons = MDFloatLayout(size_hint_y=0.2, height=dp(56))
         buttons.add_widget(Widget())
         declividade = MDBoxLayout(orientation="horizontal", size_hint_y=None, padding = 20)
         declividade.bind(minimum_height=declividade.setter("height"))
@@ -32,11 +33,13 @@ class SoloScreen(MDScreen):
         hidrografia.bind(minimum_height=hidrografia.setter("height"))
         solo = MDBoxLayout(orientation="horizontal", size_hint_y=None, padding = 20)
         solo.bind(minimum_height=solo.setter("height"))
+        rotas = MDBoxLayout(orientation="horizontal", size_hint_y=None, padding = 20)
+        rotas.bind(minimum_height=rotas.setter("height"))
 
         self.button_back = MDIconButton(
             icon="arrow-left",
             size_hint=(1, None),
-            pos_hint={"x": 0.06, "y": 0.4},
+            pos_hint={"x": 0.06, "y": 0.8},
             size=(dp(56), dp(56)),
             theme_text_color="Custom",
             text_color=(1, 1, 1, 1),
@@ -47,11 +50,11 @@ class SoloScreen(MDScreen):
         self.button_next = MDIconButton(
             icon="arrow-right",
             size_hint=(0.1, None),
-            pos_hint={"x": 0.9, "y": 0.4},
+            pos_hint={"x": 0.9, "y": 0.8},
             size=(dp(56), dp(56)),
             theme_text_color="Custom",
             text_color=(1, 1, 1, 1),
-            on_release=lambda x: go_next(self)
+            on_release=lambda x: go_next1(self)
         )
         buttons.add_widget(self.button_next)
 
@@ -75,7 +78,8 @@ class SoloScreen(MDScreen):
 
         self.descricao_cidade = MDTextField(
             MDTextFieldHintText(text="Descrição da cidade"),
-            MDTextFieldHelperText(text="Ex: Cidade com muitos habitantes, etc."),
+            MDTextFieldHelperText(text="aperte a tecla 'Enter' para preencher"),
+            MDTextFieldTrailingIcon(icon="magnify"),
             size_hint=(1, None),
             write_tab=False,
             height=dp(150),
@@ -106,7 +110,7 @@ class SoloScreen(MDScreen):
 
         self.declividade_text = MDTextField(
             MDTextFieldHintText(text="Declividade do imovel"),
-            MDTextFieldHelperText(text="Ex: 0 a 3%, 3 a 8%, 8 a 12%, acima de 12%"),
+            MDTextFieldHelperText(text="Descrição da declividade do terreno"),
             size_hint=(0.8, None),
             write_tab=False,
             height=dp(40),
@@ -128,7 +132,7 @@ class SoloScreen(MDScreen):
 
         self.hidrografia_text = MDTextField(
             MDTextFieldHintText(text="Hidrografia do imovel"),
-            MDTextFieldHelperText(text="Descrição da hidrografia"),
+            MDTextFieldHelperText(text="Descrição da hidrografia do terreno"),
             size_hint=(0.8, None),
             write_tab=False,
             height=dp(40),
@@ -159,7 +163,7 @@ class SoloScreen(MDScreen):
 
         self.resumo_solo = MDTextField(
             MDTextFieldHintText(text="Resumo do solo"),
-            MDTextFieldHelperText(text="Resumo do solo"),
+            MDTextFieldHelperText(text="identificação do solo da propriedade"),
             size_hint=(0.8, None),
             write_tab=False,
             height=dp(40),
@@ -170,16 +174,39 @@ class SoloScreen(MDScreen):
 
         self.texto_solos = MDTextField(
             MDTextFieldHintText(text="Texto completo selecionado"),
-            MDTextFieldHelperText(text="Texto completo selecionado"),
+            MDTextFieldHelperText(text="Texto que foi selecionado no botão 'Tipo de solo'"),
             size_hint=(1, None),
             write_tab=False,
             height=dp(150),
             pos_hint={"center_x": 0.5, "center_y": 0.4},
             multiline=True,
         )
+
+        self.rotas_text = MDTextField(
+            MDTextFieldHintText(text="Rotas do imovel"),
+            MDTextFieldHelperText(text="Descrição da rota de acesso ao imovel"),
+            size_hint=(1, None),
+            write_tab=False,
+            height=dp(40),
+            pos_hint={"center_x": 0.5, "center_y": 0.4},
+            multiline=False,
+        )
+        rotas.add_widget(self.rotas_text)
+
+        self.rotas_imagem = MDIconButton(
+            icon="image",
+            size_hint=(0.1, None),
+            pos_hint={"x": 0.9, "y": 0.4},
+            size=(dp(56), dp(56)),
+            theme_text_color="Custom",
+            text_color=(1, 1, 1, 1),
+            on_release = lambda x: open_file_rotas(self)
+        )
+        rotas.add_widget(self.rotas_imagem)
         
         self.caminho_declividade = ''
         self.caminho_hidrografia = ''
+        self.caminho_rotas = ''
         self.menu = None
         self.textos_completos = {}
         
@@ -193,6 +220,7 @@ class SoloScreen(MDScreen):
         self.layout.add_widget(hidrografia)
         self.layout.add_widget(solo)
         self.layout.add_widget(self.texto_solos)
+        self.layout.add_widget(rotas)
 
         self.scroll.add_widget(self.layout)
         self.add_widget(self.scroll)
@@ -206,3 +234,4 @@ class SoloScreen(MDScreen):
                 self.descricao_cidade.text = descricao
             return True
         return False
+    

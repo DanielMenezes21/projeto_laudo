@@ -39,7 +39,7 @@ def go_next(self):
             )
         )
         dialog.open()
-        return
+        return False
 
     tela_pdf = self.manager.get_screen('pdf')
     tela_pdf.tratamento = campos["Tratamento"]
@@ -56,6 +56,7 @@ def go_next(self):
     tela_pdf.agencia = campos["Agencia"]
 
     self.manager.current = 'territorio'
+    return True
 
 def go_back(self):
     self.manager.current_screen.manager.current = "leitor"

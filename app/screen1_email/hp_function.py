@@ -4,7 +4,8 @@ from modules.automacao import EmailAutomator
 from kivy.metrics import dp
 from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
-
+from kivymd.uix.dialog import MDDialog, MDDialogSupportingText, MDDialogHeadlineText, MDDialogButtonContainer
+from kivymd.uix.button import MDButton, MDButtonText
 def next_screen(self, instance):
         self.manager.current_screen.manager.current = "leitor"
 
@@ -53,5 +54,16 @@ def select_pdf_file(self, path):
         if coords:
             gerar_kml(coords, path)
         else:
-            print("Nenhuma coordenada encontrada no PDF.")
+            dialog = MDDialog(
+                MDDialogHeadlineText(text="Erro"),
+                MDDialogSupportingText(text="Não foi possível extrair as coordenadas do PDF"),
+                MDDialogButtonContainer(
+                    MDButton(
+                        MDButtonText(text="OK"),
+                        on_release=lambda x: dialog.dismiss()
+                    )
+                )
+            )
+            dialog.open()
+            return 
         close_file_manager(self)

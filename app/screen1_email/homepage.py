@@ -4,6 +4,7 @@ from kivymd.uix.button import MDIconButton, MDButton, MDButtonIcon, MDButtonText
 from kivymd.uix.progressindicator import MDCircularProgressIndicator
 from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHelperText, MDTextFieldTrailingIcon
 from kivy.clock import Clock
+from kivy.core.window import Window
 from threading import Thread
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex
@@ -26,17 +27,20 @@ class MenuScreen(MDScreen):
         self.text_field = MDTextField(
             MDTextFieldTrailingIcon(icon="magnify"),
             MDTextFieldHintText(
-                text="Hint text", 
+                text="palavra chave", 
                 theme_text_color="Custom", 
                 text_color_normal="yellow", 
                 text_color_focus="yellow"
             ),
             MDTextFieldHelperText(
-                text="Helper text", 
+                text="a automação irá buscar os emails com essa palavra chave", 
                 mode="on_focus", 
                 theme_text_color="Custom", 
                 text_color_normal="yellow", 
                 text_color_focus="yellow"
+            ),
+            MDTextFieldTrailingIcon(
+                icon="magnify"
             ),
             mode="outlined", 
             size_hint_x=None, 
@@ -47,13 +51,12 @@ class MenuScreen(MDScreen):
             pos_hint={"center_x": 0.5, "center_y": 0.7}
         )
         
-        self.download_button = MDIconButton(
-            icon="download",
+        self.download_button = MDButton(
+            MDButtonIcon(icon="download", icon_color="white"),
+            MDButtonText(text="Baixar arquivos", text_color="white"),
             pos_hint={"center_x": 0.1, "y": 0.5},
             size_hint=(None, None),
             size=(dp(56), dp(56)),
-            theme_text_color="Custom",
-            text_color=get_color_from_hex("#FFFFFF"),
             on_release=lambda x: download_file(self, x),
         )
 

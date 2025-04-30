@@ -13,6 +13,7 @@ from kivy.uix.boxlayout import BoxLayout
 from app.screen3_dadosp.dados_function import extrair_dados_pdf, go_back, go_next, abrir_seletor_pdf, fechar_arquivo, on_pdf_selecionado
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
+from kivy.clock import Clock
 import os
 import re
 from docx import Document
@@ -72,6 +73,14 @@ class DadosScreen(MDScreen):
 
         self.agencia = MDTextField(
             MDTextFieldHintText(text="Agencia"),
+            MDTextFieldHelperText(text="Agencia que enviou os documentos para o laudo",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -88,6 +97,14 @@ class DadosScreen(MDScreen):
         
         self.proponente = MDTextField(
             MDTextFieldHintText(text="Proponente"),
+            MDTextFieldHelperText(text="Nome do proponente",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -98,6 +115,14 @@ class DadosScreen(MDScreen):
 
         self.matricula = MDTextField(
             MDTextFieldHintText(text="Matricula"),
+            MDTextFieldHelperText(text="Número de matricula do imóvel",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -106,7 +131,13 @@ class DadosScreen(MDScreen):
         )
 
         self.cpf = MDTextField(
-            MDTextFieldHintText(text="CPF"),
+            MDTextFieldHintText(text="CPF",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             write_tab=False,
@@ -115,7 +146,13 @@ class DadosScreen(MDScreen):
         )
 
         self.nome_imovel = MDTextField(
-            MDTextFieldHintText(text="Nome do Imóvel"),
+            MDTextFieldHintText(text="Nome do Imóvel",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -125,7 +162,11 @@ class DadosScreen(MDScreen):
 
         self.civil = MDTextField(
             MDTextFieldHintText(text="situação civil"),
-            MDTextFieldHelperText(text="fale sobre a situação civil do proponente, se o mesmo se encontra casado,\n solteiro, viuvo ou se outra pessoa partilha a terra com o mesmo"),
+            MDTextFieldHelperText(text="fale sobre a situação civil do proponente, se o mesmo se encontra casado,\n solteiro, viuvo ou se outra pessoa partilha a terra com o mesmo",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -135,6 +176,14 @@ class DadosScreen(MDScreen):
 
         self.municipio = MDTextField(
             MDTextFieldHintText(text="Município do imóvel"),
+            MDTextFieldHelperText(text="Município onde o imóvel está localizado",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -144,6 +193,14 @@ class DadosScreen(MDScreen):
 
         self.estado = MDTextField(
             MDTextFieldHintText(text="Estado do imóvel"),
+            MDTextFieldHelperText(text="Estado onde o imóvel está localizado",
+                theme_text_color="Custom", 
+                text_color_normal="yellow",
+                text_color_focus="yellow",
+                mode="on_focus",),
+            theme_text_color="Custom",
+            text_color_normal="yellow",
+            text_color_focus="yellow",
             size = (200,50),
             size_hint=(0.9, None),
             pos_hint={"center_x": 0.5},
@@ -202,7 +259,32 @@ class DadosScreen(MDScreen):
         self.layout.add_widget(self.estado)
         self.layout.add_widget(coord)
         self.layout.add_widget(self.botao_selecionar)
+
+        self.agencia.bind(focus=self._on_focus)
+        self.matricula.bind(focus=self._on_focus)
+        self.civil.bind(focus=self._on_focus)
+        self.cpf.bind(focus=self._on_focus)
+        self.nome_imovel.bind(focus=self._on_focus)
+        self.municipio.bind(focus=self._on_focus)
+        self.estado.bind(focus=self._on_focus)
+        self.latitude.bind(focus=self._on_focus)
+        self.longitude.bind(focus=self._on_focus)
+        self.proponente.bind(focus=self._on_focus)
         
         self.scroll.add_widget(self.layout)
 
         self.add_widget(self.scroll)
+
+        Window.bind(on_keyboard_height=self._ajustar_scroll)
+        self.campo_em_foco = None
+
+    def _on_focus(self, instance, value):
+        if value: 
+            self.campo_em_foco = instance
+            Clock.schedule_once(lambda dt: self.scroll.scroll_to(instance), 0.1)
+
+    def _ajustar_scroll(self, window, altura_teclado):
+        if altura_teclado > 0 and self.campo_em_foco:
+            Clock.schedule_once(lambda dt: self.scroll.scroll_to(self.campo_em_foco), 0.1)
+        else:
+            self.scroll.scroll_y = 1

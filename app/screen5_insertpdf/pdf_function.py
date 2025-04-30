@@ -233,13 +233,23 @@ def gerar_documento(self):
             "#HIDROGRAFIA_I": self.hidrografia,
             "#TIPO_SOLO": self.resumo_solo,
             "#DESCRICAO_SOLO": self.texto_solos,
+            "#ROTA_ACESSO": self.rotas,
             "#NPROCESSO": processo,
         }
+
+        for chave, valor in substituicoes.items():
+            print(f"{chave}: {type(valor)}")
+
         if hasattr(self, "caminho_declividade"):
             inserir_imagem_no_placeholder(self, "#IMAGEM_DECLIVIDADE", self.caminho_declividade)
         if hasattr(self, "caminho_hidrografia"):
             inserir_imagem_no_placeholder(self, "#IMAGEM_HIDROGRAFIA", self.caminho_hidrografia)
+        if hasattr(self, "caminho_rotas"):
+            inserir_imagem_no_placeholder(self, "#IMAGEM_ACESSO", self.caminho_rotas)
 
+        substituicoes = { chave: (valor if isinstance(valor, str) else str(valor))
+            for chave, valor in substituicoes.items() }
+        
         def substituir_em_runs(par):
             for run in par.runs:
                 for chave, valor in substituicoes.items():

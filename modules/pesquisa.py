@@ -3,7 +3,7 @@ wikipedia.set_lang("pt")
 
 def buscar_descricao_cidade(nome_cidade):
     try:
-        resumo = wikipedia.summary(nome_cidade, sentences=3)  # Retorna as 3 primeiras frases
+        resumo = wikipedia.summary(nome_cidade, sentences=8)  # Retorna as 3 primeiras frases
         return resumo
     except wikipedia.exceptions.DisambiguationError as e:
         return f"⚠️ Muitos resultados encontrados. Seja mais específico: {e.options[:5]}"

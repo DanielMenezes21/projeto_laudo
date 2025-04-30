@@ -9,7 +9,7 @@ from modules.pesquisa import buscar_descricao_cidade
 def go_back(self):
     self.manager.current_screen.manager.current = "dados"
 
-def go_next(self):
+def go_next1(self):
     campos = {
         "descricao_imovel": self.descricao_imovel.text,
         "descricao_cidade": self.descricao_cidade.text,
@@ -19,6 +19,7 @@ def go_next(self):
         "hidrografia": self.hidrografia_text.text,
         "resumo_solo": self.resumo_solo.text,
         "texto_solos": self.texto_solos.text,
+        "rotas": self.rotas_text.text,
     }
 
     campos_vazios = [nome for nome, valor in campos.items() if not valor.strip()]
@@ -47,6 +48,7 @@ def go_next(self):
     tela_pdf.hidrografia = campos["hidrografia"]
     tela_pdf.resumo_solo = campos["resumo_solo"]
     tela_pdf.texto_solos = campos["texto_solos"]
+    tela_pdf.rotas = campos["rotas"]
 
     if hasattr(self, "caminho_declividade"):
         tela_pdf.caminho_declividade = self.caminho_declividade
@@ -54,6 +56,9 @@ def go_next(self):
     if hasattr(self, "caminho_hidrografia"):
         tela_pdf.caminho_hidrografia = self.caminho_hidrografia
         print(f"Caminho Hidrografia: {self.caminho_hidrografia}")
+    if hasattr(self, "caminho_rotas"):
+        tela_pdf.caminho_rotas = self.caminho_rotas
+        print(f"Caminho Rotas: {self.caminho_rotas}")
 
     self.manager.current_screen.manager.current = "pdf"
 
@@ -78,6 +83,14 @@ def open_file_hidrografia(self):
         )
     self.file_manager.show(self.current_path)
 
+def open_file_rotas(self):
+    self.file_manager = MDFileManager(
+            exit_manager=lambda *args: exit_file_manager(self, *args),
+            select_path=lambda path: select_path_rotas(self, path),
+            preview=True,
+        )
+    self.file_manager.show(self.current_path)
+
 def exit_file_manager(self, *args):
     if hasattr(self, "file_manager") and self.file_manager:
         self.file_manager.close()
@@ -91,6 +104,11 @@ def select_path_hidrografia(self, path):
     exit_file_manager(self)
     self.caminho_hidrografia = path
     print(f"Caminho Hidrografia selecionado: {path}")
+
+def select_path_rotas(self, path):
+    exit_file_manager(self)
+    self.caminho_rotas = path
+    print(f"Caminho Rotas selecionado: {path}")
 
 def abrir_dropdown(self, *args):
     self.textos_completos = extrair_textos(self)
