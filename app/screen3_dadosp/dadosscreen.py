@@ -33,7 +33,7 @@ class DadosScreen(MDScreen):
 
         self.scroll = MDScrollView()
 
-        self.layout = MDBoxLayout(orientation='vertical', padding=10, spacing=20, size_hint_y=None)
+        self.layout = MDBoxLayout(orientation='vertical', padding=15, spacing=20, size_hint_y=None)
         self.layout.bind(minimum_height=self.layout.setter('height'))
         buttons = MDFloatLayout(size_hint_y=None)
         buttons.add_widget(Widget())

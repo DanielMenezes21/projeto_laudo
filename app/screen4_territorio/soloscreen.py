@@ -17,7 +17,7 @@ from app.screen4_territorio.solofunction import go_back, go_next1, open_file_man
 class SoloScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.root = r"C:\Users\DESKTOP\Desktop\automacao_laudo"
+        self.root = "C:\\Users\\DESKTOP\\Desktop"
         self.current_path = self.root
         Window.bind(on_key_down=self._verifica_enter)
 
@@ -25,7 +25,7 @@ class SoloScreen(MDScreen):
 
         self.layout = MDBoxLayout(orientation="vertical", size_hint_y=None, padding = 20, spacing = 20)
         self.layout.bind(minimum_height=self.layout.setter("height"))
-        buttons = MDFloatLayout(size_hint_y=0.2, height=dp(56))
+        buttons = MDFloatLayout(size_hint_y=None)
         buttons.add_widget(Widget())
         declividade = MDBoxLayout(orientation="horizontal", size_hint_y=None, padding = 20)
         declividade.bind(minimum_height=declividade.setter("height"))

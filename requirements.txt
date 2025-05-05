@@ -1,0 +1,22 @@
+# Google API Client
+google-api-python-client==2.166.0
+google-auth==2.38.0
+google-auth-oauthlib==1.2.1
+
+# Kivy e KivyMD
+kivy==2.3.1
+kivymd @ git+https://github.com/kivymd/KivyMD.git
+
+# PDF e processamento de texto
+PyMuPDF==1.25.5  # fitz
+python-docx==1.1.2
+docx==0.2.4
+pdf2image==1.17.0
+
+# Geoprocessamento
+geopandas==1.0.1
+shapely==2.1.0
+simplekml==1.3.6
+
+# Requisições HTTPS seguras (para Google API)
+requests==2.32.3

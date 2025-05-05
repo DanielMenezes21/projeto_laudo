@@ -1,6 +1,5 @@
 import os
 import re
-from docx.shared import Inches
 from docx.oxml.ns import qn
 import uuid
 import fitz
@@ -13,6 +12,7 @@ from kivy.metrics import dp
 from kivy.uix.popup import Popup
 from app.screen5_insertpdf.pdf_function2 import extrair_paginas_como_imagens
 from app.screen3_dadosp.dados_function import *
+from modules.resource_path import resource_path
 
 def go_back(self, *args):
     self.manager.current_screen.manager.current = "territorio"
@@ -115,7 +115,7 @@ def go_up(self, *args):
     carregar_estrutura(self)
 
 def initialize_word(self):
-    modelo_path = os.path.join(os.getcwd(), "models","MODELO_LAUDO.docx")
+    modelo_path = resource_path(os.path.join("models", "MODELO_LAUDO.docx"))
     if not os.path.exists(modelo_path):
         MDSnackbar(
             MDSnackbarText(text="Modelo de documento não encontrado!"),

@@ -28,7 +28,7 @@ def after_download(self):
         show_file_manager(self)  
 
 def show_file_manager(self):
-        initial_path = r"C:\Users\DESKTOP\Desktop\automacao_laudo\anexos"
+        initial_path = "anexos"
         self.file_manager = MDFileManager(
             exit_manager=lambda *args: close_file_manager(self, *args),
             select_path=lambda path: select_pdf_file(self, path),

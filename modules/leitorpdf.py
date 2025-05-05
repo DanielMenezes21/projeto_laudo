@@ -49,25 +49,26 @@ def extrair_coordenadas_pdf(caminho_pdf):
                 print(f"Erro ao converter coordenadas: {n_raw}, {e_raw}")
     return coordenadas
 
+import simplekml
+
 def gerar_kml(coordenadas, caminho_pdf):
     base, _ = os.path.splitext(caminho_pdf)
     nome_arquivo = f"{base}.kml"
 
+    # Corrige ordem: (longitude, latitude)
     pontos = [(e, n) for n, e in coordenadas]
     if pontos[0] != pontos[-1]:
-        pontos.append(pontos[0])
-    poligono = Polygon(pontos)
+        pontos.append(pontos[0])  # fecha o polígono
 
-    gdf = gpd.GeoDataFrame(
-        {'name': ['Fazenda Bandeirante']},
-        geometry=[poligono],
-        crs="EPSG:32722" 
-    )
+    kml = simplekml.Kml()
+    poligono = kml.newpolygon(name="Área delimitada", outerboundaryis=pontos)
+    poligono.style.linestyle.width = 2
+    poligono.style.linestyle.color = simplekml.Color.red
+    poligono.style.polystyle.color = simplekml.Color.changealphaint(100, simplekml.Color.green)
 
-    gdf_wgs84 = gdf.to_crs(epsg=4326)
-    gdf_wgs84.to_file(nome_arquivo, driver="KML")
-
+    kml.save(nome_arquivo)
     print(f"KML '{nome_arquivo}' criado com sucesso!")
+
 
 if __name__ == "__main__":
     caminho_pdf = r"anexos\Processo nº 123456789 - JOELSON SOUSA JUNIOR\CERT_INTEIRO_TEOR_M.11173.pdf"

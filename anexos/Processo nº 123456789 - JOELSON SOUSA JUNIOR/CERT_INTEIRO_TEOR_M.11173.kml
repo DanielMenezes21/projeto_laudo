@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="1">
+        <Style id="6">
+            <LineStyle id="7">
+                <color>ff0000ff</color>
+                <colorMode>normal</colorMode>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle id="8">
+                <color>64008000</color>
+                <colorMode>normal</colorMode>
+                <fill>1</fill>
+                <outline>1</outline>
+            </PolyStyle>
+        </Style>
+        <Placemark id="3">
+            <name>Área delimitada</name>
+            <styleUrl>#6</styleUrl>
+            <Polygon id="2">
+                <outerBoundaryIs>
+                    <LinearRing id="4">
+                        <coordinates>760468.57,9020234.882,0.0 760634.663,9020207.207,0.0 760670.916,9020206.883,0.0 760953.543,9020203.084,0.0 761544.751,9020111.298,0.0 761213.751,9020012.3,0.0 759821.751,9019541.3,0.0 759842.751,9019888.3,0.0 759982.402,9019910.294,0.0 760252.999,9020164.27,0.0 760314.093,9020200.18,0.0 760386.514,9020219.637,0.0 760468.57,9020234.882,0.0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+    </Document>
+</kml>

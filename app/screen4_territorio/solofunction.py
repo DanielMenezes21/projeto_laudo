@@ -5,6 +5,8 @@ from kivy.uix.image import Image
 from kivymd.uix.menu import MDDropdownMenu
 from docx import Document
 from modules.pesquisa import buscar_descricao_cidade
+from modules.resource_path import resource_path
+import os
 
 def go_back(self):
     self.manager.current_screen.manager.current = "dados"
@@ -134,7 +136,7 @@ def selecionar_opcao(self, texto_vermelho):
         self.menu.dismiss()
 
 def extrair_textos(self):
-        caminho = r"models\DECLIVIDADE e PEDOLOGIA.docx"
+        caminho = resource_path(os.path.join("models", "DECLIVIDADE e PEDOLOGIA.docx"))
         doc = Document(caminho)
 
         resultados = {}

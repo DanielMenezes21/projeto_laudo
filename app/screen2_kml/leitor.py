@@ -20,7 +20,7 @@ class LeitorScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.root_path = r"C:\Users\DESKTOP\Desktop\automacao_laudo\anexos"
+        self.root_path = "anexos"
         self.current_path = self.root_path
 
         self.layout = MDBoxLayout(orientation="vertical")

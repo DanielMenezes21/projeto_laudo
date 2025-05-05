@@ -26,11 +26,11 @@ class PDFInsert(MDScreen):
         super().__init__(**kwargs)
         self.pastas_abertas = set()
 
-        self.root_path = r"C:\Users\DESKTOP\Desktop\automacao_laudo\anexos"
+        self.root_path = "C:\\Users\\DESKTOP\\Desktop"
         self.current_path = self.root_path
 
         self.layout = MDBoxLayout(orientation="vertical")
-        buttons = MDFloatLayout(size_hint_y=0.2, pos_hint={"top": 1}, height=dp(56))
+        buttons = MDFloatLayout(size_hint_y=None)
         buttons.add_widget(Widget())
 
         self.button_back = MDIconButton(
