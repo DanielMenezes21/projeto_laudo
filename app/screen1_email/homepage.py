@@ -13,6 +13,7 @@ from app.screen1_email.hp_function import (
     next_screen,
     download_file,
     after_download,
+    show_file_manager,
 
 )
 
@@ -60,6 +61,15 @@ class MenuScreen(MDScreen):
             on_release=lambda x: download_file(self, x),
         )
 
+        self.file_manager_button = MDButton(
+            MDButtonIcon(icon="folder", icon_color="white"),
+            MDButtonText(text="Gerenciar arquivos", text_color="white"),
+            pos_hint={"center_x": 0.5, "y": 0.5},
+            size_hint=(None, None),
+            size=(dp(56), dp(56)),
+            on_release=lambda x: show_file_manager(self),
+        )
+
         self.progress = MDCircularProgressIndicator(
             size_hint=(None, None),
             size=(dp(56), dp(56)),
@@ -77,6 +87,7 @@ class MenuScreen(MDScreen):
         )
 
         layout.add_widget(self.download_button)
+        layout.add_widget(self.file_manager_button)
         layout.add_widget(self.text_field)
         layout.add_widget(self.progress)
         layout.add_widget(self.button_next)

@@ -21,7 +21,7 @@ class SoloScreen(MDScreen):
         self.current_path = self.root
         Window.bind(on_key_down=self._verifica_enter)
 
-        self.scroll = MDScrollView(1,1)
+        self.scroll = MDScrollView(bar_color=(1, 1, 1, 0.5), bar_width=10, scroll_type=["bars", "content"])
 
         self.layout = MDBoxLayout(orientation="vertical", size_hint_y=None, padding = 20, spacing = 20)
         self.layout.bind(minimum_height=self.layout.setter("height"))

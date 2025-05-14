@@ -11,15 +11,11 @@ from kivymd.app import MDApp
 
 from app.screen5_insertpdf.pdf_function import (
     go_back,
-    carregar_estrutura,
     initialize_word,
-    entrar_em_pasta,
-    inserir_pdf_no_word,
-    selecionar_pdf_car,
-    selecionar_pdf_cit,
-    load_directory,
-    gerar_documento
+    abrir_gerenciador,
 )
+from app.screen5_insertpdf.pdf_insercao import gerar_documento
+
 
 class PDFInsert(MDScreen):
     def __init__(self, **kwargs):
@@ -74,7 +70,7 @@ class PDFInsert(MDScreen):
             ),
             pos_hint={"center_x": 0.5, "center_y": 0.5},
             size_hint=(0.5, None),
-            on_release=lambda x: carregar_estrutura(self, tipo="car")
+            on_release=lambda x: abrir_gerenciador(self, tipo="car")
         )
 
         self.button2 = MDButton(
@@ -90,7 +86,7 @@ class PDFInsert(MDScreen):
             ),
             pos_hint={"center_x": 0.5, "center_y": 0.5},
             size_hint=(0.5, None),
-            on_release=lambda x: carregar_estrutura(self, tipo="cit")
+            on_release=lambda x: abrir_gerenciador(self, tipo="cit")
         )
 
         self.button_gerar = MDButton(

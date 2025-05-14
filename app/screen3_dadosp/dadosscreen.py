@@ -10,7 +10,7 @@ from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHe
 from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
-from app.screen3_dadosp.dados_function import extrair_dados_pdf, go_back, go_next, abrir_seletor_pdf, fechar_arquivo, on_pdf_selecionado
+from app.screen3_dadosp.dados_function import go_back, go_next, abrir_seletor_pdf, fechar_arquivo, on_pdf_selecionado
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.clock import Clock
@@ -24,14 +24,14 @@ class DadosScreen(MDScreen):
 
     def set_tratamento(self, valor):
         self.tratamento = valor
-        self.botao.children[0].text = valor  # atualiza o texto do botão
+        self.botao.children[0].text = valor
         self.dropdown.dismiss()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tratamento = ""
 
-        self.scroll = MDScrollView()
+        self.scroll = MDScrollView(bar_color=(1, 1, 1, 0.5), bar_width=10, scroll_type=["bars", "content"])
 
         self.layout = MDBoxLayout(orientation='vertical', padding=15, spacing=20, size_hint_y=None)
         self.layout.bind(minimum_height=self.layout.setter('height'))

@@ -20,7 +20,6 @@ def extrair_paginas_como_imagens(pdf_path):
 
                 imagem.save(caminho_arquivo)
                 imagens_salvas.append(caminho_arquivo)
-                #print(f"Imagem da página {i+1} salva em: {caminho_arquivo}")
             
             except Exception as e:
                 print(f"Erro ao extrair imagem da página {i+1}: {e}")
@@ -30,6 +29,3 @@ def extrair_paginas_como_imagens(pdf_path):
     except Exception as e:
         print(f"Erro ao abrir o PDF {pdf_path}: {e}")
         return []
-
-
-

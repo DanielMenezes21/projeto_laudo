@@ -20,7 +20,7 @@ class LeitorScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.root_path = "anexos"
+        self.root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
         self.current_path = self.root_path
 
         self.layout = MDBoxLayout(orientation="vertical")

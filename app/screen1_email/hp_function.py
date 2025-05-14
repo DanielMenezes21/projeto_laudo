@@ -6,6 +6,16 @@ from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivymd.uix.dialog import MDDialog, MDDialogSupportingText, MDDialogHeadlineText, MDDialogButtonContainer
 from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.selectioncontrol import MDCheckbox
+from modules.data_folder import formatar_data
+from datetime import datetime
+import os
+from app.screen1_email.checkbox import add_checkboxes_to_pdfs
+
+data = formatar_data()
+data_nome = datetime.now()
+mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+
 def next_screen(self, instance):
         self.manager.current_screen.manager.current = "leitor"
 
@@ -28,42 +38,71 @@ def after_download(self):
         show_file_manager(self)  
 
 def show_file_manager(self):
-        initial_path = "anexos"
-        self.file_manager = MDFileManager(
-            exit_manager=lambda *args: close_file_manager(self, *args),
-            select_path=lambda path: select_pdf_file(self, path),
-        )
-        self.file_manager.show(initial_path)
-        Window.bind(on_keyboard=handle_keyboard)
+    self.selected_files = []  
+    initial_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+    initial_path = os.path.join(initial_path, mes)
+    self.file_manager = MDFileManager(
+        exit_manager=lambda *args: close_file_manager(self, *args),
+        select_path=lambda path: select_pdf_file(self, path),
+        preview=False,
+        icon_selection_button="check",
+        selection_button=True
+    )
+    self.file_manager.show(initial_path)
+    Window.bind(on_keyboard=handle_keyboard)
+
+    Clock.schedule_once(lambda dt: add_checkboxes_to_pdfs(self), 1)
 
 def handle_keyboard(self, instance, keyboard, keycode, text, modifiers):
-        if keyboard == 27 and self.file_manager:
-            close_file_manager(self)
-            return True
-        return False
+    if keyboard == 27 and self.file_manager:
+        close_file_manager(self)
+        return True
+    return False
 
 def close_file_manager(self, *args):
-        if self.file_manager:
-            self.file_manager.close()
-            self.file_manager = None
-        Window.unbind(on_keyboard=handle_keyboard)
+    if self.file_manager:
+        self.file_manager.close()
+        self.file_manager = None
+    Window.unbind(on_keyboard=handle_keyboard)
 
 def select_pdf_file(self, path):
-        from modules.leitorpdf import extrair_coordenadas_pdf, gerar_kml
-        coords = extrair_coordenadas_pdf(path)
-        if coords:
-            gerar_kml(coords, path)
-        else:
-            dialog = MDDialog(
-                MDDialogHeadlineText(text="Erro"),
-                MDDialogSupportingText(text="Não foi possível extrair as coordenadas do PDF"),
-                MDDialogButtonContainer(
-                    MDButton(
-                        MDButtonText(text="OK"),
-                        on_release=lambda x: dialog.dismiss()
-                    )
-                )
+    if path.lower().endswith(".pdf") and path not in self.selected_files:
+        self.selected_files.append(path)
+        print(f"PDF adicionado: {path}")
+        if len(self.selected_files) > 1:
+            finalize_selection(self)
+    else:
+        print("Arquivo já selecionado ou não é um PDF.")
+
+def finalize_selection(self):
+    from modules.leitorpdf import extrair_coordenadas_pdf, gerar_kml
+
+    close_file_manager(self)
+
+    if not self.selected_files:
+        show_dialog(self, "Nenhum arquivo selecionado", "Selecione ao menos um PDF.")
+        return
+
+    for path in self.selected_files:
+        try:
+            coords, tipo = extrair_coordenadas_pdf(path)
+            if coords:
+                gerar_kml(coords, path, tipo)
+            else:
+                show_dialog(self, "Erro", f"Não foi possível extrair coordenadas de:\n{path}")
+        except Exception as e:
+            show_dialog(self, "Erro", f"Erro ao processar o arquivo:\n{path}\n{str(e)}")
+    self.selected_files.clear()
+
+def show_dialog(self, title, text):
+    dialog = MDDialog(
+        MDDialogHeadlineText(text=title),
+        MDDialogSupportingText(text=text),
+        MDDialogButtonContainer(
+            MDButton(
+                MDButtonText(text="OK"),
+                on_release=lambda x: dialog.dismiss()
             )
-            dialog.open()
-            return 
-        close_file_manager(self)
+        )
+    )
+    dialog.open()

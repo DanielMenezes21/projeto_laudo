@@ -10,6 +10,8 @@ import email
 from google.auth.transport.requests import Request
 import re
 from modules.resource_path import resource_path
+from modules.data_folder import formatar_data
+from datetime import datetime
 
 SCOPES = ['https://mail.google.com/']
 
@@ -45,9 +47,14 @@ class EmailAutomator:
                     subject = header.get("value")
                     break
 
+            data = formatar_data()
+            data_nome = datetime.now()
+            mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+
             safe_subject = re.sub(r'[\\/*?:"<>|]', "_", subject)
-            folder_path = os.path.join("anexos", safe_subject)
-            os.makedirs(folder_path, exist_ok=True)
+            folder_path = os.path.join(r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL", mes, safe_subject)
+            if folder_path:
+                os.makedirs(folder_path, exist_ok=True)
 
             parts = payload.get('parts', [])
             for part in parts:
