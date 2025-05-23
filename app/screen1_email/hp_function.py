@@ -128,8 +128,6 @@ def finalize_selection(self):
         def continuar():
             try:
                 coords, tipo, origens = extrair_coordenadas_pdf(path)
-                for coord, origem in zip(coords, origens):
-                    show_dialog(f"Coordenada: {coord} - Origem: {origem}")
                 if coords:
                     gerar_kml(coords, path, tipo)
                 else:

@@ -4,7 +4,6 @@ from docx import Document
 from kivymd.uix.list import MDListItem, MDListItemHeadlineText
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 from kivy.metrics import dp
-from kivy.uix.popup import Popup
 from kivymd.uix.filemanager import MDFileManager
 from app.screen3_dadosp.dados_function import *
 from modules.resource_path import resource_path
@@ -38,21 +37,6 @@ def carregar_estrutura_pasta(self, caminho_pasta, tipo):
                 carregar_estrutura_pasta(self, caminho_completo, tipo)
         elif os.path.isfile(caminho_completo) and nome.lower().endswith(".pdf"):
             adicionar_item(self, caminho_completo, tipo)
-
-def adicionar_item(self, caminho_pdf, tipo):
-    texto = f"Arquivo: {os.path.basename(caminho_pdf)}"
-    if tipo == "car":
-        item = MDListItem(
-            on_release=lambda x, f=caminho_pdf: selecionar_pdf_car(self, f)
-        )
-        item.add_widget(MDListItemHeadlineText(text=f"[CAR] {texto}"))
-        self.file_list.add_widget(item)
-    elif tipo == "cit":
-        item = MDListItem(
-            on_release=lambda x, f=caminho_pdf: selecionar_pdf_cit(self,f)
-        )
-        item.add_widget(MDListItemHeadlineText(text=f"[CIT] {texto}"))
-        self.file_list2.add_widget(item)
 
 def abrir_gerenciador(self, tipo):
     """

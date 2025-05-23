@@ -1,11 +1,17 @@
 from kivymd.uix.filemanager import MDFileManager
-from kivymd.uix.dialog import MDDialog, MDDialogSupportingText, MDDialogHeadlineText, MDDialogButtonContainer
+from kivymd.uix.dialog import MDDialog, MDDialogContentContainer, MDDialogSupportingText, MDDialogHeadlineText, MDDialogButtonContainer
 from kivymd.uix.button import MDButton, MDButtonText
-from kivy.uix.image import Image
+from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.list import MDList, MDListItem, MDListItemTrailingCheckbox, MDListItemLeadingIcon, MDListItemHeadlineText
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.selectioncontrol import MDCheckbox
+from kivy.metrics import dp
+from kivymd.uix.label import MDLabel, MDIcon
 from docx import Document
 from modules.pesquisa import buscar_descricao_cidade
 from modules.resource_path import resource_path
+from app.screen4_territorio.solotable import extrair_textos_e_tabelas
 import os
 
 def go_back(self):
@@ -114,54 +120,54 @@ def select_path_rotas(self, path):
 
 def abrir_dropdown(self, *args):
     self.textos_completos = extrair_textos(self)
-    menu_items = [
-        {
-            "text": trecho_vermelho,
-            "on_release": lambda x=trecho_vermelho: selecionar_opcao(self, x),
-        }
-        for trecho_vermelho in self.textos_completos.keys()
-    ]
+    self.checkboxes = {}  
 
-    self.menu = MDDropdownMenu(
-        caller=self.opcao_solo,
-        items=menu_items,
-        width_mult=4,
+    lista = MDBoxLayout(orientation="vertical", spacing=5, padding=10, size_hint_y=None)
+    lista.bind(minimum_height=lista.setter("height"))
+    for trecho_vermelho in self.textos_completos.keys():
+        checkbox = MDListItemTrailingCheckbox(active=False)
+        self.checkboxes[trecho_vermelho] = checkbox
+
+        item = MDListItem(
+            MDListItemHeadlineText(text=trecho_vermelho),
+            checkbox,
+            size_hint_y=None,
+            height=dp(48)
+        )
+        lista.add_widget(item)
+    
+    scroll = MDScrollView(size_hint=(1,None), height=dp(300), scroll_type=['bars', 'content'])
+    scroll.add_widget(lista)
+
+    salvar_btn = MDButton(
+        MDButtonText(text="Salvar"),
+        on_release=lambda x: salvar_selecionados(self)
     )
-    self.menu.open()
+    fechar_btn = MDButton(
+        MDButtonText(text="Fechar"),
+        on_release=lambda x: self.dialog.dismiss()
+    )
 
-def selecionar_opcao(self, texto_vermelho):
-    texto_completo = self.textos_completos.get(texto_vermelho, texto_vermelho)
-    self.texto_solos.text = texto_completo
-    if self.menu:
-        self.menu.dismiss()
+    self.dialog = MDDialog(
+        MDDialogHeadlineText(text="Selecione os textos desejados"),
+        MDDialogContentContainer(scroll),
+        MDDialogButtonContainer(salvar_btn, fechar_btn),
+    )
+    self.dialog.open()
+
+def salvar_selecionados(self):
+    selecionados = []
+    for texto_vermelho, checkbox in self.checkboxes.items():
+        if checkbox.active:
+            selecionados.append(texto_vermelho)
+
+    if selecionados:
+        self.texto_solos.text = "\n\n".join(selecionados)
+    else:
+        self.texto_solos.text = "Nenhum texto selecionado."
+
+    self.dialog.dismiss()
 
 def extrair_textos(self):
         caminho = resource_path(os.path.join("models", "DECLIVIDADE e PEDOLOGIA.docx"))
-        doc = Document(caminho)
-
-        resultados = {}
-        for par in doc.paragraphs:
-            runs = par.runs
-            i = 0
-            while i < len(runs):
-                run = runs[i]
-                if run.font.color and run.font.color.rgb and str(run.font.color.rgb) == "FF0000":
-                    texto_vermelho = run.text.strip()
-                    texto_completo = texto_vermelho
-                    i += 1
-                    while i < len(runs):
-                        next_text = runs[i].text
-                        if "#" in next_text:
-                            texto_completo += " " + next_text.split("#")[0]
-                            break
-                        texto_completo += " " + next_text
-                        i += 1
-                    if texto_vermelho:
-                        resultados[texto_vermelho] = texto_completo.strip()
-                else:
-                    i += 1
-
-        if not resultados:
-            resultados["Nenhum texto em vermelho encontrado."] = ""
-
-        return resultados
+        return extrair_textos_e_tabelas(caminho)

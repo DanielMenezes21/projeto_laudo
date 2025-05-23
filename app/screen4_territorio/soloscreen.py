@@ -12,7 +12,10 @@ from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.core.window import Window
-from app.screen4_territorio.solofunction import go_back, go_next1, open_file_manager, open_file_hidrografia, preencher_cidade, abrir_dropdown, open_file_rotas
+from app.screen4_territorio.solofunction import (
+    go_back, go_next1, open_file_manager, 
+    open_file_hidrografia, preencher_cidade, 
+    abrir_dropdown, open_file_rotas)
 
 class SoloScreen(MDScreen):
     def __init__(self, **kwargs):

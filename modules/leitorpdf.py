@@ -54,7 +54,6 @@ def coordenada_valida(lat, lon):
         return False
     
 def detectar_zona_utm(easting):
-    # Assume fuso UTM típico do Brasil para SIRGAS 2000
     if 300000 <= easting < 400000:
         return "EPSG:31981"  # Zona 21S
     elif 400000 <= easting < 500000:
@@ -63,10 +62,9 @@ def detectar_zona_utm(easting):
         return "EPSG:31983"  # Zona 23S
     elif 600000 <= easting < 700000:
         return "EPSG:31984"  # Zona 24S
-    return "EPSG:31982"  # Padrão seguro se indefinido
+    return "EPSG:31982"
 
 def pdf_tem_imagem(caminho_pdf):
-    import fitz
     doc = fitz.open(caminho_pdf)
     for pagina in doc:
         if pagina.get_images(full=True):
@@ -74,54 +72,24 @@ def pdf_tem_imagem(caminho_pdf):
     return False
 
 def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
+    import re
     doc = fitz.open(caminho_pdf)
-    tem_imagem = pdf_tem_imagem(caminho_pdf)
     coordenadas = []
-    origens = []  # Nova lista para marcar a origem de cada coordenada
+    coordenadas_originais = []
+    tipo = None
+    origens = []
+    texto_total = ""
 
     for pagina in doc:
-        texto_pagina = ""
         pagina_texto = pagina.get_text().strip()
-        origem_atual = "texto"
-        if pagina_texto:
-            texto_pagina += pagina_texto
-        else:
-            ocr_texto = ""
-            if (forcar_ocr or tem_imagem):
-                pix = pagina.get_pixmap(dpi=600) 
-                img_bytes = pix.tobytes("png")
-                img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-                img = img.convert("L")
-                img = img.point(lambda x: 0 if x < 180 else 255, '1')
-                img = img.convert("L")
-                img_np = np.array(img)
-                results = ocr_reader.readtext(img_np)
-                ocr_texto = " ".join([txt for (_, txt, _) in results])
-                if ocr_texto:
-                    ocr_texto = ocr_texto.replace("\n", " ").replace("\xa0", " ")
-                    ocr_texto = re.sub(r'\s+', ' ', ocr_texto).strip()
-                    texto_pagina += " " + ocr_texto
-                    origem_atual = "imagem"
-                if len(ocr_texto) > 10:
-                    base, _ = os.path.splitext(caminho_pdf)
-                    nome_arquivo = f"{base}_ocr.txt"
-                    with open(nome_arquivo, "a", encoding="utf-8") as f:
-                        f.write(ocr_texto + "\n")
-                else:
-                    print("Texto OCR extraído é muito curto ou inválido.")
+        texto_total += " " + pagina_texto
 
-        texto += texto_pagina + " " + ocr_texto + " "
-
-    texto = texto.replace("\n", " ").replace("\xa0", " ")
     pattern = r"""
-    N[\-=]\s*((?=[\d\.,]*\d)[\d\.,]+)\s*.*?E[\-=']\s*((?=[\d\.,]*\d)[\d\.,]+)|  
+    N[\-=]\s*((?=[\d\.,]*\d)[\d\.,]+)\s*.*?E[\-=']\s*((?=[\d\.,]*\d)[\d\.,]+)|
     Longitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]?\s*[,;]?\s*
     Latitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]?          
     """
-    matches = re.findall(pattern, texto, re.VERBOSE)
-
-    coordenadas = []
-    tipo = None 
+    matches = re.findall(pattern, texto_total, re.VERBOSE)
 
     for match in matches:
         if match[0] and match[1]:
@@ -132,51 +100,90 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
             try:
                 n = safe_convert(n)
                 e = safe_convert(e)
-                coordenadas.append((float(f"{n:.3f}"), float(f"{e:.3f}")))
-                origens.append(origem_atual)
-                print(f"Coordenadas UTM capturadas: N: {n}, E: {e}")
-            except ValueError as a:
-                print(f"Erro ao converter coordenadas UTM: {a}")
-                continue
-            
+                coordenadas.append((float(f"{e:.3f}"), float(f"{n:.3f}")))
+                coordenadas_originais.append((e_raw, n_raw))
+                coordenadas_originais
+                origens.append("utm-texto")
+            except ValueError as e:
+                print(f"Erro ao converter coordenadas UTM: {e}")
         elif match[2] and match[5]:
             tipo = "wgs84"
             lon_grau, lon_min, lon_sec, lat_grau, lat_min, lat_sec = match[2:8]
-            print(f"Extraído: lon_grau={lon_grau}, lon_min={lon_min}, lon_sec={lon_sec}, lat_grau={lat_grau}, lat_min={lat_min}, lat_sec={lat_sec}")
-
             lon_grau = lon_grau.strip() if lon_grau else "0"
             lon_min = lon_min.strip() if lon_min else "0"
             lon_sec = lon_sec.strip().replace(',', '.').replace('~', '').replace('=', '') if lon_sec else "0"
-
             lat_grau = lat_grau.strip() if lat_grau else "0"
             lat_min = lat_min.strip() if lat_min else "0"
             lat_sec = lat_sec.strip().replace(',', '.').replace('~', '').replace('=', '') if lat_sec else "0"
-
             if not lon_grau.startswith('-'):
                 lon_grau = '-' + lon_grau
             if not lat_grau.startswith('-'):
                 lat_grau = '-' + lat_grau
-
-            print(f"Longitude capturada: {lon_grau}° {lon_min}' {lon_sec}\"")
-            print(f"Latitude capturada: {lat_grau}° {lat_min}' {lat_sec}\"")
-
             longitude = dms_para_decimal(lon_grau, lon_min, lon_sec)
             latitude = dms_para_decimal(lat_grau, lat_min, lat_sec)
-            print(f"Longitude convertida: {longitude}, Latitude convertida: {latitude}")
+            if latitude is not None and longitude is not None and coordenada_valida(latitude, longitude):
+                coordenadas.append((latitude, longitude))
+                coordenadas_originais.append((lat_grau, lon_grau))
+                origens.append("wgs84-texto")
 
-            if latitude is not None and longitude is not None:
-                print(f"Coordenadas extraídas para dms: lon_grau: {lon_grau}, lon_min: {lon_min}, lon_sec: {lon_sec}, lat_grau: {lat_grau}, lat_min: {lat_min}, lat_sec: {lat_sec}")
-                if coordenada_valida(latitude, longitude):
-                    coordenadas.append((latitude, longitude))
-                    origens.append(origem_atual)
-                    #print(f"Coordenadas válidas: Latitude: {latitude}, Longitude: {longitude}")
-                    arquivo_coordenadas = f"{caminho_pdf}_coordenadas.txt"
-                    with open(arquivo_coordenadas, "a", encoding="utf-8") as f:
-                        f.write(f"{latitude:.8f}, {longitude:.8f}\n")
-                else:
-                    print(f"Coordenada INVÁLIDA descartada: Latitude: {latitude}, Longitude: {longitude}")
+    if not coordenadas or forcar_ocr:
+        print("Nenhuma coordenada encontrada no texto digital. Tentando OCR nas imagens...")
+        for pagina in doc:
+            pix = pagina.get_pixmap(dpi=1300)
+            img_bytes = pix.tobytes("png")
+            img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            img_np = np.array(img)
+            results = ocr_reader.readtext(img_np)
+            ocr_texto = " ".join([txt for (_, txt, _) in results])
+            matches = re.findall(pattern, ocr_texto, re.VERBOSE)
+            arquivo_texto = f"{caminho_pdf}.txt"
+            with open(arquivo_texto, "a", encoding="utf-8") as f:
+                f.write(ocr_texto + "\n")
+            for match in matches:
+                if match[0] and match[1]:
+                    tipo = "utm"
+                    n_raw, e_raw = match[0], match[1]
+                    n = n_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip() if n_raw else "0"
+                    e = e_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip() if e_raw else "0"
+                    try:
+                        if not n.startswith('-'):
+                            n = '-' + n
+                        if not e.startswith('-'):
+                            e = '-' + e
+                        n = safe_convert(n)
+                        e = safe_convert(e)
+                        coordenadas.append((float(f"{e:.3f}"), float(f"{n:.3f}")))
+                        coordenadas_originais.append((e_raw, n_raw))
+                        origens.append("utm-ocr")
+                    except ValueError as e:
+                        print(f"Erro ao converter coordenadas UTM: {e}")
+                elif match[2] and match[5]:
+                    tipo = "wgs84"
+                    lon_grau, lon_min, lon_sec, lat_grau, lat_min, lat_sec = match[2:8]
+                    lon_grau = lon_grau.strip() if lon_grau else "0"
+                    lon_min = lon_min.strip() if lon_min else "0"
+                    lon_sec = lon_sec.strip().replace(',', '.').replace('~', '').replace('=', '') if lon_sec else "0"
+                    lat_grau = lat_grau.strip() if lat_grau else "0"
+                    lat_min = lat_min.strip() if lat_min else "0"
+                    lat_sec = lat_sec.strip().replace(',', '.').replace('~', '').replace('=', '') if lat_sec else "0"
+                    if not lon_grau.startswith('-'):
+                        lon_grau = '-' + lon_grau
+                    if not lat_grau.startswith('-'):
+                        lat_grau = '-' + lat_grau
+                    longitude = dms_para_decimal(lon_grau, lon_min, lon_sec)
+                    latitude = dms_para_decimal(lat_grau, lat_min, lat_sec)
+                    if latitude is not None and longitude is not None and coordenada_valida(latitude, longitude):
+                        coordenadas.append((latitude, longitude))
+                        coordenadas_originais.append((lat_grau, lat_min, lat_sec, lon_grau, lon_min, lon_sec))
+                        origens.append("wgs84-ocr")
 
-    tipo = "utm" if any(o == "utm" for o in origens) else "wgs84" if coordenadas else None
+    tipo = "utm" if any(o.startswith("utm") for o in origens) else "wgs84" if coordenadas else None
+
+    arquivo_texto = f"{caminho_pdf}_coordenadas.txt"
+    with open(arquivo_texto, "w", encoding="utf-8") as f:
+        for idx, ((lat, lon), orig) in enumerate(zip(coordenadas, coordenadas_originais), 1):
+            original_str = ", ".join(str(x) for x in orig)
+            f.write(f"{idx}. {lat:.8f}, {lon:.8f} | original: {original_str}\n")
     return coordenadas, tipo, origens
 
 def remove_pontos_duplicados(pontos):
@@ -188,14 +195,14 @@ def remove_pontos_duplicados(pontos):
 
 def gerar_kml(coordenadas, caminho_pdf, tipo):
     if tipo == "utm":
-        pontos_utm = [(float(e), float(n)) for n, e in coordenadas]
+        pontos_utm = [(float(e), float(n)) for e, n in coordenadas]
         zona_utm = detectar_zona_utm(pontos_utm[0][0])
-        gdf = gpd.GeoDataFrame(geometry=[Point(p) for p in pontos_utm], crs=zona_utm)
+        gdf = gpd.GeoDataFrame(geometry=[Point(e, n) for e, n in pontos_utm], crs=zona_utm)
         gdf_wgs84 = gdf.to_crs(epsg=4326)
         pontos = [(pt.x, pt.y) for pt in gdf_wgs84.geometry]
     else:
         pontos = [(float(lon), float(lat)) for lat, lon in coordenadas]
-    
+
     if pontos and (pontos[0] != pontos[-1]):
         pontos.append(pontos[0])
 
@@ -237,11 +244,11 @@ def gerar_kml(coordenadas, caminho_pdf, tipo):
 if __name__ == "__main__":
     caminho_pdf = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\CERT_INTEIRO_TEOR_M.11173.pdf"
     caminho_pdf2 = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\CIT.PDF"
-    caminho_pdf3 = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\CIT2.PDF"
+    caminho_pdf3 = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\enhance_pdf.PDF"
 
-    coords, tipo1 = extrair_coordenadas_pdf(caminho_pdf)
-    coords2, tipo2= extrair_coordenadas_pdf(caminho_pdf2)
-    coords3, tipo3= extrair_coordenadas_pdf(caminho_pdf3)
+    coords, tipo1, origens1 = extrair_coordenadas_pdf(caminho_pdf)
+    coords2, tipo2, origens3= extrair_coordenadas_pdf(caminho_pdf2)
+    coords3, tipo3, origens2= extrair_coordenadas_pdf(caminho_pdf3)
     
     if coords:
         gerar_kml(coords, caminho_pdf, tipo1)
