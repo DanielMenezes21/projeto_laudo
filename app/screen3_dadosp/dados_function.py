@@ -120,7 +120,7 @@ def extrair_dados_pdf(caminho_pdf):
         "estado": re.compile(r"U[\r\n\u2028\u00a0]?F\s*[:\-]?\s*([^\r\n\u2028\u00a0]+)", re.IGNORECASE),
         "latitude": re.compile (r"\bLatitude:[:\-]?\s*(.+)", re.IGNORECASE),
         "longitude": re.compile (r"\bLongitude:[:\-]?\s(.+)", re.IGNORECASE),
-        "matricula": re.compile(r"(?i)Número da Matrícula[ \n]+Data do Documento[ \n]+Livro[ \n]+Folha[ \n]+Município do Cartório[\r\n\u2028\u00a0]+([^\r\n]+)", re.IGNORECASE)
+        "matricula": re.compile(r"(?i)Município do Cartório[\r\n\u2028\u00a0]+([^\r\n]+)", re.IGNORECASE)
     }
 
     try:

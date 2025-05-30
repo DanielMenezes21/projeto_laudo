@@ -92,7 +92,7 @@ def select_pdf_file(self, paths):
         finalize_selection(self)
 
 def finalize_selection(self):
-    from modules.leitorpdf import extrair_coordenadas_pdf, gerar_kml, pdf_tem_imagem
+    from modules.leitorpdf import extrair_coordenadas_pdf, gerar_kml
 
     close_file_manager(self)
 
@@ -100,62 +100,18 @@ def finalize_selection(self):
         show_dialog(self, "Nenhum arquivo selecionado", "Selecione ao menos um PDF.")
         return
 
-    pdfs_com_imagem = []
-    pdfs_sem_imagem = []
     for path in self.selected_files:
-        if pdf_tem_imagem(path):
-            pdfs_com_imagem.append(path)
-        else:
-            pdfs_sem_imagem.append(path)
-
-    for path in pdfs_sem_imagem:
         try:
-            coords, tipo = extrair_coordenadas_pdf(path)
+            coords, tipo, origens = extrair_coordenadas_pdf(path)
             if coords:
                 gerar_kml(coords, path, tipo)
+                show_dialog(self, "Sucesso", f"Coordenadas extraídas e KML gerado:\n{path}")
             else:
                 show_dialog(self, "Erro", f"Não foi possível extrair coordenadas de:\n{path}")
         except Exception as e:
             show_dialog(self, "Erro", f"Erro ao processar o arquivo:\n{path}\n{str(e)}")
 
-    def processar_com_imagem(index=0):
-        if index >= len(pdfs_com_imagem):
-            self.selected_files.clear()
-            return
-
-        path = pdfs_com_imagem[index]
-
-        def continuar():
-            try:
-                coords, tipo, origens = extrair_coordenadas_pdf(path)
-                if coords:
-                    gerar_kml(coords, path, tipo)
-                else:
-                    show_dialog(self, "Erro", f"Não foi possível extrair coordenadas de:\n{path}")
-            except Exception as e:
-                show_dialog(self, "Erro", f"Erro ao processar o arquivo:\n{path}\n{str(e)}")
-            processar_com_imagem(index + 1)
-
-        dialog = MDDialog(
-            MDDialogHeadlineText(text="PDF contém imagem"),
-            MDDialogSupportingText(text=f"O arquivo '{os.path.basename(path)}' contém imagem(s). Deseja continuar a conversão para KML?"),
-            MDDialogButtonContainer(
-                MDButton(
-                    MDButtonText(text="Sim"),
-                    on_release=lambda x: [dialog.dismiss(), continuar()]
-                ),
-                MDButton(
-                    MDButtonText(text="Não"),
-                    on_release=lambda x: [dialog.dismiss(), processar_com_imagem(index + 1)]
-                )
-            )
-        )
-        dialog.open()
-
-    if pdfs_com_imagem:
-        processar_com_imagem()
-    else:
-        self.selected_files.clear()
+    self.selected_files.clear()
 
 def show_dialog(self, title, text):
     dialog = MDDialog(

@@ -56,6 +56,10 @@ class EmailAutomator:
             if folder_path:
                 os.makedirs(folder_path, exist_ok=True)
 
+                subpastas = ["DOCUMENTOS", "ENVIADOS", "FOTOS", "MAPAS", "PEÇAS TÉCNICAS", "SHAPES"]
+                for subpasta in subpastas:
+                    os.makedirs(os.path.join(folder_path,subpasta), exist_ok=True)
+
             parts = payload.get('parts', [])
             for part in parts:
                 filename = part.get("filename")
@@ -67,7 +71,7 @@ class EmailAutomator:
                             userId='me', messageId=msg_id, id=att_id
                         ).execute()
                         data = base64.urlsafe_b64decode(att['data'].encode('UTF-8'))
-                        path = os.path.join(folder_path, filename)
+                        path = os.path.join(folder_path, "DOCUMENTOS" ,filename)
                         with open(path, "wb") as f:
                             f.write(data)
                         print(f"✔️ Anexo salvo: {path}")

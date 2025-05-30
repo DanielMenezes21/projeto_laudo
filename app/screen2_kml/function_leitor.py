@@ -1,4 +1,4 @@
-from kivymd.uix.list import MDList, MDListItem, MDListItemHeadlineText
+from kivymd.uix.list import MDList, MDListItem, MDListItemHeadlineText, MDListItemTrailingCheckbox
 import os
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 from kivy.metrics import dp
