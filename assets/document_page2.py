@@ -310,14 +310,13 @@ def criar_secao_identificacao(doc):
     
     return doc
 
-def criar_secao_croqui(doc, imagem_path=None):
+def criar_secao_croqui(doc, imagem_path='captura_teste.png'):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
     table.allow_autofit = False
     table.width = usable_width
     table.style = 'Table Grid'
-
 
     table.rows[0].height = Cm(0.5)  
 
@@ -335,17 +334,14 @@ def criar_secao_croqui(doc, imagem_path=None):
         '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
         '</w:tcBorders>'
     )
-
     tcPr.append(borders)
 
     if imagem_path:
         try:
             p_img = doc.add_paragraph()
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
             run = p_img.add_run()
             shape = run.add_picture(imagem_path, width=Cm(15), height=Cm(10.61))
-
             border_xml = (
                 '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" '
                 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
@@ -1235,7 +1231,6 @@ def criar_secao_caracteristicas(doc):
     row6cell_7.text = " "
     row6cell_7.paragraphs[0].runs[0].font.size = Pt(12)
     row6cell_7.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    row6cell_7.width = Cm(1.2)
 
     tcPr = row6cell_7._tc.get_or_add_tcPr()
     borders = parse_xml(
@@ -1250,6 +1245,7 @@ def criar_secao_caracteristicas(doc):
 
     row7 = table.rows[8].cells[0]
     row7.merge(table.rows[8].cells[13])
+    row7.width = LARGURA
     paragraph = row7.paragraphs[0]
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
@@ -1268,7 +1264,7 @@ def criar_secao_caracteristicas(doc):
 
     return doc
 
-def criar_ficha_completa(valor_texto, imagem_path=None):
+def criar_ficha_completa(valor_texto, imagem_path='captura_teste.png'):
     """Função principal que cria toda a ficha cadastral"""
     doc = configurar_documento()
     doc = criar_titulo(doc)
@@ -1285,6 +1281,3 @@ def criar_ficha_completa(valor_texto, imagem_path=None):
     
     doc.save('ficha_cadastral_final.docx')
     return doc
-
-if __name__ == "__main__":
-    criar_ficha_completa(imagem_path='captura_teste.png')
