@@ -805,5 +805,7 @@ def tabela_bioma(doc):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    
     
     return doc
