@@ -68,33 +68,33 @@ def fechar_arquivo(self, *args):
         self.file_manager.close()
 
 def on_pdf_selecionado(self, caminho_pdf):
-        """
-        Callback do FileManager. Recebe apenas 1 parâmetro,
-        extrai nome/CPF do PDF selecionado e preenche os campos.
-        """
-        fechar_arquivo(self)
-        nome, cpf, nome_imovel, municipio, estado, latitude, longitude, matricula = extrair_dados_pdf(caminho_pdf)
-        self.proponente.text = nome
-        self.cpf.text = cpf
-        self.nome_imovel.text = nome_imovel
-        self.municipio.text = municipio
-        self.estado.text = estado
-        self.latitude.text = latitude
-        self.longitude.text = longitude
-        self.matricula.text = matricula
+    """
+    Callback do FileManager. Recebe apenas 1 parâmetro,
+    extrai nome/CPF do PDF selecionado e preenche os campos.
+    """
+    fechar_arquivo(self)
+    nome, cpf, nome_imovel, municipio, estado, latitude, longitude, matricula = extrair_dados_pdf(caminho_pdf)
+    self.proponente.text = ", ".join(nome) if isinstance(nome, list) else nome
+    self.cpf.text = ", ".join(cpf) if isinstance(cpf, list) else cpf
+    self.nome_imovel.text = nome_imovel
+    self.municipio.text = municipio
+    self.estado.text = estado
+    self.latitude.text = latitude
+    self.longitude.text = longitude
+    self.matricula.text = matricula
 
 def preencher_com_dados(self, caminho_car, caminho_cit):
-        self.caminho_car = caminho_car
-        self.caminho_cit = caminho_cit
-        nome, cpf, nome_imovel, municipio, estado, latitude, longitude, matricula = extrair_dados_pdf(caminho_car)
-        self.proponente.text = nome
-        self.cpf.text = cpf
-        self.nome_imovel.text = nome_imovel
-        self.municipio.text = municipio
-        self.estado.text = estado
-        self.latitude.text = latitude
-        self.longitude.text = longitude
-        self.matricula.text = matricula
+    self.caminho_car = caminho_car
+    self.caminho_cit = caminho_cit
+    nome, cpf, nome_imovel, municipio, estado, latitude, longitude, matricula = extrair_dados_pdf(caminho_car)
+    self.proponente.text = ", ".join(nome) if isinstance(nome, list) else nome
+    self.cpf.text = ", ".join(cpf) if isinstance(cpf, list) else cpf
+    self.nome_imovel.text = nome_imovel
+    self.municipio.text = municipio
+    self.estado.text = estado
+    self.latitude.text = latitude
+    self.longitude.text = longitude
+    self.matricula.text = matricula
 
 def extrair_dados_pdf(caminho_pdf):
     """
@@ -102,8 +102,8 @@ def extrair_dados_pdf(caminho_pdf):
     Retorna (nome, cpf, nome_imovel, municipio).
     """
     dados = {
-        "nome": "",
-        "cpf": "",
+        "nome": [],
+        "cpf": [],
         "nome_imovel": "",
         "municipio": "",
         "estado": "",
@@ -128,11 +128,16 @@ def extrair_dados_pdf(caminho_pdf):
         for pagina in pdf:
             texto = pagina.get_text()
             texto = texto.replace('\u200b', '').replace('\xa0', ' ')
-            for chave, regex in padroes.items():
+            nomes_encontrados = padroes["nome"].findall(texto)
+            cpfs_encontrados = padroes["cpf"].findall(texto)
+            dados["nome"].extend([n.strip() for n in nomes_encontrados if n.strip()])
+            dados["cpf"].extend([c.strip() for c in cpfs_encontrados if c.strip()])
+            for chave in ["nome_imovel", "municipio", "estado", "latitude", "longitude", "matricula"]:
                 if not dados[chave]:
-                    m = regex.search(texto)
+                    m = padroes[chave].search(texto)
                     if m:
                         dados[chave] = m.group(1).strip()
+                        print(f"nomes achados: {dados["nome"]}")
             if all(dados.values()):
                 break
         pdf.close()

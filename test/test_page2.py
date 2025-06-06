@@ -310,7 +310,7 @@ def criar_secao_identificacao(doc):
     
     return doc
 
-def criar_secao_croqui(doc, imagem_path='captura_teste.png'):
+def criar_secao_croqui(doc, imagem_path='captura_teste_2.png'):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
@@ -1262,23 +1262,4 @@ def criar_secao_caracteristicas(doc):
     )
     tcPr.append(borders)
 
-    return doc
-
-def pagina_2(valor_texto, imagem_path='captura_teste.png'):
-    """Função principal que cria toda a ficha cadastral"""
-    doc = configurar_documento()
-    doc.add_page_break()
-    doc = criar_titulo(doc)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_valor(doc, valor_texto)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_identificacao(doc)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_croqui(doc, imagem_path)
-    doc = adicionar_linha_fina(doc)
-    doc = geometria_terreno(doc)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_caracteristicas(doc)
-    
-    doc.save('ficha_cadastral_final.docx')
     return doc

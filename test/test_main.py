@@ -9,7 +9,7 @@ from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelContent,
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.dialog import MDDialog, MDDialogButtonContainer, MDDialogContentContainer, MDDialogHeadlineText
 from kivy.metrics import dp
-from test_page3 import gerar_documento_completo
+from test_create import gerar_documento_completo
 
 class Test(MDScreen):
     def __init__(self, *args, **kwargs):
@@ -29,8 +29,7 @@ class Test(MDScreen):
             on_release=lambda x: gerar_documento_completo(
                 self.text_field.text,
                 f"LAUDO DE AVALIAÇÃO Nº {self.text_field.text},\n 01 de Janeiro de 2024, PALMAS TO",
-            )
-                
+            )     
         )
         layout.add_widget(self.text_field)
         layout.add_widget(button)

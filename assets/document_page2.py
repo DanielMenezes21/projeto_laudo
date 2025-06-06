@@ -1264,9 +1264,10 @@ def criar_secao_caracteristicas(doc):
 
     return doc
 
-def criar_ficha_completa(valor_texto, imagem_path='captura_teste.png'):
+def pagina_2(valor_texto, imagem_path='captura_teste.png'):
     """Função principal que cria toda a ficha cadastral"""
     doc = configurar_documento()
+    doc.add_page_break()
     doc = criar_titulo(doc)
     doc = adicionar_linha_fina(doc)
     doc = criar_secao_valor(doc, valor_texto)

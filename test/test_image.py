@@ -1,7 +1,6 @@
 import win32com.client
 import os
-from document_page2 import pagina_2
-from document_page1 import inserir_caixa_texto_primeira_pagina, inserir_imagem_capa_atras_texto
+from test_page1 import inserir_caixa_texto_primeira_pagina, inserir_imagem_capa_atras_texto
 
 def inserir_imagem_ultima_pagina(docx_path, img_fim):
     """Insere uma imagem atrás do texto na última página do documento."""
@@ -65,18 +64,3 @@ def imagens_fundo(docx_path, img_marca):
     doc.SaveAs(docx_path)
     doc.Close()
     word.Quit()
-
-def gerar_documento_completo(valor, texto_capa):
-    """Gera o docx com texto, insere a imagem de capa atrás do texto na primeira página,
-    a marca d'água em todas as páginas, a imagem na última página e uma caixa de texto opcional na capa."""
-    pagina_2(valor)
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    docx_path = os.path.join(base_dir, "ficha_cadastral_final.docx")
-    img_marca = os.path.join(base_dir, "models", "RODAPE.png")
-    img_capa = os.path.join(base_dir, "models", "capa_do_laudo.png")
-    img_fim = os.path.join(base_dir, "models", "final.png")
-
-    inserir_imagem_capa_atras_texto(docx_path, img_capa)
-    imagens_fundo(docx_path, img_marca)
-    inserir_imagem_ultima_pagina(docx_path, img_fim)
-    inserir_caixa_texto_primeira_pagina(docx_path, texto_capa)
