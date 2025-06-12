@@ -3,6 +3,8 @@ from kivy.uix.screenmanager import ScreenManager
 from app.screen1_email.homepage import MenuScreen
 from app.screen2_kml.leitor import LeitorScreen
 from app.screen3_dadosp.dadosscreen import DadosScreen
+from app.screen3_dadosp.screen3_1_matriculas.matricula_screen import MatriculaScreen
+from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.matricula_detalhe_screen import MatriculaDetalheScreen
 from app.screen4_territorio.soloscreen import SoloScreen
 from app.screen5_insertpdf.pdfscreen import PDFInsert
 from kivy.uix.screenmanager import (SlideTransition, 
@@ -26,6 +28,7 @@ class MainApp(MDApp):
         sm = ScreenManager(transition=FadeTransition())
         sm.add_widget(MenuScreen(name='main'))
         sm.add_widget(LeitorScreen(name='leitor'))
+        sm.add_widget(MatriculaScreen(name="matricula"))
         sm.add_widget(DadosScreen(name='dados'))
         sm.add_widget(SoloScreen(name='territorio'))
         sm.add_widget(PDFInsert(name='pdf'))

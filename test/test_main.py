@@ -8,14 +8,21 @@ from kivymd.uix.list import MDList, MDListItem, MDListItemHeadlineText, MDListIt
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelContent, MDExpansionPanelHeader
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.dialog import MDDialog, MDDialogButtonContainer, MDDialogContentContainer, MDDialogHeadlineText
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 from kivy.metrics import dp
 from test_create import gerar_documento_completo
 
 class Test(MDScreen):
+
+    def on_checkbox_active(self, checkbox, value):
+        self.celula_verde = value  
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         layout = MDBoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
+
         self.text_field = MDTextField(
             MDTextFieldHintText(text="Digite algo", text_color_normal=(0, 1, 1, 1)),
             MDTextFieldHelperText(text="Este é um campo de texto"), 
@@ -24,16 +31,27 @@ class Test(MDScreen):
             text_color_focus=(1, 0, 0, 1),
         )
 
+        checkbox_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, height=dp(40), spacing=dp(10))
+        self.checkbox = MDCheckbox()
+        self.checkbox.bind(active=self.on_checkbox_active)
+        self.celula_verde = False
+        checkbox_label = MDListItemHeadlineText(text="Opção de exemplo")
+        checkbox_layout.add_widget(self.checkbox)
+        checkbox_layout.add_widget(checkbox_label)
+
         button = MDButton(
             MDButtonText(text="Clique aqui"),
             on_release=lambda x: gerar_documento_completo(
                 self.text_field.text,
                 f"LAUDO DE AVALIAÇÃO Nº {self.text_field.text},\n 01 de Janeiro de 2024, PALMAS TO",
+                celula_verde=self.checkbox.active
             )     
         )
         layout.add_widget(self.text_field)
+        layout.add_widget(checkbox_layout)
         layout.add_widget(button)
         self.add_widget(layout)
+        
         
 class MeuApp(MDApp):
     def build(self):

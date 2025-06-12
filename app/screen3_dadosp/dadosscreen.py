@@ -14,6 +14,7 @@ from app.screen3_dadosp.dados_function import go_back, go_next, abrir_seletor_pd
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.clock import Clock
+from app.screen3_dadosp.dados_function import abrir_dialogo_matriculas
 import os
 import re
 from docx import Document
@@ -26,6 +27,12 @@ class DadosScreen(MDScreen):
         self.tratamento = valor
         self.botao.children[0].text = valor
         self.dropdown.dismiss()
+        if self.proponente_atual in self.proponentes:
+            self.proponentes[self.proponente_atual]["tratamento"] = valor
+    
+    def salvar_civil(self, instance, value):
+        if not value and self.proponente_atual in self.proponentes:
+            self.proponentes[self.proponente_atual]["civil"] = instance.text
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -95,6 +102,8 @@ class DadosScreen(MDScreen):
         )
         cliente.add_widget(self.botao)
         
+        self.proponentes = []
+        self.proponente_atual = ""
         self.proponente = MDTextField(
             MDTextFieldHintText(text="Proponente"),
             MDTextFieldHelperText(text="Nome do proponente",
@@ -113,22 +122,11 @@ class DadosScreen(MDScreen):
         )
         cliente.add_widget(self.proponente)
 
-        self.matricula = MDTextField(
-            MDTextFieldHintText(text="Matricula"),
-            MDTextFieldHelperText(text="Número de matricula do imóvel",
-                theme_text_color="Custom", 
-                text_color_normal="yellow",
-                text_color_focus="yellow",
-                mode="on_focus",),
-            theme_text_color="Custom",
-            text_color_normal="yellow",
-            text_color_focus="yellow",
-            size = (200,50),
-            size_hint=(0.9, None),
+        self.botao_matricula = MDButton(
             pos_hint={"center_x": 0.5},
-            write_tab=False,
-            height=50,
+            on_release=lambda x: abrir_dialogo_matriculas(self)
         )
+        self.botao_matricula.add_widget(MDButtonText(text="Definir Matrículas"))
 
         self.cpf = MDTextField(
             MDTextFieldHintText(text="CPF",
@@ -226,6 +224,19 @@ class DadosScreen(MDScreen):
         )
         coord.add_widget(self.longitude)
 
+        self.botao_proponente = MDButton(
+            pos_hint={"center_x": 0.5},
+            on_release=lambda x: self.menu_proponente.open()
+        )
+        self.botao_proponente.add_widget(MDButtonText(text="Selecionar Proponente"))
+
+        self.menu_proponente = MDDropdownMenu(
+            caller=self.botao_proponente,
+            items=[],  
+            width_mult=4,
+        )
+        cliente.add_widget(self.botao_proponente)
+
         self.botao_selecionar = MDButton(
             pos_hint={"center_x": 0.5},
             on_release=lambda x: abrir_seletor_pdf(self),
@@ -250,7 +261,7 @@ class DadosScreen(MDScreen):
         self.layout.add_widget(buttons)
         self.layout.add_widget(self.label)
         self.layout.add_widget(self.agencia)
-        self.layout.add_widget(self.matricula)
+        self.layout.add_widget(self.botao_matricula)
         self.layout.add_widget(self.civil)
         self.layout.add_widget(cliente)
         self.layout.add_widget(self.cpf)
@@ -261,7 +272,6 @@ class DadosScreen(MDScreen):
         self.layout.add_widget(self.botao_selecionar)
 
         self.agencia.bind(focus=self._on_focus)
-        self.matricula.bind(focus=self._on_focus)
         self.civil.bind(focus=self._on_focus)
         self.cpf.bind(focus=self._on_focus)
         self.nome_imovel.bind(focus=self._on_focus)
@@ -270,6 +280,7 @@ class DadosScreen(MDScreen):
         self.latitude.bind(focus=self._on_focus)
         self.longitude.bind(focus=self._on_focus)
         self.proponente.bind(focus=self._on_focus)
+        self.civil.bind(focus=self.salvar_civil)
         
         self.scroll.add_widget(self.layout)
 
@@ -288,3 +299,14 @@ class DadosScreen(MDScreen):
             Clock.schedule_once(lambda dt: self.scroll.scroll_to(self.campo_em_foco), 0.1)
         else:
             self.scroll.scroll_y = 1
+
+    def selecionar_proponente(self, nome_escolhido):
+        self.menu_proponente.dismiss()
+        self.proponente_atual = nome_escolhido
+
+        dados = self.proponentes[nome_escolhido]
+        self.proponente.text = nome_escolhido
+        self.cpf.text = dados.get("cpf", "")
+        self.civil.text = dados.get("civil", "")
+        self.set_tratamento(dados.get("tratamento", ""))
+

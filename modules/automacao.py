@@ -55,7 +55,12 @@ class EmailAutomator:
             folder_path = os.path.join(r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL", mes, safe_subject)
             if folder_path:
                 os.makedirs(folder_path, exist_ok=True)
-
+                subpastas = ["DOCUMENTOS", "ENVIADOS", "FOTOS", "MAPAS", "PEÇAS TÉCNICAS", "SHAPES"]
+                for subpasta in subpastas:
+                    os.makedirs(os.path.join(folder_path,subpasta), exist_ok=True)
+            if not os.path.exists(folder_path):
+                folder_path = os.path.join(r"C:\\Users\\DESKTOP\\Documents",mes,safe_subject)
+                os.makedirs(folder_path, exist_ok=True)
                 subpastas = ["DOCUMENTOS", "ENVIADOS", "FOTOS", "MAPAS", "PEÇAS TÉCNICAS", "SHAPES"]
                 for subpasta in subpastas:
                     os.makedirs(os.path.join(folder_path,subpasta), exist_ok=True)

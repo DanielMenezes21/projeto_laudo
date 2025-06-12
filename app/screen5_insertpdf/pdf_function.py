@@ -100,31 +100,30 @@ def adicionar_item(self, caminho_pdf, tipo):
         self.file_list2.add_widget(item)
 
 def carregar_estrutura(self, tipo):
-        print(f"Carregando estrutura para: {tipo}")
-        if not os.path.exists(self.current_path):
-            MDSnackbar(
-                MDSnackbarText(text="Caminho não encontrado!"),
-                y=dp(24)
-            ).open()
-            return
+    print(f"Carregando estrutura para: {tipo}")
+    if not os.path.exists(self.current_path):
+        MDSnackbar(
+            MDSnackbarText(text="Caminho não encontrado!"),
+            y=dp(24)
+        ).open()
+        return
 
-        if tipo == "car":
-            self.file_list.clear_widgets()
-        elif tipo == "cit":
-            self.file_list2.clear_widgets()
+    if tipo == "car":
+        self.file_list.clear_widgets()
+    elif tipo == "cit":
+        self.file_list2.clear_widgets()
 
-        print(f"Listando arquivos no diretório: {self.current_path}")
-        arquivos_adicionados = 0
-        for arquivo in os.listdir(self.current_path):
-            if arquivo.lower().endswith(".pdf"):
-                arquivos_adicionados += 1
-                # Adicione seu código para criar widgets aqui
-
-        if arquivos_adicionados == 0:
-            MDSnackbar(
-                MDSnackbarText(text="Nenhum arquivo PDF encontrado na pasta."),
-                y=dp(24)
-            ).open()
+    print(f"Listando arquivos no diretório: {self.current_path}")
+    arquivos_adicionados = 0
+    for arquivo in os.listdir(self.current_path):
+        if arquivo.lower().endswith(".pdf"):
+            arquivos_adicionados += 1
+               
+    if arquivos_adicionados == 0:
+        MDSnackbar(
+            MDSnackbarText(text="Nenhum arquivo PDF encontrado na pasta."),
+            y=dp(24)
+        ).open()
 
 def load_directory(self,tipo, *args):
     print(f"Carregando diretório: {self.current_path}")

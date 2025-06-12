@@ -6,6 +6,13 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
 
+def colorir_celula(cell, cor_hex="009933"):
+        tcPr = cell._tc.get_or_add_tcPr()
+        for el in tcPr.findall('.//w:shd', namespaces={'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}):
+            tcPr.remove(el)
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{cor_hex}"/>')
+        tcPr.append(shading)
+
 def cm_to_twips(cm):
     """Converte centímetros para Twips (1cm = 567 Twips)."""
     return Twips(cm * 567)
@@ -414,8 +421,6 @@ def geometria_terreno(doc):
     tcPr.append(borders)    
 
     row[1].text = " "
-    shadding = parse_xml(f'<w:shd {nsdecls("w")} w:fill="009933"/>')
-    row[1]._tc.get_or_add_tcPr().append(shadding)
     row[1].paragraphs[0].runs[0].font.size = Pt(12)
     row[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row[1].width = Cm(0.46)
@@ -449,8 +454,6 @@ def geometria_terreno(doc):
     tcPr.append(borders)
 
     row[3].text = " "
-    shadding = parse_xml(f'<w:shd {nsdecls("w")} w:fill="00B050"/>')
-    row[3]._tc.get_or_add_tcPr().append(shadding)
     row[3].paragraphs[0].runs[0].font.size = Pt(12)
     row[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row[3].width = Cm(0.46)
@@ -504,7 +507,7 @@ def geometria_terreno(doc):
     )
     tcPr.append(borders)
 
-    return doc
+    return doc, table
 
 def criar_secao_caracteristicas(doc):
     """Cria a seção de Características do Terreno"""
