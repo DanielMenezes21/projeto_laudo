@@ -3,9 +3,10 @@ from test_image import *
 from test_page3 import *
 from test_page4 import *
 from test_page5 import *
+from test_page6 import *
 import os
 
-def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=False):
+def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=False, imagem_acesso=None):
     """Função principal que cria toda a ficha cadastral"""
     doc = configurar_documento()
     doc.add_page_break()
@@ -39,6 +40,17 @@ def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=F
     doc = adicionar_espaco(doc)
     doc = texto_solicitante(doc)
     doc = adicionar_espaco(doc)
+    doc = texto_objetivo(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_finalidade(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_proprietario(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_ressalvas(doc)
+    doc.add_page_break()
+    doc = title_imovel(doc)
+    doc = localizacao(doc)
+    doc = acesso(doc,imagem_acesso)
     doc.add_page_break()
 
     doc.save('ficha_cadastral_final.docx')
