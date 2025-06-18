@@ -10,7 +10,7 @@ from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHe
 from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
-from app.screen3_dadosp.dados_function import go_back, go_next, abrir_seletor_pdf, fechar_arquivo, on_pdf_selecionado
+from app.screen3_dadosp.dados_function import receber_dados_pdf, go_back, go_next, abrir_seletor_pdf, fechar_arquivo, on_pdf_selecionado
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.clock import Clock
@@ -79,8 +79,8 @@ class DadosScreen(MDScreen):
         )
 
         self.agencia = MDTextField(
-            MDTextFieldHintText(text="Agencia"),
-            MDTextFieldHelperText(text="Agencia que enviou os documentos para o laudo",
+            MDTextFieldHintText(text="Solicitante"),
+            MDTextFieldHelperText(text="O solicitante que enviou os documentos para o laudo",
                 theme_text_color="Custom", 
                 text_color_normal="yellow",
                 text_color_focus="yellow",
@@ -242,12 +242,6 @@ class DadosScreen(MDScreen):
             on_release=lambda x: abrir_seletor_pdf(self),
         )
         self.botao_selecionar.add_widget(MDButtonText(text="Selecionar PDF"))
-
-        self.file_manager = MDFileManager(
-            exit_manager=lambda x: fechar_arquivo(self),
-            select_path=lambda x: on_pdf_selecionado(self, x),
-            ext=[".pdf"]
-        )
 
         self.dropdown = MDDropdownMenu(
             caller=self.botao,

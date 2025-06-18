@@ -119,6 +119,43 @@ def on_pdf_selecionado(self, caminho_pdf):
     if self.menu_proponente.items:
         self.menu_proponente.open()
 
+def extrair_dados_multiplos_pdfs(lista_caminhos_pdf):
+    """
+    Recebe uma lista de caminhos de PDF e retorna os dados combinados de todos.
+    """
+    todos_nomes = []
+    todos_cpfs = []
+    nome_imovel = ""
+    municipio = ""
+    estado = ""
+    latitude = ""
+    longitude = ""
+
+    for caminho_pdf in lista_caminhos_pdf:
+        nomes, cpfs, nome_imovel_, municipio_, estado_, latitude_, longitude_ = extrair_dados_pdf(caminho_pdf)
+        todos_nomes.extend(nomes)
+        todos_cpfs.extend(cpfs)
+        if not nome_imovel and nome_imovel_:
+            nome_imovel = nome_imovel_
+        if not municipio and municipio_:
+            municipio = municipio_
+        if not estado and estado_:
+            estado = estado_
+        if not latitude and latitude_:
+            latitude = latitude_
+        if not longitude and longitude_:
+            longitude = longitude_
+
+    return (
+        todos_nomes,
+        todos_cpfs,
+        nome_imovel,
+        municipio,
+        estado,
+        latitude,
+        longitude
+    )
+
 def extrair_dados_pdf(caminho_pdf):
     """
     Abre o PDF, varre todas as páginas em busca de Nome, CPF, Nome do Imóvel e Município.
@@ -136,7 +173,7 @@ def extrair_dados_pdf(caminho_pdf):
 
     padroes = {
         "nome": re.compile(r"\bNome:[:\-]?\s*(.+)", re.IGNORECASE),
-        "cpf": re.compile(r"\bCPF[:\-]?\s*(\d{3}\.?\d{3}\.?\d{3}-?\d{2})"),
+        "cpf": re.compile(r"\b(CPF|CNPJ)[:\-]?\s*((?:\d{3}[.\s]?){2}\d{3}[-\s]?\d{2}|\d{2}[.\s]?\d{3}[.\s]?\d{3}[\/\s]?\d{4}[-\s]?\d{2})", re.IGNORECASE),
         "nome_imovel": re.compile(r"\bNome do Imóvel Rural[:\-]?\s*(.+)", re.IGNORECASE),
         "municipio": re.compile(r"\bMunicípio[:\-]?\s*(.+)", re.IGNORECASE),
         "estado": re.compile(r"U[\r\n\u2028\u00a0]?F\s*[:\-]?\s*([^\r\n\u2028\u00a0]+)", re.IGNORECASE),
@@ -152,7 +189,7 @@ def extrair_dados_pdf(caminho_pdf):
             nomes_encontrados = padroes["nome"].findall(texto)
             cpfs_encontrados = padroes["cpf"].findall(texto)
             dados["nome"].extend([n.strip() for n in nomes_encontrados if n.strip()])
-            dados["cpf"].extend([c.strip() for c in cpfs_encontrados if c.strip()])
+            dados["cpf"].extend([c[1].strip() for c in cpfs_encontrados if c[1].strip()])
             for chave in ["nome_imovel", "municipio", "estado", "latitude", "longitude"]:
                 if not dados[chave]:
                     m = padroes[chave].search(texto)
@@ -173,6 +210,30 @@ def extrair_dados_pdf(caminho_pdf):
         dados["latitude"],
         dados["longitude"]
     )
+
+def receber_dados_pdf(tela_dados, nomes, cpfs, nome_imovel, municipio, estado, latitude, longitude):
+    tela_dados.proponentes = {
+        nome: {
+            "cpf": cpf,
+            "tratamento": "",
+            "civil": ""
+        }
+        for nome, cpf in zip(nomes, cpfs)
+    }
+
+    tela_dados.menu_proponente.items = [
+        {"text": nome, "on_release": lambda x=nome: tela_dados.selecionar_proponente(x)}
+        for nome in tela_dados.proponentes
+    ]
+
+    tela_dados.nome_imovel.text = nome_imovel
+    tela_dados.municipio.text = municipio
+    tela_dados.estado.text = estado
+    tela_dados.latitude.text = latitude
+    tela_dados.longitude.text = longitude
+
+    if tela_dados.menu_proponente.items:
+        tela_dados.menu_proponente.open()
 
 def carregar_pdf_dados(self, caminho_car, caminho_cit):
     self.caminho_car = caminho_car

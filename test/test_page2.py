@@ -36,10 +36,10 @@ def configurar_documento():
     """Configura as propriedades básicas do documento"""
     doc = Document()
     section = doc.sections[0]
-    section.left_margin = Cm(1.27)
-    section.right_margin = Cm(1.27)
-    section.top_margin = Cm(2.27)
-    section.bottom_margin = Cm(2.27)
+    section.left_margin = Cm(2)
+    section.right_margin = Cm(2)
+    section.top_margin = Cm(2.5)
+    section.bottom_margin = Cm(2.5)
 
     style = doc.styles['Normal']
     style.paragraph_format.space_before = Cm(0)
@@ -194,7 +194,7 @@ def criar_secao_identificacao(doc):
     table.rows[1].height = Cm(0.5)  
     table.rows[2].height = Cm(0.2)  
     table.rows[3].height = Cm(0.5)  
-    table.rows[4].height = Cm(0.19)  
+    table.rows[4].height = Cm(0.2)  
 
     title_cell = table.rows[0].cells[0]
     title_cell.merge(table.rows[0].cells[2])
@@ -231,7 +231,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row2[1].text = "MODULO-G10"
+    row2[1].text = "{nome_imovel}"
     row2[1].paragraphs[0].runs[0].bold = True
     row2[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -279,7 +279,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row4[1].text = "FORMOSO DO ARAGUAIA - TO"
+    row4[1].text = "{cit_est}"
     row4[1].paragraphs[0].runs[0].bold = True
     row4[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -299,15 +299,17 @@ def criar_secao_identificacao(doc):
 
     tcPr.append(borders)
 
-    row5 = table.rows[4].cells
-    row5[0].merge(row5[2])  
-    row5[0].text = " "
-    row5[0].paragraphs[0].runs[0].font.size = Pt(2)
-
-    tcPr = row5[0]._tc.get_or_add_tcPr()
+    row5 = table.rows[4].cells[0]
+    row5.merge(table.rows[4].cells[2])
+    paragraph = row5.paragraphs[0]
+    paragraph.clear()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run = paragraph.add_run("|")
+    run.font.size = Pt(1)
+    tcPr = row5._tc.get_or_add_tcPr()
     borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>' 
+        f'<w:tcBorders {nsdecls("w")}>' +
+        '<w:top w:val="nil"/>' +
         '</w:tcBorders>'
     )
     tcPr.append(borders)
@@ -383,7 +385,7 @@ def geometria_terreno(doc):
 
     table.rows[0].height = Cm(1.01)  
     table.rows[1].height = Cm(0.56)
-    table.rows[2].height = Cm(0.09)  
+    table.rows[2].height = Cm(0.2)  
 
     title_cell = table.rows[0].cells[0]
     title_cell.merge(table.rows[0].cells[4])
@@ -490,7 +492,6 @@ def geometria_terreno(doc):
     row1 = table.rows[2].cells[0]
     row1.merge(table.rows[2].cells[4])  
     paragraph = row1.paragraphs[0]
-    run = row1.add_paragraph()
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
     run = paragraph.add_run("|")

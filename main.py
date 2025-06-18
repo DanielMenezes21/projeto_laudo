@@ -2,6 +2,7 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from app.screen1_email.homepage import MenuScreen
 from app.screen2_kml.leitor import LeitorScreen
+from app.screen2_manager.manager_screen import ManagerScreen
 from app.screen3_dadosp.dadosscreen import DadosScreen
 from app.screen3_dadosp.screen3_1_matriculas.matricula_screen import MatriculaScreen
 from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.matricula_detalhe_screen import MatriculaDetalheScreen
@@ -18,6 +19,7 @@ import sys
 from kivy.config import Config
 
 Config.set('kivy', 'exit_on_escape', '0')
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 class MainApp(MDApp):
     def build(self):
@@ -29,6 +31,7 @@ class MainApp(MDApp):
         sm.add_widget(MenuScreen(name='main'))
         sm.add_widget(LeitorScreen(name='leitor'))
         sm.add_widget(MatriculaScreen(name="matricula"))
+        sm.add_widget(ManagerScreen(name="manager"))
         sm.add_widget(DadosScreen(name='dados'))
         sm.add_widget(SoloScreen(name='territorio'))
         sm.add_widget(PDFInsert(name='pdf'))

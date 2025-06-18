@@ -4,27 +4,32 @@ from test_page3 import *
 from test_page4 import *
 from test_page5 import *
 from test_page6 import *
+from table_excel_to_word import *
 import os
 
-def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=False, imagem_acesso=None):
-    """Função principal que cria toda a ficha cadastral"""
+def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=False, imagem_acesso=None, quantidade=1):
     doc = configurar_documento()
     doc.add_page_break()
-    doc = criar_titulo(doc)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_valor(doc, valor_texto)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_identificacao(doc)
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_croqui(doc, imagem_path)
-    doc = adicionar_linha_fina(doc)
-    doc, tabela = geometria_terreno(doc)
-    if celula_verde:
-        colorir_celula(tabela.rows[1].cells[1], "009933")
-    else:
-        colorir_celula(tabela.rows[1].cells[1], "FFFFFF")
-    doc = adicionar_linha_fina(doc)
-    doc = criar_secao_caracteristicas(doc)
+    # ...código anterior...
+
+    # Repita as tabelas de test_page2.py conforme a quantidade
+    for i in range(quantidade):
+        doc = criar_titulo(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_valor(doc, valor_texto)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_identificacao(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_croqui(doc, imagem_path)
+        doc = adicionar_linha_fina(doc)
+        doc, tabela = geometria_terreno(doc)
+        if celula_verde:
+            colorir_celula(tabela.rows[1].cells[1], "009933")
+        else:
+            colorir_celula(tabela.rows[1].cells[1], "FFFFFF")
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_caracteristicas(doc)
+        doc.add_page_break()
     doc = titulo(doc)
     doc = table_geo(doc)
     doc = adicionar_linha_fina(doc)
@@ -51,15 +56,21 @@ def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=F
     doc = title_imovel(doc)
     doc = localizacao(doc)
     doc = acesso(doc,imagem_acesso)
+    doc = carac_reg(doc)
+    doc.add_page_break()
+    doc = desc_imovel(doc)
     doc.add_page_break()
 
     doc.save('ficha_cadastral_final.docx')
+    docx_path = os.path.abspath('ficha_cadastral_final.docx')
+    excel_path = os.path.abspath("models/LAUDO DE AVALIAÇÃO N° 12941255 - MAURICIO MIYASAKI.xlsx")
+    inserir_tabela_dinamica_no_word(docx_path, excel_path)
     return doc
 
-def gerar_documento_completo(valor, texto_capa,celula_verde):
+def gerar_documento_completo(valor, texto_capa, celula_verde, imagem_path=None, quantidade=1):
     """Gera o docx com texto, insere a imagem de capa atrás do texto na primeira página,
     a marca d'água em todas as páginas, a imagem na última página e uma caixa de texto opcional na capa."""
-    doc = create_document(valor, celula_verde=celula_verde)
+    doc = create_document(valor, celula_verde=celula_verde, imagem_path=imagem_path, quantidade=quantidade)
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     docx_path = os.path.join(base_dir, "ficha_cadastral_final.docx")
     img_marca = os.path.join(base_dir, "models", "RODAPE.png")

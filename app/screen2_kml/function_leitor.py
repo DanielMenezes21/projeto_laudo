@@ -8,7 +8,7 @@ def go_back(self, *args):
     self.manager.current_screen.manager.current = "main"
 
 def go_next(self, *args):
-    self.manager.current_screen.manager.current = "dados"
+    self.manager.current_screen.manager.current = "manager"
 
 def load_directory(self, *args):
     self.file_list.clear_widgets()

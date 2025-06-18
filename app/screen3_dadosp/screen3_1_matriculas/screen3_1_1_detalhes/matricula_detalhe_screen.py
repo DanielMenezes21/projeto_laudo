@@ -1,6 +1,6 @@
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.label import MDLabel
@@ -24,7 +24,7 @@ class MatriculaDetalheScreen(MDScreen):
         )
 
         self.campo_texto = MDTextField(
-            hint_text=f"Observações - {nome_matricula}",
+            MDTextFieldHintText(text=f"Observações - {nome_matricula}"),
             size_hint=(0.9, None),
             height=50,
             pos_hint={"center_x": 0.5}
