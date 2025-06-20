@@ -8,6 +8,7 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon
 import simplekml
 import easyocr
+import math
 from shapely.validation import explain_validity
 
 ocr_reader = easyocr.Reader(['pt'])
@@ -52,7 +53,19 @@ def coordenada_valida(lat, lon):
         return -90 <= lat <= 90 and -180 <= lon <= 180
     except Exception:
         return False
-    
+
+def calcular_novo_ponto(lat, lon, azimute_decimal, distancia_m):
+    azimute_rad = math.radians(azimute_decimal)
+    delta_lat = (distancia_m * math.cos(azimute_rad)) / 111320
+    delta_lon = (distancia_m * math.sin(azimute_rad)) / (111320 * math.cos(math.radians(lat)))
+    return lat + delta_lat, lon + delta_lon
+
+def dms_para_graus(graus, minutos, segundos):
+    graus = float(graus) if graus else 0
+    minutos = float(minutos) / 60 if minutos else 0
+    segundos = float(segundos) / 3600 if segundos else 0
+    return graus + minutos + segundos
+
 def detectar_zona_utm(easting):
     if 300000 <= easting < 400000:
         return "EPSG:31981"  # Zona 21S
@@ -87,10 +100,11 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
     pattern = r"""
     N[\-=]\s*((?=[\d\.,]*\d)[\d\.,]+)\s*.*?E[\-=']\s*((?=[\d\.,]*\d)[\d\.,]+)|
     Longitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]?\s*[,;]?\s*
-    Latitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]?          
+    Latitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]? |
+    
     """
     matches = re.findall(pattern, texto_total, re.VERBOSE)
-
+    
     for match in matches:
         if match[0] and match[1]:
             tipo = "utm"
@@ -125,6 +139,29 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
                 coordenadas.append((latitude, longitude))
                 coordenadas_originais.append((lat_grau, lon_grau))
                 origens.append("wgs84-texto")
+        elif match[7] and match[8] and match[10]:
+            if coordenadas:
+                lat, lon = coordenadas[-1]
+                graus = int(match[7])
+                minutos = int(match[8]) if match[8] else 0
+                segundos = int(match[9]) if match[9] else 0
+                distancia = float(match[10].replace(',', '.'))
+                azimute_decimal = graus + minutos / 60 + segundos / 3600
+                novo_lat, novo_lon = calcular_novo_ponto(lat, lon, azimute_decimal, distancia)
+                coordenadas.append((novo_lat, novo_lon))
+                coordenadas_originais.append((f"{graus}°{minutos}'{segundos}\"", f"{distancia}m"))
+                origens.append("azimute-dist-texto")
+        elif match[11] and match[12] and match[13]:
+            if coordenadas:
+                lat, lon = coordenadas[-1]
+                graus = int(match[11])
+                minutos = int(match[12]) if match[12] else 0
+                distancia = float(match[13].replace(',', '.'))
+                azimute_decimal = graus + minutos / 60
+                novo_lat, novo_lon = calcular_novo_ponto(lat, lon, azimute_decimal, distancia)
+                coordenadas.append((novo_lat, novo_lon))
+                coordenadas_originais.append((f"{graus}°{minutos}'", f"{distancia}m"))
+                origens.append("azimute-dist-texto")
 
     if not coordenadas or forcar_ocr:
         print("Nenhuma coordenada encontrada no texto digital. Tentando OCR nas imagens...")
@@ -176,6 +213,29 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
                         coordenadas.append((latitude, longitude))
                         coordenadas_originais.append((lat_grau, lat_min, lat_sec, lon_grau, lon_min, lon_sec))
                         origens.append("wgs84-ocr")
+                elif match[7] and match[8] and match[10]:
+                    if coordenadas:
+                        lat, lon = coordenadas[-1]
+                        graus = int(match[7])
+                        minutos = int(match[8]) if match[8] else 0
+                        segundos = int(match[9]) if match[9] else 0
+                        distancia = float(match[10].replace(',', '.'))
+                        azimute_decimal = graus + minutos / 60 + segundos / 3600
+                        novo_lat, novo_lon = calcular_novo_ponto(lat, lon, azimute_decimal, distancia)
+                        coordenadas.append((novo_lat, novo_lon))
+                        coordenadas_originais.append((f"{graus}°{minutos}'{segundos}\"", f"{distancia}m"))
+                        origens.append("azimute-dist-texto")
+                elif match[11] and match[12] and match[13]:
+                    if coordenadas:
+                        lat, lon = coordenadas[-1]
+                        graus = int(match[11])
+                        minutos = int(match[12]) if match[12] else 0
+                        distancia = float(match[13].replace(',', '.'))
+                        azimute_decimal = graus + minutos / 60
+                        novo_lat, novo_lon = calcular_novo_ponto(lat, lon, azimute_decimal, distancia)
+                        coordenadas.append((novo_lat, novo_lon))
+                        coordenadas_originais.append((f"{graus}°{minutos}'", f"{distancia}m"))
+                        origens.append("azimute-dist-texto")
 
     tipo = "utm" if any(o.startswith("utm") for o in origens) else "wgs84" if coordenadas else None
 
@@ -242,17 +302,10 @@ def gerar_kml(coordenadas, caminho_pdf, tipo):
     print(f"KML '{nome_arquivo}' criado com sucesso!")
     
 if __name__ == "__main__":
-    caminho_pdf = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\CERT_INTEIRO_TEOR_M.11173.pdf"
-    caminho_pdf2 = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\CIT.PDF"
-    caminho_pdf3 = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL\\05. MAIO\\Processo nº 123456789 - JOELSON SOUSA JUNIOR\\enhance_pdf.PDF"
+    caminho_pdf = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL\06. JUNHO\27154188.pdf"
 
     coords, tipo1, origens1 = extrair_coordenadas_pdf(caminho_pdf)
-    coords2, tipo2, origens3= extrair_coordenadas_pdf(caminho_pdf2)
-    coords3, tipo3, origens2= extrair_coordenadas_pdf(caminho_pdf3)
     
     if coords:
         gerar_kml(coords, caminho_pdf, tipo1)
-    if coords2:
-        gerar_kml(coords2, caminho_pdf2, tipo2)
-    if coords3:
-        gerar_kml(coords3, caminho_pdf3, tipo3)
+

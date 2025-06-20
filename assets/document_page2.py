@@ -6,6 +6,13 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
 
+def colorir_celula(cell, cor_hex="009933"):
+        tcPr = cell._tc.get_or_add_tcPr()
+        for el in tcPr.findall('.//w:shd', namespaces={'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}):
+            tcPr.remove(el)
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{cor_hex}"/>')
+        tcPr.append(shading)
+
 def cm_to_twips(cm):
     """Converte centímetros para Twips (1cm = 567 Twips)."""
     return Twips(cm * 567)
@@ -29,10 +36,10 @@ def configurar_documento():
     """Configura as propriedades básicas do documento"""
     doc = Document()
     section = doc.sections[0]
-    section.left_margin = Cm(1.27)
-    section.right_margin = Cm(1.27)
-    section.top_margin = Cm(2.27)
-    section.bottom_margin = Cm(2.27)
+    section.left_margin = Cm(2)
+    section.right_margin = Cm(2)
+    section.top_margin = Cm(2.5)
+    section.bottom_margin = Cm(2.5)
 
     style = doc.styles['Normal']
     style.paragraph_format.space_before = Cm(0)
@@ -45,7 +52,7 @@ def criar_titulo(doc):
     """Cria o título principal com fundo verde"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -76,7 +83,7 @@ def criar_secao_valor(doc, valor_texto):
     """Cria a seção de Valor Total do Imóvel com formatação específica"""
     usable_width = LARGURA
     table = doc.add_table(rows=3, cols=5)
-    table.allow_autofit = False  
+    table.allow_autofit = True  
     table.width = usable_width  
     table.style = 'Table Grid'
 
@@ -179,7 +186,7 @@ def criar_secao_identificacao(doc):
     """Cria a seção de Identificação do Imóvel com 4 linhas e 3 colunas"""
     usable_width = LARGURA
     table = doc.add_table(rows=5, cols=3)
-    table.allow_autofit = False 
+    table.allow_autofit = True 
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -187,7 +194,7 @@ def criar_secao_identificacao(doc):
     table.rows[1].height = Cm(0.5)  
     table.rows[2].height = Cm(0.2)  
     table.rows[3].height = Cm(0.5)  
-    table.rows[4].height = Cm(0.19)  
+    table.rows[4].height = Cm(0.2)  
 
     title_cell = table.rows[0].cells[0]
     title_cell.merge(table.rows[0].cells[2])
@@ -224,7 +231,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row2[1].text = "MODULO-G10"
+    row2[1].text = "{nome_imovel}"
     row2[1].paragraphs[0].runs[0].bold = True
     row2[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -272,7 +279,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row4[1].text = "FORMOSO DO ARAGUAIA - TO"
+    row4[1].text = "{cit_est}"
     row4[1].paragraphs[0].runs[0].bold = True
     row4[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -292,15 +299,17 @@ def criar_secao_identificacao(doc):
 
     tcPr.append(borders)
 
-    row5 = table.rows[4].cells
-    row5[0].merge(row5[2])  
-    row5[0].text = " "
-    row5[0].paragraphs[0].runs[0].font.size = Pt(2)
-
-    tcPr = row5[0]._tc.get_or_add_tcPr()
+    row5 = table.rows[4].cells[0]
+    row5.merge(table.rows[4].cells[2])
+    paragraph = row5.paragraphs[0]
+    paragraph.clear()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run = paragraph.add_run("|")
+    run.font.size = Pt(1)
+    tcPr = row5._tc.get_or_add_tcPr()
     borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>' 
+        f'<w:tcBorders {nsdecls("w")}>' +
+        '<w:top w:val="nil"/>' +
         '</w:tcBorders>'
     )
     tcPr.append(borders)
@@ -314,7 +323,7 @@ def criar_secao_croqui(doc, imagem_path='captura_teste_2.png'):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -370,13 +379,13 @@ def geometria_terreno(doc):
     """Cria a seção de Geometria do Terreno com polígonos"""
     table = doc.add_table(rows=3, cols=5)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
     table.rows[0].height = Cm(1.01)  
     table.rows[1].height = Cm(0.56)
-    table.rows[2].height = Cm(0.09)  
+    table.rows[2].height = Cm(0.2)  
 
     title_cell = table.rows[0].cells[0]
     title_cell.merge(table.rows[0].cells[4])
@@ -414,8 +423,6 @@ def geometria_terreno(doc):
     tcPr.append(borders)    
 
     row[1].text = " "
-    shadding = parse_xml(f'<w:shd {nsdecls("w")} w:fill="009933"/>')
-    row[1]._tc.get_or_add_tcPr().append(shadding)
     row[1].paragraphs[0].runs[0].font.size = Pt(12)
     row[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row[1].width = Cm(0.46)
@@ -449,8 +456,6 @@ def geometria_terreno(doc):
     tcPr.append(borders)
 
     row[3].text = " "
-    shadding = parse_xml(f'<w:shd {nsdecls("w")} w:fill="00B050"/>')
-    row[3]._tc.get_or_add_tcPr().append(shadding)
     row[3].paragraphs[0].runs[0].font.size = Pt(12)
     row[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row[3].width = Cm(0.46)
@@ -487,7 +492,6 @@ def geometria_terreno(doc):
     row1 = table.rows[2].cells[0]
     row1.merge(table.rows[2].cells[4])  
     paragraph = row1.paragraphs[0]
-    run = row1.add_paragraph()
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
     run = paragraph.add_run("|")
@@ -504,13 +508,13 @@ def geometria_terreno(doc):
     )
     tcPr.append(borders)
 
-    return doc
+    return doc, table
 
 def criar_secao_caracteristicas(doc):
     """Cria a seção de Características do Terreno"""
     table = doc.add_table(rows=9, cols=14)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 

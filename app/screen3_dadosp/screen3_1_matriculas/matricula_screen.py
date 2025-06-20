@@ -1,11 +1,13 @@
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.scrollview import MDScrollView
 from kivy.uix.widget import Widget
 from datetime import datetime
+import openpyxl
+import re
 from modules.data_folder import formatar_data
 import os
 from kivy.metrics import dp
@@ -42,6 +44,62 @@ class MatriculaScreen(MDScreen):
         self.matricula_selecionada = ""
         self.tipo_planilha = ""
 
+    def extrair_numero_matricula_excel(self, caminho_arquivo):
+        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        aba = "AREA UTIL "
+        if aba not in wb.sheetnames:
+            print(f"{aba} não encontrado")
+            return ""
+        ws = wb[aba]
+        pattern = re.compile(r"matr[ií]cula[\s\:\-\t]*([\d\.\,]+)", re.IGNORECASE)
+        for row in ws.iter_rows(values_only=True):
+            for idx, cell in enumerate(row):
+                print(f"Tipo: {type(cell)}, Valor: '{cell}'")
+                if isinstance(cell, str):
+                    cell_limpa = cell.strip().replace('\n', '').replace('\r', '').replace('\t', ' ')
+                    match = pattern.search(cell_limpa)
+                    if match:
+                        numero = match.group(1)
+                        print(f"Número de matrícula encontrado no texto: {numero}")
+                        return numero
+                    if "matr" in cell_limpa.lower() and idx + 1 < len(row):
+                        prox = row[idx + 1]
+                        if isinstance(prox, (int, float)):
+                            numero = str(prox)
+                            print(f"Número de matrícula encontrado na célula ao lado: {numero}")
+                            return numero
+                if isinstance(cell, (int, float)) and idx > 0:
+                    ant = row[idx - 1]
+                    if isinstance(ant, str) and "matr" in ant.lower():
+                        numero = str(cell)
+                        print(f"Número de matrícula encontrado após 'MATRÍCULA': {numero}")
+                        return numero
+        print("Número de matrícula não encontrado")
+        return ""
+    
+    def extrair_valor_total_excel(self, caminho_arquivo):
+        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        aba = "SANEAMENTO"
+        if aba not in wb.sheetnames:
+            print(f"{aba} não encontrado")
+            return ""
+        ws = wb[aba]
+        for row in ws.iter_rows(values_only=True):
+            for idx, cell in enumerate(row):
+                if isinstance(cell, str) and cell.strip().lower() == "valor total":
+                    # Procura o primeiro valor não vazio à direita
+                    for prox in row[idx+1:]:
+                        if prox not in (None, "", "-"):
+                            try:
+                                valor = float(prox)
+                                valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+                            except Exception:
+                                valor_formatado = str(prox)
+                            print(f"Valor Total encontrado: {valor_formatado}")
+                            return valor_formatado
+        print("Valor Total não encontrado")
+        return ""
+
     def abrir_filemanager(self, matricula_nome, tipo):
         data = formatar_data()
         data_nome = datetime.now()
@@ -75,13 +133,20 @@ class MatriculaScreen(MDScreen):
         self.matriculas[m]["arquivos"][t] = caminho
         print(f"📂 {t.upper()} associado a {m}: {caminho}")
 
+        if t == "planilha":
+            numero = self.extrair_numero_matricula_excel(caminho)
+            if numero:
+                self.matriculas[m]["campos"]["nome"].text = numero
+        valor_total = self.extrair_valor_total_excel(caminho)
+        if valor_total:
+            self.matriculas[m]["campos"]["valor"].text = str(valor_total)
+
     def abrir_tela_detalhe(self, nome_matricula):
         nome_tela = f"detalhe_{nome_matricula.replace(' ', '_').lower()}"
         if not self.manager.has_screen(nome_tela):
             nova_tela = MatriculaDetalheScreen(nome_matricula, name=nome_tela)
             self.manager.add_widget(nova_tela)
         self.manager.current = nome_tela
-
 
     def criar_botoes_para_matriculas(self, quantidade):
         self.botoes_matriculas.clear_widgets()
@@ -95,14 +160,21 @@ class MatriculaScreen(MDScreen):
             grupo.height = dp(240)
 
             campo_nome = MDTextField(
-                hint_text=f"Nome da {nome}",
+                MDTextFieldHintText(text=f"Nome da {nome}"),
                 size_hint=(0.9, None),
                 height=50,
                 pos_hint={"center_x": 0.5}
             )
 
-            campo_valor = MDTextField(
-                hint_text=f"Código da {nome}",
+            campo_valor_total = MDTextField(
+                MDTextFieldHintText(text=f"valor total da {nome}"),
+                size_hint=(0.9, None),
+                height=50,
+                pos_hint={"center_x": 0.5}
+            )
+
+            campo_valor_liq = MDTextField(
+                MDTextFieldHintText(text = f"valor líquido da {nome}"),
                 size_hint=(0.9, None),
                 height=50,
                 pos_hint={"center_x": 0.5}
@@ -128,11 +200,13 @@ class MatriculaScreen(MDScreen):
 
             self.matriculas[nome]["campos"] = {
                 "nome": campo_nome,
-                "valor": campo_valor
+                "valor": campo_valor_total,
+                "valor_liq": campo_valor_liq
             }
 
             grupo.add_widget(campo_nome)
-            grupo.add_widget(campo_valor)
+            grupo.add_widget(campo_valor_total)
+            grupo.add_widget(campo_valor_liq)
             grupo.add_widget(botao_planilha)
             grupo.add_widget(botao_imagem)
 

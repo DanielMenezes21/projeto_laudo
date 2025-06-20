@@ -52,7 +52,7 @@ def criar_titulo(doc):
     """Cria o título principal com fundo verde"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -83,7 +83,7 @@ def criar_secao_valor(doc, valor_texto):
     """Cria a seção de Valor Total do Imóvel com formatação específica"""
     usable_width = LARGURA
     table = doc.add_table(rows=3, cols=5)
-    table.allow_autofit = False  
+    table.allow_autofit = True  
     table.width = usable_width  
     table.style = 'Table Grid'
 
@@ -186,7 +186,7 @@ def criar_secao_identificacao(doc):
     """Cria a seção de Identificação do Imóvel com 4 linhas e 3 colunas"""
     usable_width = LARGURA
     table = doc.add_table(rows=5, cols=3)
-    table.allow_autofit = False 
+    table.allow_autofit = True 
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -323,7 +323,7 @@ def criar_secao_croqui(doc, imagem_path='captura_teste_2.png'):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -379,7 +379,7 @@ def geometria_terreno(doc):
     """Cria a seção de Geometria do Terreno com polígonos"""
     table = doc.add_table(rows=3, cols=5)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 
@@ -514,7 +514,7 @@ def criar_secao_caracteristicas(doc):
     """Cria a seção de Características do Terreno"""
     table = doc.add_table(rows=9, cols=14)
     usable_width = LARGURA
-    table.allow_autofit = False
+    table.allow_autofit = True
     table.width = usable_width
     table.style = 'Table Grid'
 

@@ -5,8 +5,7 @@ def inserir_sumario(doc):
     # Adiciona um parágrafo vazio onde o sumário será inserido
     paragraph = doc.add_paragraph()
     run = paragraph.add_run()
-    
-    # Cria o campo de sumário (TOC)
+
     fldChar1 = OxmlElement('w:fldChar')
     fldChar1.set(qn('w:fldCharType'), 'begin')
     instrText = OxmlElement('w:instrText')

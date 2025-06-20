@@ -6,7 +6,7 @@ from docx.oxml import parse_xml
 from docx.table import Table
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
-from document_page2 import LARGURA
+from document_page2 import LARGURA, configurar_documento, adicionar_linha_fina
 
 def titulo(doc):
     table = doc.add_table(rows=1, cols=1)
@@ -32,7 +32,7 @@ def titulo(doc):
 
     p = cell.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("Parecer Jurídico-ambiental")
+    run = p.add_run("Parecer Jurídico-ambiental da matrícula {matricula}")
     run.bold = True
     run.font.size = Pt(12)
 
@@ -1468,11 +1468,9 @@ def table_passivo_ambiental(doc):
     return doc
 
 def campo_assinatura(doc):
-    # Adiciona 6 linhas em branco
     for _ in range(6):
         doc.add_paragraph("")
 
-    # Adiciona o campo de assinatura centralizado
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = p.add_run("_________________________________________________________________")
