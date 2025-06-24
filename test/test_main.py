@@ -74,7 +74,7 @@ class Test(MDScreen):
         )
 
     def open_file_manager(self, *args):
-        start_path = "/" if platform == "linux" else "C:/"
+        start_path = "/" if platform == "linux" else "C:\\Users\\DESKTOP\\Desktop\\automacao_laudo"
         self.file_manager.show(start_path)
 
     def select_path(self, path):

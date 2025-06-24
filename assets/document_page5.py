@@ -17,12 +17,29 @@ def adicionar_espaco(doc):
 
     return doc
 
+def gerar_texto_proprietarios(proprietarios):
+    lista = []
+    for p in proprietarios:
+        lista.append(f"{p['trat']} {p['nome']} inscrito sob o CPF nº {p['cpf']}, {p['sit_civil']}")
+    if len(lista) == 1:
+        texto = lista[0]
+        return (
+            f"        Em conformidade com o exposto na matrícula de nº #NMATRICULA, o {texto}, "
+            f"é o proprietário do imóvel rural denominado #NOME_IMOVEL."
+        )
+    else:
+        texto = "; ".join(lista[:-1]) + " e " + lista[-1]
+        return (
+            f"        Em conformidade com o exposto na matrícula de nº #NMATRICULA, {texto}, "
+            f"são os proprietários do imóvel rural denominado #NOME_IMOVEL."
+        )
+
 def texto_solicitante(doc):
     heading = doc.add_heading("1 - SOLICITANTE", level=1)
     run = heading.runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
-    doc.add_paragraph("        Fomos solicitados pelo {prop} {nome}, para avaliar um imóvel rural, denominado {imovel}, localizado em {cid_est} ")
+    doc.add_paragraph("        Fomos solicitados pelo {solicitante}, para avaliar um imóvel rural, denominado {imovel}, localizado em {cid_est} ")
 
     return doc
 
@@ -44,13 +61,13 @@ def texto_finalidade(doc):
 
     return doc
 
-def texto_proprietario(doc):
+def texto_proprietario(doc, proprietarios, matricula, imovel):
     heading = doc.add_heading("4 - PROPRIETÁRIO", level=1)
     run = heading.runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
-    doc.add_paragraph("        Em conformidade com o exposto na matrícula de nº 154.725, o {trat} {nome} inscrito sob o CPF nº {cpf}, é o proprietário do imóvel rural denominado {imovel}, {sit_civil}")
-
+    texto = gerar_texto_proprietarios(proprietarios, matricula, imovel)
+    doc.add_paragraph(texto)
     return doc
 
 def texto_ressalvas(doc):

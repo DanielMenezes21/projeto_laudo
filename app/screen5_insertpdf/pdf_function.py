@@ -7,6 +7,7 @@ from kivy.metrics import dp
 from kivymd.uix.filemanager import MDFileManager
 from app.screen3_dadosp.dados_function import *
 from modules.resource_path import resource_path
+from docx.shared import Pt
 
 def go_back(self, *args):
     self.manager.current_screen.manager.current = "territorio"

@@ -5,7 +5,6 @@ from app.screen2_kml.leitor import LeitorScreen
 from app.screen2_manager.manager_screen import ManagerScreen
 from app.screen3_dadosp.dadosscreen import DadosScreen
 from app.screen3_dadosp.screen3_1_matriculas.matricula_screen import MatriculaScreen
-from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.matricula_detalhe_screen import MatriculaDetalheScreen
 from app.screen4_territorio.soloscreen import SoloScreen
 from app.screen5_insertpdf.pdfscreen import PDFInsert
 from kivy.uix.screenmanager import (SlideTransition, 

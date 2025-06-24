@@ -6,8 +6,11 @@ from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.metrics import dp
+import os
+from datetime import datetime
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
+from modules.data_atual import formatar_data
 
 from app.screen5_insertpdf.pdf_function import (
     go_back,
@@ -18,11 +21,22 @@ from app.screen5_insertpdf.pdf_insercao import gerar_documento
 
 
 class PDFInsert(MDScreen):
+    def receber_dados_matriculas(self, lista_dados):
+        self.lista_dados_matriculas = lista_dados
+        self.qtd_imoveis = len(lista_dados)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.lista_dados_matriculas = []  # <- inicializa sempre vazio
+        self.qtd_imoveis = 0
         self.pastas_abertas = set()
-
-        self.root_path = "C:\\Users\\DESKTOP\\Desktop"
+        data = formatar_data()
+        data_nome = datetime.now()
+        mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+        self.root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        self.root_path = os.path.join(self.root_path, mes)
+        if not os.path.exists(self.root_path):
+            self.root_path = os.path.join("C:\\Users\\DESKTOP\\Documents", mes)
         self.current_path = self.root_path
 
         self.layout = MDBoxLayout(orientation="vertical")

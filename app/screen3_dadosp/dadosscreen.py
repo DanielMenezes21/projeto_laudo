@@ -36,6 +36,7 @@ class DadosScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.qtd_imoveis = 0
         self.tratamento = ""
 
         self.scroll = MDScrollView(bar_color=(1, 1, 1, 0.5), bar_width=10, scroll_type=["bars", "content"])
@@ -45,7 +46,6 @@ class DadosScreen(MDScreen):
         buttons = MDFloatLayout(size_hint_y=None)
         buttons.add_widget(Widget())
         cliente = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
-        coord = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(48))
 
         self.button_back = MDIconButton(
             icon="arrow-left",
@@ -78,7 +78,7 @@ class DadosScreen(MDScreen):
             pos_hint={"center_x": 0.5, "center_y":0.9}
         )
 
-        self.agencia = MDTextField(
+        self.solicitante = MDTextField(
             MDTextFieldHintText(text="Solicitante"),
             MDTextFieldHelperText(text="O solicitante que enviou os documentos para o laudo",
                 theme_text_color="Custom", 
@@ -143,21 +143,6 @@ class DadosScreen(MDScreen):
             height=50,
         )
 
-        self.nome_imovel = MDTextField(
-            MDTextFieldHintText(text="Nome do Imóvel",
-                theme_text_color="Custom", 
-                text_color_normal="yellow",
-                text_color_focus="yellow",),
-            theme_text_color="Custom",
-            text_color_normal="yellow",
-            text_color_focus="yellow",
-            size = (200,50),
-            size_hint=(0.9, None),
-            pos_hint={"center_x": 0.5},
-            write_tab=False,
-            height=50,
-        )
-
         self.civil = MDTextField(
             MDTextFieldHintText(text="situação civil"),
             MDTextFieldHelperText(text="fale sobre a situação civil do proponente, se o mesmo se encontra casado,\n solteiro, viuvo ou se outra pessoa partilha a terra com o mesmo",
@@ -206,24 +191,6 @@ class DadosScreen(MDScreen):
             height=50,
         )
 
-        self.latitude=MDTextField(
-            MDTextFieldHintText(text="Latitude do centróide do imóvel"),
-            size=(100,50),
-            size_hint=(0.4, None),
-            write_tab=False,
-            pos_hint={"x": 0.05}
-        )
-        coord.add_widget(self.latitude)
-
-        self.longitude=MDTextField(
-            MDTextFieldHintText(text="Longitude do centróide do imóvel"),
-            size=(100,50),
-            size_hint=(0.4, None),
-            write_tab=False,
-            pos_hint={"x":0.6}
-        )
-        coord.add_widget(self.longitude)
-
         self.botao_proponente = MDButton(
             pos_hint={"center_x": 0.5},
             on_release=lambda x: self.menu_proponente.open()
@@ -254,26 +221,20 @@ class DadosScreen(MDScreen):
 
         self.layout.add_widget(buttons)
         self.layout.add_widget(self.label)
-        self.layout.add_widget(self.agencia)
+        self.layout.add_widget(self.solicitante)
         self.layout.add_widget(self.botao_matricula)
         self.layout.add_widget(self.civil)
         self.layout.add_widget(cliente)
         self.layout.add_widget(self.cpf)
-        self.layout.add_widget(self.nome_imovel)
         self.layout.add_widget(self.municipio)
         self.layout.add_widget(self.estado)
-        self.layout.add_widget(coord)
         self.layout.add_widget(self.botao_selecionar)
 
-        self.agencia.bind(focus=self._on_focus)
+        self.solicitante.bind(focus=self._on_focus)
         self.civil.bind(focus=self._on_focus)
         self.cpf.bind(focus=self._on_focus)
-        self.nome_imovel.bind(focus=self._on_focus)
         self.municipio.bind(focus=self._on_focus)
         self.estado.bind(focus=self._on_focus)
-        self.latitude.bind(focus=self._on_focus)
-        self.longitude.bind(focus=self._on_focus)
-        self.proponente.bind(focus=self._on_focus)
         self.civil.bind(focus=self.salvar_civil)
         
         self.scroll.add_widget(self.layout)

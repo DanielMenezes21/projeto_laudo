@@ -79,7 +79,7 @@ def criar_titulo(doc):
 
     return doc
 
-def criar_secao_valor(doc, valor_texto):
+def criar_secao_valor(doc):
     """Cria a seção de Valor Total do Imóvel com formatação específica"""
     usable_width = LARGURA
     table = doc.add_table(rows=3, cols=5)
@@ -112,13 +112,13 @@ def criar_secao_valor(doc, valor_texto):
     row[0].text = "VALOR TOTAL"
     row[0].paragraphs[0].runs[0].bold = True
 
-    row[1].text = valor_texto
+    row[1].text = "#VALOR_TOTAL"
     row[1].paragraphs[0].runs[0].bold = True
     
     row[2].text = "MATRÍCULA"
     row[2].paragraphs[0].runs[0].bold = True
 
-    row[3].text = "6.180"
+    row[3].text = "#NMATRICULA"
     row[3].paragraphs[0].runs[0].bold = True
 
     row[4].text = ""
@@ -152,7 +152,7 @@ def criar_secao_valor(doc, valor_texto):
     row[0].text = "LIQUIDAÇÃO"
     row[0].paragraphs[0].runs[0].bold = True
 
-    row[1].text = "R$ 1.031.000,00"
+    row[1].text = "#VALOR_LIQ_TOTAL"
     row[1].paragraphs[0].runs[0].bold = True
 
     row[2].merge(row[4])
@@ -231,7 +231,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row2[1].text = "{nome_imovel}"
+    row2[1].text = "#NOME_IMOVEL"
     row2[1].paragraphs[0].runs[0].bold = True
     row2[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -279,7 +279,7 @@ def criar_secao_identificacao(doc):
     )
     tcPr.append(borders)
     
-    row4[1].text = "{cit_est}"
+    row4[1].text = "#CIDADE_I - #ESTADO_I"
     row4[1].paragraphs[0].runs[0].bold = True
     row4[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -319,7 +319,7 @@ def criar_secao_identificacao(doc):
     
     return doc
 
-def criar_secao_croqui(doc, imagem_path='captura_teste_2.png'):
+def criar_secao_croqui(doc, imagem_path="{file_manager_imagem}"):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA

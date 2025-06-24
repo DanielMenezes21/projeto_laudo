@@ -6,7 +6,7 @@ from docx.oxml import parse_xml
 from docx.table import Table
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
-from document_page2 import LARGURA, configurar_documento, adicionar_linha_fina
+from assets.document_page2 import LARGURA, configurar_documento, adicionar_linha_fina
 
 def titulo(doc):
     table = doc.add_table(rows=1, cols=1)

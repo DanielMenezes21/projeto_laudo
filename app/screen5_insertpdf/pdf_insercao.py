@@ -5,6 +5,13 @@ from docx.oxml.ns import qn
 import os
 import re
 from app.screen5_insertpdf.pdf_extracao import extrair_paginas_como_imagens
+from assets.document_style import *
+from assets.document_page1 import *
+from assets.document_page2 import *
+from assets.document_page3 import *
+from assets.document_page4 import *
+from assets.document_page5 import *
+from assets.document_page6 import *
 
 def inserir_pdf_no_word(self, caminho_pdf, placeholder):
     if not hasattr(self, "doc"):
@@ -74,6 +81,68 @@ def inserir_imagem_no_placeholder(self, placeholder, caminho_imagem):
             return
     print(f"❌ Placeholder '{placeholder}' não encontrado no documento.")
 
+def montar_documento(doc, qtd_imoveis):
+    doc = configurar_documento()
+    doc.add_page_break()
+
+    for i in range(qtd_imoveis):
+        doc = criar_titulo(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_valor(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_identificacao(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_croqui(doc)
+        doc = adicionar_linha_fina(doc)
+        doc, tabela = geometria_terreno(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = criar_secao_caracteristicas(doc)
+        if i < qtd_imoveis:
+            p = doc.add_paragraph()
+            run = p.add_run(".")
+            run.font.size = Pt(1)
+            doc.add_page_break()
+    for i in range(qtd_imoveis):
+        doc = titulo(doc)
+        doc = table_geo(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = tabela_bioma(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = area_APA(doc)
+        doc = adicionar_linha_fina(doc)
+        doc = table_passivo_ambiental(doc)
+        if i ==qtd_imoveis -1:
+            doc = campo_assinatura(doc)
+            doc.add_page_break()
+        if i < qtd_imoveis - 1:
+            doc.add_page_break()
+    doc = inserir_sumario(doc)
+    doc.add_page_break()
+    doc = adicionar_espaco(doc)
+    doc = texto_solicitante(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_objetivo(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_finalidade(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_proprietario(doc)
+    doc = adicionar_espaco(doc)
+    doc = texto_ressalvas(doc)
+    doc.add_page_break()
+    doc = title_imovel(doc)
+    doc = localizacao(doc)
+    doc = acesso(doc)
+    doc = carac_reg(doc)
+    doc.add_page_break()
+    doc = desc_imovel(doc)
+    doc.add_page_break()
+
+    return doc
+
+def receber_dados_matriculas(self, lista_dados):
+    self.lista_dados_matriculas = lista_dados
+    self.qtd_imoveis = len(lista_dados)
+
 def gerar_documento(self):
     try:
         processo = ""
@@ -86,34 +155,37 @@ def gerar_documento(self):
                         match = re.search(r"(?i)processo\s*n[°º]\s*(\d+)", subpasta, re.IGNORECASE)
                         if match:
                             processo = match.group(1)
+        for i, dados in enumerate(self.lista_dados_matriculas):
+            substituicoes = {
+                "#TRATAMENTO": self.tratamento,
+                "#PROPONENTE": self.nome,
+                "#CPF_PROPONENTE": self.cpf,
+                "#NOME_IMOVEL": dados.get("nome_imovel", ""),
+                "#DATA_ATUAL": self.data_atual,
+                "#CIVIL": self.civil,
+                "#CIDADE_I": self.municipio,
+                "#ESTADO_I": self.estado,
+                "#LATITUDE": dados.get("latitude", ""),
+                "#LONGITUDE": dados.get("longitude", ""),
+                "#NMATRICULA": dados.get("matricula", ""),
+                "#SOLICTANTE": self.solicitante,
+                "#DESCRICAO_IMOVEL": self.descricao_imovel,
+                "#REGIAO_CIDADE": self.descricao_cidade,
+                "#ATIVIDADE_IMOVEL": self.atividade_imovel,
+                "#REGIAO_IMOVEL": self.regiao_imovel,
+                "#DECLIVIDADE_I": self.declividade,
+                "#HIDROGRAFIA_I": self.hidrografia,
+                "#TIPO_SOLO": self.resumo_solo,
+                "#DESCRICAO_SOLO": self.texto_solos,
+                "#ROTA_ACESSO": self.rotas,
+                "#NPROCESSO": processo,
+            }
 
-        substituicoes = {
-            "#TRATAMENTO": self.tratamento,
-            "#PROPONENTE": self.nome,
-            "#CPF_PROPONENTE": self.cpf,
-            "#NOME_IMOVEL": self.nome_imovel,
-            "#DATA_ATUAL": self.data_atual,
-            "#CIVIL": self.civil,
-            "#CIDADE_I": self.municipio,
-            "#ESTADO_I": self.estado,
-            "#LATITUDE": self.latitude,
-            "#LONGITUDE": self.longitude,
-            "#NMATRICULA": self.matricula,
-            "#AGENCIA": self.agencia,
-            "#DESCRICAO_IMOVEL": self.descricao_imovel,
-            "#REGIAO_CIDADE": self.descricao_cidade,
-            "#ATIVIDADE_IMOVEL": self.atividade_imovel,
-            "#REGIAO_IMOVEL": self.regiao_imovel,
-            "#DECLIVIDADE_I": self.declividade,
-            "#HIDROGRAFIA_I": self.hidrografia,
-            "#TIPO_SOLO": self.resumo_solo,
-            "#DESCRICAO_SOLO": self.texto_solos,
-            "#ROTA_ACESSO": self.rotas,
-            "#NPROCESSO": processo,
-        }
-
-        for chave, valor in substituicoes.items():
-            print(f"{chave}: {type(valor)}")
+            for chave, valor in substituicoes.items():
+                print(f"{chave}: {type(valor)}")
+        
+        doc = configurar_documento()
+        self.doc = montar_documento(doc, self.qtd_imoveis)
 
         if hasattr(self, "caminho_declividade"):
             inserir_imagem_no_placeholder(self, "#IMAGEM_DECLIVIDADE", self.caminho_declividade)

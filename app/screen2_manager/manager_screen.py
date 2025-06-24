@@ -11,6 +11,7 @@ class ManagerScreen(MDScreen):
 
         botao = MDButton(
             MDButtonText(text="Selecionar Arquivo"),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
             on_release=lambda x: self.open_file_manager()
         )
 
@@ -28,11 +29,24 @@ class ManagerScreen(MDScreen):
         self.file_manager.show("H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL")  
 
     def on_files_selected(self, paths):
-        dados = extrair_dados_multiplos_pdfs(paths)
+        (nomes, cpfs, nomes_imoveis, municipio, estado, 
+        latitudes, longitudes, dados_imoveis) = extrair_dados_multiplos_pdfs(paths)
+        
         tela_dados = self.manager.get_screen('dados')
-        receber_dados_pdf(tela_dados, *dados)
+        tela_matricula = self.manager.get_screen('matricula')
+        
+        receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imoveis, municipio, estado, dados_imoveis)
+        
+        tela_matricula.receber_dados_imoveis(
+            imoveis=nomes_imoveis, 
+            latitudes=latitudes,
+            longitudes=longitudes
+        )
+        
+        tela_matricula.criar_botoes_para_matriculas(len(dados_imoveis))
+        
         self.close_manager()
-        self.manager.current = 'dados'  
+        self.manager.current = 'dados'
 
     def close_manager(self, *args):
         self.file_manager.close()

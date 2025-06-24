@@ -10,9 +10,7 @@ import os
 def create_document(valor_texto, imagem_path='captura_teste.png', celula_verde=False, imagem_acesso=None, quantidade=1):
     doc = configurar_documento()
     doc.add_page_break()
-    # ...código anterior...
 
-    # Repita as tabelas de test_page2.py conforme a quantidade
     for i in range(quantidade):
         doc = criar_titulo(doc)
         doc = adicionar_linha_fina(doc)
