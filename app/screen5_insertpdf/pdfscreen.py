@@ -27,7 +27,7 @@ class PDFInsert(MDScreen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.lista_dados_matriculas = []  # <- inicializa sempre vazio
+        self.lista_dados_matriculas = []  
         self.qtd_imoveis = 0
         self.pastas_abertas = set()
         data = formatar_data()

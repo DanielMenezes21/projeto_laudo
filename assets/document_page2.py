@@ -3,6 +3,7 @@ from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import parse_xml
+import os
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
 
@@ -48,8 +49,8 @@ def configurar_documento():
     
     return doc
 
-def criar_titulo(doc):
-    """Cria o título principal com fundo verde"""
+def criar_titulo(doc, dados):
+    """Cria o título principal com fundo verde com dados específicos"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
     table.allow_autofit = True
@@ -62,7 +63,7 @@ def criar_titulo(doc):
     cell._tc.get_or_add_tcPr().append(shading)
 
     borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
+        f'<w:tcBorders {nsdecls("w")}>' 
         '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
         '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
         '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
@@ -71,15 +72,16 @@ def criar_titulo(doc):
     )
     cell._tc.get_or_add_tcPr().append(borders)
 
+    matricula = dados.get("matricula", "")
     p = cell.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("FICHA CADASTRAL")
+    run = p.add_run(f"FICHA CADASTRAL {matricula}")
     run.bold = True
     run.font.size = Pt(12)
 
     return doc
 
-def criar_secao_valor(doc):
+def criar_secao_valor(doc, dados):
     """Cria a seção de Valor Total do Imóvel com formatação específica"""
     usable_width = LARGURA
     table = doc.add_table(rows=3, cols=5)
@@ -108,17 +110,19 @@ def criar_secao_valor(doc):
     title_cell.paragraphs[0].runs[0].bold = True
     title_cell.paragraphs[0].runs[0].font.size = Pt(12)
 
+    valor_total = dados.get("valor_total","")
+    matricula = dados.get("matricula","")
     row = table.rows[1].cells
     row[0].text = "VALOR TOTAL"
     row[0].paragraphs[0].runs[0].bold = True
 
-    row[1].text = "#VALOR_TOTAL"
+    row[1].text = f"{valor_total}"
     row[1].paragraphs[0].runs[0].bold = True
     
     row[2].text = "MATRÍCULA"
     row[2].paragraphs[0].runs[0].bold = True
 
-    row[3].text = "#NMATRICULA"
+    row[3].text = f"{matricula}"
     row[3].paragraphs[0].runs[0].bold = True
 
     row[4].text = ""
@@ -148,11 +152,12 @@ def criar_secao_valor(doc):
         )
         tcPr.append(borders)
 
+    valor_liq_total = dados.get("valor_liq_total","")
     row = table.rows[2].cells
     row[0].text = "LIQUIDAÇÃO"
     row[0].paragraphs[0].runs[0].bold = True
 
-    row[1].text = "#VALOR_LIQ_TOTAL"
+    row[1].text = f"{valor_liq_total}"
     row[1].paragraphs[0].runs[0].bold = True
 
     row[2].merge(row[4])
@@ -319,7 +324,7 @@ def criar_secao_identificacao(doc):
     
     return doc
 
-def criar_secao_croqui(doc, imagem_path="{file_manager_imagem}"):
+def criar_secao_croqui(doc, imagem_path=None):
     """Cria a seção do Croqui de Localização com borda na imagem"""
     table = doc.add_table(rows=1, cols=1)
     usable_width = LARGURA
@@ -345,34 +350,18 @@ def criar_secao_croqui(doc, imagem_path="{file_manager_imagem}"):
     )
     tcPr.append(borders)
 
-    if imagem_path:
+    if imagem_path and os.path.exists(imagem_path):
         try:
             p_img = doc.add_paragraph()
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
             run = p_img.add_run()
-            shape = run.add_picture(imagem_path, width=Cm(15), height=Cm(10.61))
-            border_xml = (
-                '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" '
-                'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
-                '<pic:spPr>'
-                '<a:ln w="9525">'  
-                '<a:solidFill>'
-                '<a:srgbClr val="000000"/>'  
-                '</a:solidFill>'
-                '<a:prstDash val="solid"/>'  
-                '</a:ln>'
-                '</pic:spPr>'
-                '</pic:pic>'
-            )
-
-            pic = run._r.xpath('.//pic:pic')[0]
-            pic.append(parse_xml(border_xml))
-            
+            run.add_picture(imagem_path, width=Cm(15), height=Cm(10.61))
         except Exception as e:
-            print(f"Erro ao adicionar imagem: {e}")
+            print(f"⚠ Erro ao adicionar imagem do croqui: {e}")
             doc.add_paragraph("[ESPAÇO PARA CROQUI]", style='Normal')
     else:
         doc.add_paragraph("[ESPAÇO PARA CROQUI]", style='Normal')
+
     return doc
 
 def geometria_terreno(doc):

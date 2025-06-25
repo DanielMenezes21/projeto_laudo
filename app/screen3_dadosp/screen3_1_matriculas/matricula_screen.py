@@ -33,8 +33,16 @@ class MatriculaScreen(MDScreen):
             text_color=(1, 1, 1, 1),
             on_release=lambda x: go_back(self),
         )
+
+        self.botao_salvar = MDButton(
+            MDButtonText(text="Salvar informações"),
+            pos_hint={"center_x":0.9, "center_y":0.9},
+            on_release=lambda x: self.salvar_dados()
+        )
+
         self.layout.add_widget(self.button_back)
         self.layout.add_widget(self.scroll)
+        self.layout.add_widget(self.botao_salvar)
         self.add_widget(self.layout)
 
         self.file_manager_excel = MDFileManager(
@@ -167,13 +175,15 @@ class MatriculaScreen(MDScreen):
         dados = []
         for nome_matricula, estrutura in self.matriculas.items():
             campos = estrutura["campos"]
+            arquivos = estrutura["arquivos"]
             dados.append({
                 "nome_imovel": campos["nome_imovel"].text,
                 "matricula": campos["numero"].text,
                 "valor_total": campos["valor"].text,
                 "valor_liq": campos["valor_liq"].text,
                 "latitude": campos["latitude"].text,
-                "longitude": campos["longitude"].text
+                "longitude": campos["longitude"].text,
+                "imagem": arquivos.get("imagem", "")
             })
         return dados
 
@@ -191,24 +201,40 @@ class MatriculaScreen(MDScreen):
         print(f"📂 {t.upper()} associado a {m}: {caminho}")
 
         if t == "planilha":
-            numero = self.extrair_numero_matricula_excel(caminho)
-            if numero:
-                self.matriculas[m]["campos"]["numero"].text = numero
-        valor_total = self.extrair_valor_total_excel(caminho)
-        if valor_total:
-            self.matriculas[m]["campos"]["valor"].text = str(valor_total)
-        valor_liq = self.extrair_valor_liq_excel(caminho)
-        if valor_liq:
-            self.matriculas[m]["campos"]["valor_liq"].text = str(valor_liq)
+            if caminho.endswith(".xlsx") or caminho.endswith(".xls"):
+                try:
+                    numero = self.extrair_numero_matricula_excel(caminho)
+                    if numero:
+                        self.matriculas[m]["campos"]["numero"].text = numero
+                    valor_total = self.extrair_valor_total_excel(caminho)
+                    if valor_total:
+                        self.matriculas[m]["campos"]["valor"].text = str(valor_total)
+                    valor_liq = self.extrair_valor_liq_excel(caminho)
+                    if valor_liq:
+                        self.matriculas[m]["campos"]["valor_liq"].text = str(valor_liq)
+                except Exception as e:
+                    print(f"❌ Erro ao processar planilha: {e}")
+            else:
+                print("❌ Arquivo selecionado não é uma planilha válida.")
+        elif t == "imagem":
+            print("🖼️ Imagem associada com sucesso.")
 
     def abrir_tela_detalhe(self, nome_matricula):
         nome_tela = f"detalhe_{nome_matricula.replace(' ', '_').lower()}"
         if not self.manager.has_screen(nome_tela):
             nova_tela = MatriculaDetalheScreen(nome_matricula, name=nome_tela)
             self.manager.add_widget(nova_tela)
-        dados = self.coletar_dados_matriculas()
-        tela_pdf = self.manager.get_screen('pdf')
         self.manager.current = nome_tela
+
+    def salvar_dados(self):
+        dados = self.coletar_dados_matriculas()
+        print(f"🔄 Salvando dados para tela PDF: {dados}")
+        tela_pdf = self.manager.get_screen('pdf')
+        if hasattr(tela_pdf, "receber_dados_matriculas"):
+            tela_pdf.receber_dados_matriculas(dados)
+        else:
+            print("❌ A tela PDF não possui o método 'receber_dados_matriculas'")
+
 
     def receber_dados_imoveis(self, imoveis, latitudes, longitudes, dados_completos=None):
         """Recebe os dados de imóveis de múltiplos PDFs"""
@@ -234,114 +260,135 @@ class MatriculaScreen(MDScreen):
         self.botoes_matriculas.clear_widgets()
         self.matriculas.clear()
 
+        # Layout principal (contém campos existentes + seção de adição)
+        main_layout = MDBoxLayout(orientation="vertical", spacing=25, size_hint_y=None)
+        main_layout.bind(minimum_height=main_layout.setter('height'))
+
+        # 1. Adiciona campos iniciais
         for i in range(quantidade):
-            nome = f"Matrícula {i+1}"
-            self.matriculas[nome] = {"campos": {}, "arquivos": {}}
+            self._adicionar_grupo_matricula(i+1, main_layout)
 
-            nome_imovel = ""
-            latitude = ""
-            longitude = ""
-            
-            if hasattr(self, 'dados_imoveis'):
-                if isinstance(self.dados_imoveis, list) and i < len(self.dados_imoveis):
-                    nome_imovel = self.dados_imoveis[i].get('nome_imovel', "")
-                    latitude = self.dados_imoveis[i].get('latitude', "")
-                    longitude = self.dados_imoveis[i].get('longitude', "")
-                elif isinstance(self.dados_imoveis, dict):
-                    if i < len(self.dados_imoveis.get("imoveis", [])):
-                        nome_imovel = self.dados_imoveis["imoveis"][i]
-                    if i < len(self.dados_imoveis.get("latitudes", [])):
-                        latitude = self.dados_imoveis["latitudes"][i]
-                    if i < len(self.dados_imoveis.get("longitudes", [])):
-                        longitude = self.dados_imoveis["longitudes"][i]
+        # 2. Seção "Adicionar mais matrículas"
+        add_layout = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(60))
+        
+        self.campo_adicional = MDTextField(
+            MDTextFieldHintText(text="Qtd. adicional"),
+            input_filter="int",
+            size_hint_x=0.6,
+        )
+        
+        btn_adicionar = MDButton(
+            MDButtonText(text="Adicionar"),
+            size_hint_x=0.4,
+            on_release=self._adicionar_matriculas_extra
+        )
+        
+        add_layout.add_widget(self.campo_adicional)
+        add_layout.add_widget(btn_adicionar)
 
-            grupo = MDBoxLayout(orientation="vertical", padding=10, spacing=25, size_hint_y=None)
-            grupo.height = dp(650)  
-            coords = MDBoxLayout(orientation="vertical", padding=0, spacing=5, size_hint_y=None)
-            coords.height = 90
+        # Adiciona tudo ao ScrollView
+        self.botoes_matriculas.add_widget(main_layout)
+        self.botoes_matriculas.add_widget(add_layout)
 
-            campo_nome_imovel = MDTextField(
-                MDTextFieldHintText(text=f"Nome do Imóvel {i}"),
-                text=nome_imovel,
-                size_hint=(0.9, None),
-                height=50,
-                pos_hint={"center_x": 0.5}
-            )
+    def _adicionar_grupo_matricula(self, numero, layout_pai):
+        """Cria todos os campos para uma matrícula"""
+        grupo = MDBoxLayout(orientation="vertical", spacing=20, size_hint_y=None, height=dp(750))
+        
+        dados_imovel = {}
+        if hasattr(self, 'dados_imoveis'):
+            if isinstance(self.dados_imoveis, list) and len(self.dados_imoveis) >= numero:
+                dados_imovel = self.dados_imoveis[numero-1]
+            elif isinstance(self.dados_imoveis, dict):
+                dados_imovel = {
+                    'nome_imovel': self.dados_imoveis.get('imoveis', [''])[min(numero-1, len(self.dados_imoveis.get('imoveis', [])))],
+                    'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
+                    'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))]
+            }
 
-            campo_numero = MDTextField(
-                MDTextFieldHintText(text=f"Número da {nome}"),
-                size_hint=(0.9, None),
-                height=50,
-                pos_hint={"center_x": 0.5}
-            )
+        campo_nome = MDTextField(
+            MDTextFieldHintText(text=f"Nome do Imóvel {numero}"),
+            text=dados_imovel.get('nome_imovel', ''),
+            size_hint_x=0.9
+        )
 
-            campo_valor_total = MDTextField(
-                MDTextFieldHintText(text=f"Valor total da {nome}"),
-                size_hint=(0.9, None),
-                height=50,
-                pos_hint={"center_x": 0.5}
-            )
+        campo_matricula = MDTextField(
+            MDTextFieldHintText(text=f"Nº da Matrícula {numero}"),
+            size_hint_x=0.9
+        )
 
-            campo_valor_liq = MDTextField(
-                MDTextFieldHintText(text=f"Valor líquido da {nome}"),
-                size_hint=(0.9, None),
-                height=50,
-                pos_hint={"center_x": 0.5}
-            )
+        campo_valor_total = MDTextField(
+            MDTextFieldHintText(text=f"Valor Total {numero}"),
+            size_hint_x=0.9
+        )
 
-            campo_latitude = MDTextField(
-                MDTextFieldHintText(text=f"Latitude da {nome}"),
-                text=latitude,
-                size_hint=(0.9, None),
-                height=40,
-                pos_hint={"center_x": 0.5}
-            )
+        campo_valor_liq = MDTextField(
+            MDTextFieldHintText(text=f"Valor Líquido {numero}"),
+            size_hint_x=0.9
+        )
 
-            campo_longitude = MDTextField(
-                MDTextFieldHintText(text=f"Longitude da {nome}"),
-                text=longitude,
-                size_hint=(0.9, None),
-                height=40,
-                pos_hint={"center_x": 0.5}
-            )
+        # Grupo de coordenadas
+        coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(90))
+        campo_latitude = MDTextField(
+            MDTextFieldHintText(text=f"Latitude {numero}"),
+            text=str(dados_imovel.get('latitude', '')),
+            size_hint_x=0.9
+        )
+        campo_longitude = MDTextField(
+            MDTextFieldHintText(text=f"Longitude {numero}"),
+            text=str(dados_imovel.get('longitude', '')),
+            size_hint_x=0.9
+        )
+        coords.add_widget(campo_latitude)
+        coords.add_widget(campo_longitude)
 
-            coords.add_widget(campo_latitude)
-            coords.add_widget(campo_longitude)
+        # Botões de ação
+        btn_planilha = MDButton(
+            MDButtonText(text="Selecionar Planilha"),
+            on_release=lambda x, n=numero: self.abrir_filemanager(f"Matrícula {n}", "planilha")
+        )
 
-            botao_planilha = MDButton(
-                pos_hint={"center_x": 0.5},
-                on_release=lambda x, n=nome: self.abrir_filemanager(n, "planilha")
-            )
-            botao_planilha.add_widget(MDButtonText(text="Selecionar Planilha"))
+        btn_imagem = MDButton(
+            MDButtonText(text="Selecionar Imagem"),
+            on_release=lambda x, n=numero: self.abrir_filemanager(f"Matrícula {n}", "imagem")
+        )
 
-            botao_imagem = MDButton(
-                pos_hint={"center_x": 0.5},
-                on_release=lambda x, n=nome: self.abrir_filemanager(n, "imagem"),
-            )
-            botao_imagem.add_widget(MDButtonText(text="Selecionar Imagem"))
+        btn_detalhes = MDButton(
+            MDButtonText(text=f"Detalhes Matrícula {numero}"),
+            on_release=lambda x, n=numero: self.abrir_tela_detalhe(f"Matrícula {n}")
+        )
 
-            botao_acao = MDButton(
-                pos_hint={"center_x": 0.5},
-                on_release=lambda x, n=nome: self.abrir_tela_detalhe(n)
-            )
-            botao_acao.add_widget(MDButtonText(text=f"Ação para {nome}"))
+        # Adiciona ao grupo principal
+        grupo.add_widget(campo_nome)
+        grupo.add_widget(campo_matricula)
+        grupo.add_widget(campo_valor_total)
+        grupo.add_widget(campo_valor_liq)
+        grupo.add_widget(coords)
+        grupo.add_widget(btn_planilha)
+        grupo.add_widget(btn_imagem)
+        grupo.add_widget(btn_detalhes)
 
-            self.matriculas[nome]["campos"] = {
-                "nome_imovel": campo_nome_imovel,
-                "numero": campo_numero,
+        # Armazena referências
+        self.matriculas[f"Matrícula {numero}"] = {
+            "campos": {
+                "nome_imovel": campo_nome,
+                "numero": campo_matricula,
                 "valor": campo_valor_total,
                 "valor_liq": campo_valor_liq,
                 "latitude": campo_latitude,
                 "longitude": campo_longitude
-            }
+            },
+            "arquivos": {}
+        }
 
-            grupo.add_widget(campo_nome_imovel)
-            grupo.add_widget(campo_numero)
-            grupo.add_widget(campo_valor_total)
-            grupo.add_widget(campo_valor_liq)
-            grupo.add_widget(coords)
-            grupo.add_widget(botao_planilha)
-            grupo.add_widget(botao_imagem)
+        layout_pai.add_widget(grupo)
 
-            self.botoes_matriculas.add_widget(grupo)
-            self.botoes_matriculas.add_widget(botao_acao)
+    def _adicionar_matriculas_extra(self, *args):
+        """Adiciona N matrículas extras conforme usuário solicitou"""
+        if self.campo_adicional.text.isdigit():
+            qtd = int(self.campo_adicional.text)
+            start_num = len(self.matriculas) + 1
+            
+            for i in range(qtd):
+                self._adicionar_grupo_matricula(start_num + i, self.botoes_matriculas.children[1])  # Adiciona ao main_layout
+            
+            self.campo_adicional.text = ""  # Limpa o campo

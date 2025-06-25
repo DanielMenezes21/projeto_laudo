@@ -8,7 +8,7 @@ from docx.oxml.ns import nsdecls
 from docx.shared import Twips
 from assets.document_page2 import LARGURA, configurar_documento, adicionar_linha_fina
 
-def titulo(doc):
+def titulo(doc, dados):
     table = doc.add_table(rows=1, cols=1)
     table.allow_autofit = False
     usable_width = LARGURA
@@ -30,9 +30,10 @@ def titulo(doc):
     )
     cell._tc.get_or_add_tcPr().append(borders)
 
+    matricula = dados.get("matricula", "")
     p = cell.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("Parecer Jurídico-ambiental da matrícula {matricula}")
+    run = p.add_run(f"Parecer Jurídico-ambiental da matrícula {matricula}")
     run.bold = True
     run.font.size = Pt(12)
 
