@@ -19,71 +19,90 @@ def adicionar_espaco(doc):
     return doc
 
 def gerar_texto_proprietarios(lista_matriculas):
-    # Agrupa por proprietário
-    grupo_por_proprietario = defaultdict(lambda: {
-        "cpf": "",
-        "imoveis": set(),
-        "matriculas": set()
-    })
+    grupos = defaultdict(lambda: {"matriculas": set(), "imoveis": set()})
 
     for item in lista_matriculas:
-        nome = item.get("nome", "").strip()
-        cpf = item.get("cpf", "").strip()
+        nomes = item.get("nomes", [item.get("nome")]) if "nomes" in item else [item.get("nome")]
+        cpfs = item.get("cpfs", [item.get("cpf")]) if "cpfs" in item else [item.get("cpf")]
         imovel = item.get("nome_imovel", "").strip()
         matricula = item.get("matricula", "").strip()
+        chave = frozenset((n.strip(), c.strip()) for n, c in zip(nomes, cpfs))
 
-        if nome and cpf:
-            grupo_por_proprietario[nome]["cpf"] = cpf
-            grupo_por_proprietario[nome]["imoveis"].add(imovel)
-            grupo_por_proprietario[nome]["matriculas"].add(matricula)
+        if chave:
+            grupos[chave]["matriculas"].add(matricula)
+            grupos[chave]["imoveis"].add(imovel)
 
-    parágrafos = []
+    paragrafos = []
 
-    for nome, dados in grupo_por_proprietario.items():
-        cpf = dados["cpf"]
-        imoveis = sorted(dados["imoveis"])
+    for proprietarios, dados in grupos.items():
+        nomes_cpfs = sorted(proprietarios)
+        nomes = [n for n, _ in nomes_cpfs]
+        cpfs = [c for _, c in nomes_cpfs]
+
+        if len(nomes_cpfs) == 1:
+            parte_proprietario = f"{nomes[0]}, inscrito sob o CPF nº {cpfs[0]}"
+            verbo = "é o proprietário"
+        else:
+            parte_proprietario = ", ".join([f"{n}, inscrito sob o CPF nº {c}" for n, c in nomes_cpfs[:-1]])
+            parte_proprietario += f" e {nomes_cpfs[-1][0]}, inscrito sob o CPF nº {nomes_cpfs[-1][1]}"
+            verbo = "são os proprietários"
+
         matriculas = sorted(dados["matriculas"])
-
-        # Determina se é um ou mais imóveis
-        texto_imovel = (
-            f"o imóvel rural denominado {imoveis[0]}"
-            if len(imoveis) == 1 else
-            f"os imóveis rurais denominados {', '.join(imoveis[:-1])} e {imoveis[-1]}"
-        )
-
-        # Determina se é uma ou mais matrículas
         texto_matricula = (
-            f"a matrícula de nº {matriculas[0]}"
-            if len(matriculas) == 1 else
-            f"as matrículas de nº {', '.join(matriculas[:-1])} e {matriculas[-1]}"
+            f"na matrícula de nº {matriculas[0]}" if len(matriculas) == 1
+            else f"nas matrículas de nº {', '.join(matriculas[:-1])} e {matriculas[-1]}"
         )
 
-        parágrafo = (
-            f"        Em conformidade com o exposto em {texto_matricula}, "
-            f"{nome}, inscrito sob o CPF nº {cpf}, é o proprietário de {texto_imovel}."
+        imoveis = sorted(dados["imoveis"])
+        texto_imovel = (
+            f"do imóvel rural denominado {imoveis[0]}" if len(imoveis) == 1
+            else f"dos imóveis rurais denominados {', '.join(imoveis[:-1])} e {imoveis[-1]}"
         )
-        parágrafos.append(parágrafo)
 
-    return "\n\n".join(parágrafos)
+        paragrafo = (
+            f"        Em conformidade com o exposto {texto_matricula}, "
+            f"{parte_proprietario}, {verbo} {texto_imovel}."
+        )
+        paragrafos.append(paragrafo)
 
+    return "\n\n".join(paragrafos)
 
-def texto_solicitante(doc):
+def texto_solicitante(doc, solicitante, lista_matriculas):
     heading = doc.add_heading("1 - SOLICITANTE", level=1)
     run = heading.runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
-    doc.add_paragraph("        Fomos solicitados pelo #SOLICITANTE, para avaliar um imóvel rural, denominado #NOME_IMOVEL, localizado em #MUNICIPIO - #ESTADO ")
 
+    nomes_imoveis = sorted(set([m.get("nome_imovel", "").strip() for m in lista_matriculas if m.get("nome_imovel")]))
+    cidade = lista_matriculas[0].get("municipio", "")
+    estado = lista_matriculas[0].get("estado", "")
+
+    if len(nomes_imoveis) == 1:
+        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar um imóvel rural, denominado {nomes_imoveis[0]}, localizado em {cidade} - {estado}."
+    else:
+        imoveis = ", ".join(nomes_imoveis[:-1]) + f" e {nomes_imoveis[-1]}"
+        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar os imóveis rurais, denominados {imoveis}, localizados em {cidade} - {estado}."
+
+    doc.add_paragraph(texto)
     return doc
 
-def texto_objetivo(doc):
+def texto_objetivo(doc, lista_matriculas):
     heading = doc.add_heading("2 - OBJETIVO", level=1)
     run = heading.runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
-    doc.add_paragraph("        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente ao imóvel #NOME_IMOVEL, localizado em #MUNICIPIO - #ESTADO")
 
+    nomes_imoveis = sorted(set([m.get("nome_imovel", "").strip() for m in lista_matriculas if m.get("nome_imovel")]))
+
+    if len(nomes_imoveis) == 1:
+        texto = f"        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente ao imóvel {nomes_imoveis[0]}, localizado em #CIDADE_I - #ESTADO_I."
+    else:
+        imoveis = ", ".join(nomes_imoveis[:-1]) + f" e {nomes_imoveis[-1]}"
+        texto = f"        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente aos imóveis {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
+
+    doc.add_paragraph(texto)
     return doc
+
 
 def texto_finalidade(doc):
     heading = doc.add_heading("3 - FINALIDADE", level=1)

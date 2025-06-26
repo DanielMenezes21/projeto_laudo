@@ -118,16 +118,29 @@ def montar_documento(self, doc):
             doc.add_page_break()
         elif i < self.qtd_imoveis - 1:
             doc.add_page_break()
-
     doc = inserir_sumario(doc)
     doc.add_page_break()
     doc = adicionar_espaco(doc)
-    doc = texto_solicitante(doc)
+    doc = texto_solicitante(doc, self.solicitante, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
-    doc = texto_objetivo(doc)
+    doc = texto_objetivo(doc, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
     doc = texto_finalidade(doc)
     doc = adicionar_espaco(doc)
+    if hasattr(self, "dados_imoveis") and self.dados_imoveis:
+        for i, dados in enumerate(self.lista_dados_matriculas):
+            if i < len(self.dados_imoveis):
+                nomes = self.dados_imoveis[i].get("nomes", [])
+                cpfs = self.dados_imoveis[i].get("cpfs", [])
+
+                for nome, cpf in zip(nomes, cpfs):
+                    novo_dado = dados.copy()
+                    novo_dado["nome"] = nome
+                    novo_dado["cpf"] = cpf
+                    self.lista_dados_matriculas.append(novo_dado)
+                    for d in self.lista_dados_matriculas:
+                        print("🔎", d.get("nome"), "-", d.get("cpf"), "-", d.get("matricula"))
+        self.lista_dados_matriculas = self.lista_dados_matriculas[len(self.dados_imoveis):]
     doc = texto_proprietario(doc, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
     doc = texto_ressalvas(doc)
@@ -258,7 +271,7 @@ def gerar_documento(self):
         if hasattr(self, "img_capa"):
             print("inserindo imagem")
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
-
+        self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
             MDSnackbarText(text="\u2705Documento gerado com sucesso!"),
             y=dp(24)
@@ -267,9 +280,14 @@ def gerar_documento(self):
     except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
-            import win32com.client
-            word = win32com.client.Dispatch("Word.Application")
-            word.Quit()  
+            word = win32com.client.GetActiveObject("Word.Application")
+            word.Quit()
+            if hasattr(self, "word_app"):
+                try:
+                    self.word_app.Quit()
+                    print("✅ Word encerrado com sucesso")
+                except Exception as quit_err:
+                    print(f"❌ Erro ao encerrar o Word: {quit_err}")
         except Exception as close_err:
             print(f"⚠️ Erro ao tentar fechar o Word: {close_err}")
         MDSnackbar(

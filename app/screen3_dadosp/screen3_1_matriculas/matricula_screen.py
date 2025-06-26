@@ -236,16 +236,28 @@ class MatriculaScreen(MDScreen):
             print("❌ A tela PDF não possui o método 'receber_dados_matriculas'")
 
 
-    def receber_dados_imoveis(self, imoveis, latitudes, longitudes, dados_completos=None):
-        """Recebe os dados de imóveis de múltiplos PDFs"""
+    def receber_dados_imoveis(self, imoveis, latitudes, longitudes, dados_completos=None, nomes_proprietarios=None):
+        """Recebe os dados de imóveis de múltiplos PDFs
+        
+        Args:
+            imoveis: Lista de nomes dos imóveis
+            latitudes: Lista de latitudes
+            longitudes: Lista de longitudes
+            dados_completos: Dicionário completo com todos os dados (opcional)
+            nomes_proprietarios: Lista de nomes dos proprietários (opcional)
+        """
         self.dados_imoveis = dados_completos if dados_completos else {
             "imoveis": imoveis,
             "latitudes": latitudes,
-            "longitudes": longitudes
+            "longitudes": longitudes,
+            "nomes_proprietarios": nomes_proprietarios or []
         }
         
         print(f"📌 Total de imóveis recebidos: {len(imoveis)}")
+        if nomes_proprietarios:
+            print(f"👤 Proprietários recebidos: {nomes_proprietarios}")
 
+        # Atualiza os campos das matrículas existentes
         if hasattr(self, 'matriculas'):
             for i, nome_matricula in enumerate(self.matriculas):
                 campos = self.matriculas[nome_matricula]["campos"]
@@ -255,6 +267,8 @@ class MatriculaScreen(MDScreen):
                     campos["latitude"].text = str(latitudes[i])
                 if i < len(longitudes):
                     campos["longitude"].text = str(longitudes[i])
+                if nomes_proprietarios and i < len(nomes_proprietarios):
+                    campos["nome_prop"].text = nomes_proprietarios[i]
 
     def criar_botoes_para_matriculas(self, quantidade):
         self.botoes_matriculas.clear_widgets()
@@ -286,7 +300,6 @@ class MatriculaScreen(MDScreen):
         add_layout.add_widget(self.campo_adicional)
         add_layout.add_widget(btn_adicionar)
 
-        # Adiciona tudo ao ScrollView
         self.botoes_matriculas.add_widget(main_layout)
         self.botoes_matriculas.add_widget(add_layout)
 
@@ -302,13 +315,19 @@ class MatriculaScreen(MDScreen):
                 dados_imovel = {
                     'nome_imovel': self.dados_imoveis.get('imoveis', [''])[min(numero-1, len(self.dados_imoveis.get('imoveis', [])))],
                     'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
-                    'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))]
+                    'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))],
+                    'nome_prop': self.dados_imoveis.get('nome', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_prop',[])))]
             }
 
         campo_nome = MDTextField(
             MDTextFieldHintText(text=f"Nome do Imóvel {numero}"),
             text=dados_imovel.get('nome_imovel', ''),
             size_hint_x=0.9
+        )
+
+        campo_prop = MDTextField(
+            MDTextFieldHintText(text=f"Nome do(s) proprietário(s) do imóvel {numero}"),
+            text=dados_imovel.get('nome_prop', '')
         )
 
         campo_matricula = MDTextField(
@@ -326,7 +345,6 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
-        # Grupo de coordenadas
         coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(90))
         campo_latitude = MDTextField(
             MDTextFieldHintText(text=f"Latitude {numero}"),
@@ -341,7 +359,6 @@ class MatriculaScreen(MDScreen):
         coords.add_widget(campo_latitude)
         coords.add_widget(campo_longitude)
 
-        # Botões de ação
         btn_planilha = MDButton(
             MDButtonText(text="Selecionar Planilha"),
             on_release=lambda x, n=numero: self.abrir_filemanager(f"Matrícula {n}", "planilha")
@@ -367,9 +384,9 @@ class MatriculaScreen(MDScreen):
         grupo.add_widget(btn_imagem)
         grupo.add_widget(btn_detalhes)
 
-        # Armazena referências
         self.matriculas[f"Matrícula {numero}"] = {
             "campos": {
+                "nome_prop": campo_prop,
                 "nome_imovel": campo_nome,
                 "numero": campo_matricula,
                 "valor": campo_valor_total,

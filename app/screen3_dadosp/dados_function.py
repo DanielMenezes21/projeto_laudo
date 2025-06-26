@@ -271,6 +271,7 @@ def abrir_dialogo_matriculas(self, *args):
         tela_matricula = self.manager.get_screen('matricula')
         tela_final = self.manager.get_screen('pdf')
         tela_final.qtd_imoveis = qtd_imoveis
+        tela_final.dados_imoveis = self.dados_imoveis
         tela_matricula.receber_dados_imoveis(
             imoveis=[imovel['nome_imovel'] for imovel in self.dados_imoveis],
             latitudes=[imovel['latitude'] for imovel in self.dados_imoveis],

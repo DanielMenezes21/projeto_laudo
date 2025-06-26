@@ -2,7 +2,6 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 def inserir_sumario(doc):
-    # Adiciona um parágrafo vazio onde o sumário será inserido
     paragraph = doc.add_paragraph()
     run = paragraph.add_run()
 
