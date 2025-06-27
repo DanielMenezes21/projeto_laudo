@@ -124,6 +124,7 @@ def extrair_dados_multiplos_pdfs(lista_caminhos_pdf):
             'nome_imovel': nome_imovel if nome_imovel else f"Imóvel {len(dados_imoveis)+1}",
             'latitude': latitude[0] if latitude else "",
             'longitude': longitude[0] if longitude else "",
+            'proprietario': ", ".join(nomes) if nomes else ""  
         })
 
         if not municipio and municipio_:
@@ -231,7 +232,7 @@ def receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imovel, municipio, estado, 
     }
 
     tela_dados.menu_proponente.items = [
-        {"text": nome, "on_release": lambda x=nome: tela_dados.selecionar_proponente(x)}
+        {"text": nome, "on_release": lambda x=nome: tela_dados.selecionar_proprietario(x)}
         for nome in tela_dados.proponentes
     ]
 
@@ -276,6 +277,7 @@ def abrir_dialogo_matriculas(self, *args):
             imoveis=[imovel['nome_imovel'] for imovel in self.dados_imoveis],
             latitudes=[imovel['latitude'] for imovel in self.dados_imoveis],
             longitudes=[imovel['longitude'] for imovel in self.dados_imoveis],
+            nomes_proprietarios=[imovel.get('proprietario', '') for imovel in self.dados_imoveis],
             dados_completos=self.dados_imoveis  
         )
 

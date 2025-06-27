@@ -183,8 +183,10 @@ class MatriculaScreen(MDScreen):
                 "valor_liq": campos["valor_liq"].text,
                 "latitude": campos["latitude"].text,
                 "longitude": campos["longitude"].text,
+                "proprietario": campos["proprietario"].text,
                 "imagem": arquivos.get("imagem", "")
             })
+        print(f"Matrícula: {nome_matricula} | Proprietário coletado: {campos['proprietario'].text}")
         return dados
 
     def fechar_filemanager(self, *args):
@@ -257,7 +259,6 @@ class MatriculaScreen(MDScreen):
         if nomes_proprietarios:
             print(f"👤 Proprietários recebidos: {nomes_proprietarios}")
 
-        # Atualiza os campos das matrículas existentes
         if hasattr(self, 'matriculas'):
             for i, nome_matricula in enumerate(self.matriculas):
                 campos = self.matriculas[nome_matricula]["campos"]
@@ -268,21 +269,19 @@ class MatriculaScreen(MDScreen):
                 if i < len(longitudes):
                     campos["longitude"].text = str(longitudes[i])
                 if nomes_proprietarios and i < len(nomes_proprietarios):
-                    campos["nome_prop"].text = nomes_proprietarios[i]
+                    print(f"Preenchendo proprietário da matrícula {nome_matricula}: {nomes_proprietarios[i]}")
+                    campos["proprietario"].text = nomes_proprietarios[i]
 
     def criar_botoes_para_matriculas(self, quantidade):
         self.botoes_matriculas.clear_widgets()
         self.matriculas.clear()
 
-        # Layout principal (contém campos existentes + seção de adição)
         main_layout = MDBoxLayout(orientation="vertical", spacing=25, size_hint_y=None)
         main_layout.bind(minimum_height=main_layout.setter('height'))
 
-        # 1. Adiciona campos iniciais
         for i in range(quantidade):
             self._adicionar_grupo_matricula(i+1, main_layout)
 
-        # 2. Seção "Adicionar mais matrículas"
         add_layout = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(60))
         
         self.campo_adicional = MDTextField(
@@ -316,7 +315,7 @@ class MatriculaScreen(MDScreen):
                     'nome_imovel': self.dados_imoveis.get('imoveis', [''])[min(numero-1, len(self.dados_imoveis.get('imoveis', [])))],
                     'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
                     'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))],
-                    'nome_prop': self.dados_imoveis.get('nome', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_prop',[])))]
+                    'proprietario': self.dados_imoveis.get('nomes_proprietarios', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_proprietarios',[])))]
             }
 
         campo_nome = MDTextField(
@@ -327,7 +326,8 @@ class MatriculaScreen(MDScreen):
 
         campo_prop = MDTextField(
             MDTextFieldHintText(text=f"Nome do(s) proprietário(s) do imóvel {numero}"),
-            text=dados_imovel.get('nome_prop', '')
+            text=dados_imovel.get('proprietario', ''),
+            size_hint_x=0.9
         )
 
         campo_matricula = MDTextField(
@@ -345,7 +345,7 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
-        coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(90))
+        coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(180))
         campo_latitude = MDTextField(
             MDTextFieldHintText(text=f"Latitude {numero}"),
             text=str(dados_imovel.get('latitude', '')),
@@ -374,8 +374,8 @@ class MatriculaScreen(MDScreen):
             on_release=lambda x, n=numero: self.abrir_tela_detalhe(f"Matrícula {n}")
         )
 
-        # Adiciona ao grupo principal
         grupo.add_widget(campo_nome)
+        grupo.add_widget(campo_prop)
         grupo.add_widget(campo_matricula)
         grupo.add_widget(campo_valor_total)
         grupo.add_widget(campo_valor_liq)
@@ -386,7 +386,7 @@ class MatriculaScreen(MDScreen):
 
         self.matriculas[f"Matrícula {numero}"] = {
             "campos": {
-                "nome_prop": campo_prop,
+                "proprietario": campo_prop,
                 "nome_imovel": campo_nome,
                 "numero": campo_matricula,
                 "valor": campo_valor_total,
@@ -406,6 +406,5 @@ class MatriculaScreen(MDScreen):
             start_num = len(self.matriculas) + 1
             
             for i in range(qtd):
-                self._adicionar_grupo_matricula(start_num + i, self.botoes_matriculas.children[1])  # Adiciona ao main_layout
-            
-            self.campo_adicional.text = ""  # Limpa o campo
+                self._adicionar_grupo_matricula(start_num + i, self.botoes_matriculas.children[1])
+            self.campo_adicional.text = "" 

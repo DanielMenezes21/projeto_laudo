@@ -28,21 +28,61 @@ def title_imovel(doc):
 
     return doc
 
-def localizacao(doc):
+def localizacao(doc, lista_dados_matriculas):
     heading = doc.add_heading("6.1 - Localização", level=2)
     run = heading.runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
-    run1 = doc.add_paragraph("Zona Rural, Município de {cid_est}")
-    run2 = doc.add_paragraph("")
-    run3 = doc.add_paragraph("Coordenadas: ")
-    run3.underline = True
-    run4 = doc.add_paragraph("Latitude: {latitude}")
-    run5 = doc.add_paragraph("Longitude: {Longitude}")
-    run2
-    run2
-    for i in [run1, run2, run3, run4, run5]:
-        for r in i.runs:
-            r.font.size = Pt(12)
+
+    locais_set = set()
+    coords_dict = {}
+
+    for dados in lista_dados_matriculas:
+        cidade = dados.get("cidade", "").strip()
+        estado = dados.get("estado", "").strip()
+        latitude = dados.get("latitude", "").strip()
+        longitude = dados.get("longitude", "").strip()
+        matricula = dados.get("matricula", "").strip()
+        nome_imovel = dados.get("nome_imovel", "").strip()
+
+        if cidade and estado:
+            locais_set.add(f"{cidade} - {estado}")
+
+        if latitude and longitude:
+            chave = (latitude, longitude)
+            if chave not in coords_dict:
+                coords_dict[chave] = []
+
+            if (matricula, nome_imovel) not in coords_dict[chave]:
+                coords_dict[chave].append((matricula, nome_imovel))
+
+    print("🔎 Coordenadas agrupadas por centróide:")
+    for (lat, lon), lista in coords_dict.items():
+        print(f"  Matrícula(s): {[m for m, _ in lista]} | Imóvel(is): {[n for _, n in lista]} | Latitude: {lat} | Longitude: {lon}")
+
+    texto_locais = ", ".join(sorted(locais_set))
+    doc.add_paragraph(f"Zona Rural, Município: #CIDADE_I - #ESTADO_I")
+    doc.add_paragraph("")
+
+    for (lat, lon), lista in coords_dict.items():
+        matriculas = [m for m, _ in lista]
+        imoveis = [n for _, n in lista]
+        if len(matriculas) == 1:
+            par = doc.add_paragraph(f"Matrícula nº {matriculas[0]}, imóvel {imoveis[0]}")
+            par.runs[0].underline = True
+            par2 = doc.add_paragraph("Coordenadas:")
+            par2.runs[0].underline = True
+            doc.add_paragraph(f"Latitude: {lat}")
+            doc.add_paragraph(f"Longitude: {lon}")
+        else:
+            matriculas_str = ", ".join(matriculas[:-1]) + " e " + matriculas[-1]
+            imoveis_str = ", ".join(imoveis[:-1]) + " e " + imoveis[-1]
+            par = doc.add_paragraph(f"Matrículas nº {matriculas_str}, imóveis {imoveis_str} respectivamente")
+            par.runs[0].underline = True
+            par2 = doc.add_paragraph("Coordenadas (centróide compartilhado):")
+            par2.runs[0].underline = True
+            doc.add_paragraph(f"Latitude: {lat}")
+            doc.add_paragraph(f"Longitude: {lon}")
+
     return doc
 
 def acesso(doc, imagem_acesso=None):

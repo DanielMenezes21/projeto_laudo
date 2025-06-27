@@ -146,7 +146,7 @@ def montar_documento(self, doc):
     doc = texto_ressalvas(doc)
     doc.add_page_break()
     doc = title_imovel(doc)
-    doc = localizacao(doc)
+    doc = localizacao(doc, self.lista_dados_matriculas)
     doc = acesso(doc)
     doc = carac_reg(doc)
     doc.add_page_break()
@@ -261,15 +261,10 @@ def gerar_documento(self):
         self.doc.save(output_path)
         output_path = os.path.normpath(output_path)
         if hasattr(self, "imagem_marca_dagua"):
-            print("inserindo imagem")
-            print(os.path.exists(self.imagem_marca_dagua))
             imagens_fundo(output_path, self.imagem_marca_dagua)
-            print("imagem inserida")
         if hasattr(self, "imagem_final"):
-            print("inserindo imagem")
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_capa"):
-            print("inserindo imagem")
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(

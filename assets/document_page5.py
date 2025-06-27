@@ -78,10 +78,10 @@ def texto_solicitante(doc, solicitante, lista_matriculas):
     estado = lista_matriculas[0].get("estado", "")
 
     if len(nomes_imoveis) == 1:
-        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar um imóvel rural, denominado {nomes_imoveis[0]}, localizado em {cidade} - {estado}."
+        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar um imóvel rural, denominado {nomes_imoveis[0]}, localizado em #CIDADE_I - #ESTADO_I."
     else:
         imoveis = ", ".join(nomes_imoveis[:-1]) + f" e {nomes_imoveis[-1]}"
-        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar os imóveis rurais, denominados {imoveis}, localizados em {cidade} - {estado}."
+        texto = f"        Fomos solicitados pelo {solicitante}, para avaliar os imóveis rurais, denominados {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
 
     doc.add_paragraph(texto)
     return doc
@@ -130,7 +130,7 @@ def texto_ressalvas(doc):
     doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\
     "Avaliação de Bens, NBR 14653 – Parte 1 (Procedimentos Gerais/Revisão 2019) e Parte 3"\
     "(Imóveis Rurais/Revisão 2011), e baseia-se na documentação fornecida referente ao imóvel localizado"\
-    "em #MUNICIPIO - #ESTADO, situação na qual o #TRATAMENTO #PROPONENTE solicita a avaliação do mesmo." \
+    "em #CIDADE_I - #ESTADO_I, situação na qual o #TRATAMENTO #PROPONENTE solicita a avaliação do mesmo." \
     " Quanto às edificações e benfeitorias existentes no imóvel são considerados os quantitativos" \
     "de projetos existentes (se existirem), informações constatadas in loco quando da vistoria ao imóvel, " \
     "realizada em {data_av} e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \

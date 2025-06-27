@@ -36,7 +36,7 @@ class ManagerScreen(MDScreen):
         tela_matricula = self.manager.get_screen('matricula')
         
         receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imoveis, municipio, estado, dados_imoveis)
-        
+        tela_matricula.criar_botoes_para_matriculas(len(dados_imoveis))
         tela_matricula.receber_dados_imoveis(
             imoveis=nomes_imoveis,
             latitudes=latitudes,
@@ -44,8 +44,6 @@ class ManagerScreen(MDScreen):
             nomes_proprietarios=nomes, 
             dados_completos=dados_imoveis
         )
-        
-        tela_matricula.criar_botoes_para_matriculas(len(dados_imoveis))
         
         self.close_manager()
         self.manager.current = 'dados'

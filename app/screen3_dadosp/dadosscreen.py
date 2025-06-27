@@ -105,7 +105,7 @@ class DadosScreen(MDScreen):
         self.proponentes = []
         self.proponente_atual = ""
         self.proponente = MDTextField(
-            MDTextFieldHintText(text="Proponente"),
+            MDTextFieldHintText(text="Proprietario"),
             MDTextFieldHelperText(text="Nome do proprietário",
                 theme_text_color="Custom", 
                 text_color_normal="yellow",
