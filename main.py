@@ -26,10 +26,11 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
         self.dados_extraidos = {}
+        self.lista_dados_matriculas = []
         sm = ScreenManager(transition=FadeTransition())
         sm.add_widget(MenuScreen(name='main'))
         sm.add_widget(LeitorScreen(name='leitor'))
-        sm.add_widget(MatriculaScreen(name="matricula"))
+        sm.add_widget(MatriculaScreen(name="matricula", lista_dados_matriculas=self.lista_dados_matriculas))
         sm.add_widget(ManagerScreen(name="manager"))
         sm.add_widget(DadosScreen(name='dados'))
         sm.add_widget(SoloScreen(name='territorio'))

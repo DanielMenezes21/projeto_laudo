@@ -499,7 +499,7 @@ def geometria_terreno(doc):
 
     return doc, table
 
-def criar_secao_caracteristicas(doc):
+def criar_secao_caracteristicas(doc, dados):
     """Cria a seção de Características do Terreno"""
     table = doc.add_table(rows=9, cols=14)
     usable_width = LARGURA
@@ -516,6 +516,12 @@ def criar_secao_caracteristicas(doc):
     table.rows[6].height = Cm(0.42)
     table.rows[7].height = Cm(0.42)
     table.rows[8].height = Cm(0.05)
+
+    checkboxes_af = dados.get("checkboxes_af", {})
+    checkboxes_pares = dados.get("checkboxes_pares", {})
+    checkboxes_superficie = dados.get("checkboxes_superficie", {})
+
+    cor_hex = "4EA65D"
 
     title_cell = table.rows[0].cells[0]
     title_cell.merge(table.rows[0].cells[13])
@@ -1254,5 +1260,20 @@ def criar_secao_caracteristicas(doc):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    af_map = {"A": (3, 1), "B": (3, 3), "C": (3, 6), "D": (3, 8), "E": (3, 10), "F": (3, 12)}
+    for letra, (row, col) in af_map.items():
+        if checkboxes_af.get(letra):
+            colorir_celula(table.rows[row].cells[col], cor_hex)
+
+    pares_map = {"AB": (5, 1), "BA": (5, 3), "BC": (5, 6), "CB": (5, 8), "CD": (5, 10), "DC": (5, 12)}
+    for par, (row, col) in pares_map.items():
+        if checkboxes_pares.get(par):
+            colorir_celula(table.rows[row].cells[col], cor_hex)
+
+    superficie_map = {"seco": (7, 3), "umido": (7, 8), "alagadiço": (7, 12)}
+    for nome, (row, col) in superficie_map.items():
+        if checkboxes_superficie.get(nome):
+            colorir_celula(table.rows[row].cells[col], cor_hex)
 
     return doc

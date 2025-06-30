@@ -85,6 +85,9 @@ def montar_documento(self, doc):
     doc = configurar_documento()
     doc.add_page_break()
 
+    for d in self.lista_dados_matriculas:
+        print("Pré-doc:", d)
+
     for i, dados in enumerate(self.lista_dados_matriculas):
         doc = criar_titulo(doc, dados)
         doc = adicionar_linha_fina(doc)
@@ -97,7 +100,7 @@ def montar_documento(self, doc):
         doc = adicionar_linha_fina(doc)
         doc, tabela = geometria_terreno(doc)
         doc = adicionar_linha_fina(doc)
-        doc = criar_secao_caracteristicas(doc)
+        doc = criar_secao_caracteristicas(doc, dados)
         if i < self.qtd_imoveis - 1:
             p = doc.add_paragraph()
             run = p.add_run(".")
@@ -152,10 +155,16 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = desc_imovel(doc)
     doc.add_page_break()
+    doc = declividade(doc)
+    doc.add_page_break()
+    doc = hidrografia(doc)
+    doc.add_page_break()
+    doc = pedologia(doc)
+    doc.add_page_break()
 
     return doc
 
-def gerar_documento(self):
+def gerar_documento(self): 
     try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
@@ -180,6 +189,8 @@ def gerar_documento(self):
             inserir_imagem_no_placeholder(self, "#IMAGEM_HIDROGRAFIA", self.caminho_hidrografia)
         if hasattr(self, "caminho_rotas"):
             inserir_imagem_no_placeholder(self, "#IMAGEM_ACESSO", self.caminho_rotas)
+        if hasattr(self, "caminho_solos"):
+            inserir_imagem_no_placeholder(self, "#IMAGEM_SOLOS", self.caminho_solos)
 
         substituicoes_base = {
             "#TRATAMENTO": self.tratamento,
@@ -255,17 +266,23 @@ def gerar_documento(self):
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
             
         nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.nome)
-        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx"
+        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx" 
         output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
         output_path = os.path.normpath(output_path)
+        texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
+        substituicoes = {
+            "#NPROCESSO": processo,
+            "#DATA_ATUAL": self.data_atual
+        } 
         if hasattr(self, "imagem_marca_dagua"):
             imagens_fundo(output_path, self.imagem_marca_dagua)
         if hasattr(self, "imagem_final"):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
+        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
             MDSnackbarText(text="\u2705Documento gerado com sucesso!"),

@@ -1,8 +1,53 @@
 import win32com.client
 import os
 
+def inserir_caixa_texto_primeira_pagina(docx_path, texto, width=400, height=100, substituicoes=None):
+    try:
+        import win32com.client
+        word = win32com.client.Dispatch("Word.Application")
+        word.Visible = False
+        doc = word.Documents.Open(docx_path)
+
+        if substituicoes:
+            for chave, valor in substituicoes.items():
+                texto = texto.replace(chave, str(valor))
+
+        page_width = doc.PageSetup.PageWidth
+        page_height = doc.PageSetup.PageHeight
+
+        # Alinhar totalmente à direita, ignorando margens
+        left = page_width - width  # 0 = esquerda, page_width-width = direita total
+        top = (page_height - height) // 2
+
+        shape = doc.Shapes.AddTextbox(
+            Orientation=1,  
+            Left=left,
+            Top=top,
+            Width=width,
+            Height=height
+        )
+        shape.Line.Visible = False
+        shape.TextFrame.TextRange.Text = texto
+        shape.TextFrame.TextRange.Font.Size = 22
+
+        shape.TextFrame.TextRange.Font.Color = 16777215  
+
+        shape.TextFrame.TextRange.ParagraphFormat.Alignment = 2  
+
+        doc.Save()
+        print("✅ Caixa de texto inserida na capa!")
+    except Exception as e:
+        print(f"❌ Erro ao inserir caixa de texto: {e}")
+    finally:
+        try:
+            doc.Close(False)
+            word.Quit()
+        except Exception as close_err:
+            print(f"⚠️ Erro ao tentar fechar o Word: {close_err}")
+
 def inserir_imagem_capa_atras_texto(docx_path, img_capa):
     try:
+        import win32com.client
         word = win32com.client.Dispatch("Word.Application")
         word.Visible = False
         doc = word.Documents.Open(docx_path)
@@ -16,6 +61,8 @@ def inserir_imagem_capa_atras_texto(docx_path, img_capa):
             Width=doc.PageSetup.PageWidth,
             Height=doc.PageSetup.PageHeight
         )
+        shape.ZOrder(4) 
+
         shape.WrapFormat.Type = 3
         shape.RelativeHorizontalPosition = 1
         shape.RelativeVerticalPosition = 1
@@ -26,39 +73,8 @@ def inserir_imagem_capa_atras_texto(docx_path, img_capa):
     except Exception as e:
         print(f"❌ Erro ao inserir imagem de capa: {e}")
     finally:
-        doc.Close(False)
-        word.Quit()
-
-def inserir_caixa_texto_primeira_pagina(docx_path, texto, width=400, height=100):
-    try:
-        word = win32com.client.Dispatch("Word.Application")
-        word.Visible = False
-        doc = word.Documents.Open(docx_path)
-
-        page_width = doc.PageSetup.PageWidth
-        page_height = doc.PageSetup.PageHeight
-
-        right_margin = 57
-        left = page_width - width - right_margin
-        top = (page_height - height) // 2
-
-        shape = doc.Shapes.AddTextbox(
-            Orientation=1,  # Horizontal
-            Left=left,
-            Top=top,
-            Width=width,
-            Height=height
-        )
-        shape.Line.Visible = False
-        shape.TextFrame.TextRange.Text = texto
-        shape.TextFrame.TextRange.Font.Size = 22
-        shape.TextFrame.TextRange.Font.Bold = True
-        shape.TextFrame.TextRange.Font.Color = 16777215
-        shape.TextFrame.TextRange.ParagraphFormat.Alignment = 1
-
-        doc.Save()
-    except Exception as e:
-        print(f"❌ Erro ao inserir caixa de texto: {e}")
-    finally:
-        doc.Close(False)
-        word.Quit()
+        try:
+            doc.Close(False)
+            word.Quit()
+        except Exception as close_err:
+            print(f"⚠️ Erro ao tentar fechar o Word: {close_err}")

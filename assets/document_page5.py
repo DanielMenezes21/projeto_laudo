@@ -22,48 +22,35 @@ def gerar_texto_proprietarios(lista_matriculas):
     grupos = defaultdict(lambda: {"matriculas": set(), "imoveis": set()})
 
     for item in lista_matriculas:
-        nomes = item.get("nomes", [item.get("nome")]) if "nomes" in item else [item.get("nome")]
-        cpfs = item.get("cpfs", [item.get("cpf")]) if "cpfs" in item else [item.get("cpf")]
+        proprietario = item.get("proprietario", "").strip()
+        cpf = item.get("cpf", "").strip()
         imovel = item.get("nome_imovel", "").strip()
         matricula = item.get("matricula", "").strip()
-        chave = frozenset((n.strip(), c.strip()) for n, c in zip(nomes, cpfs))
-
-        if chave:
+        chave = (proprietario, cpf)
+        if proprietario:
             grupos[chave]["matriculas"].add(matricula)
             grupos[chave]["imoveis"].add(imovel)
 
     paragrafos = []
-
-    for proprietarios, dados in grupos.items():
-        nomes_cpfs = sorted(proprietarios)
-        nomes = [n for n, _ in nomes_cpfs]
-        cpfs = [c for _, c in nomes_cpfs]
-
-        if len(nomes_cpfs) == 1:
-            parte_proprietario = f"{nomes[0]}, inscrito sob o CPF nº {cpfs[0]}"
+    for (nome, cpf), dados in grupos.items():
+        if nome:
+            parte_proprietario = f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
             verbo = "é o proprietário"
-        else:
-            parte_proprietario = ", ".join([f"{n}, inscrito sob o CPF nº {c}" for n, c in nomes_cpfs[:-1]])
-            parte_proprietario += f" e {nomes_cpfs[-1][0]}, inscrito sob o CPF nº {nomes_cpfs[-1][1]}"
-            verbo = "são os proprietários"
-
-        matriculas = sorted(dados["matriculas"])
-        texto_matricula = (
-            f"na matrícula de nº {matriculas[0]}" if len(matriculas) == 1
-            else f"nas matrículas de nº {', '.join(matriculas[:-1])} e {matriculas[-1]}"
-        )
-
-        imoveis = sorted(dados["imoveis"])
-        texto_imovel = (
-            f"do imóvel rural denominado {imoveis[0]}" if len(imoveis) == 1
-            else f"dos imóveis rurais denominados {', '.join(imoveis[:-1])} e {imoveis[-1]}"
-        )
-
-        paragrafo = (
-            f"        Em conformidade com o exposto {texto_matricula}, "
-            f"{parte_proprietario}, {verbo} {texto_imovel}."
-        )
-        paragrafos.append(paragrafo)
+            matriculas = sorted(dados["matriculas"])
+            texto_matricula = (
+                f"na matrícula de nº {matriculas[0]}" if len(matriculas) == 1
+                else f"nas matrículas de nº {', '.join(matriculas[:-1])} e {matriculas[-1]}"
+            )
+            imoveis = sorted(dados["imoveis"])
+            texto_imovel = (
+                f"do imóvel rural denominado {imoveis[0]}" if len(imoveis) == 1
+                else f"dos imóveis rurais denominados {', '.join(imoveis[:-1])} e {imoveis[-1]}"
+            )
+            paragrafo = (
+                f"        Em conformidade com o exposto {texto_matricula}, "
+                f"{parte_proprietario}, {verbo} {texto_imovel}."
+            )
+            paragrafos.append(paragrafo)
 
     return "\n\n".join(paragrafos)
 
@@ -74,8 +61,6 @@ def texto_solicitante(doc, solicitante, lista_matriculas):
     doc.add_paragraph(" ")
 
     nomes_imoveis = sorted(set([m.get("nome_imovel", "").strip() for m in lista_matriculas if m.get("nome_imovel")]))
-    cidade = lista_matriculas[0].get("municipio", "")
-    estado = lista_matriculas[0].get("estado", "")
 
     if len(nomes_imoveis) == 1:
         texto = f"        Fomos solicitados pelo {solicitante}, para avaliar um imóvel rural, denominado {nomes_imoveis[0]}, localizado em #CIDADE_I - #ESTADO_I."

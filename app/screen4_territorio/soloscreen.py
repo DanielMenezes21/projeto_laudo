@@ -15,7 +15,7 @@ from kivy.core.window import Window
 from app.screen4_territorio.solofunction import (
     go_back, go_next1, open_file_manager, 
     open_file_hidrografia, preencher_cidade, 
-    abrir_dropdown, open_file_rotas)
+    abrir_dropdown, open_file_rotas, open_file_solos)
 
 class SoloScreen(MDScreen):
     def __init__(self, **kwargs):
@@ -175,6 +175,16 @@ class SoloScreen(MDScreen):
         )
         solo.add_widget(self.resumo_solo)
 
+        self.imagem_solos = MDIconButton(
+            icon="image",
+            size_hint=(0.1, None),
+            pos_hint={"x": 0.9, "y": 0.4},
+            size=(dp(56), dp(56)),
+            theme_text_color="Custom",
+            text_color=(1, 1, 1, 1),
+            on_release=lambda x: open_file_solos(self)
+        )
+
         self.texto_solos = MDTextField(
             MDTextFieldHintText(text="Texto completo selecionado"),
             MDTextFieldHelperText(text="Texto que foi selecionado no botão 'Tipo de solo'"),
@@ -210,6 +220,7 @@ class SoloScreen(MDScreen):
         self.caminho_declividade = ''
         self.caminho_hidrografia = ''
         self.caminho_rotas = ''
+        self.caminho_solos = ''
         self.menu = None
         self.textos_completos = {}
         

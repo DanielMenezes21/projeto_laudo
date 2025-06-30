@@ -255,7 +255,7 @@ class DadosScreen(MDScreen):
         else:
             self.scroll.scroll_y = 1
 
-    def selecionar_proponente(self, nome_escolhido):
+    def selecionar_proprietario(self, nome_escolhido):
         self.menu_proponente.dismiss()
         self.proponente_atual = nome_escolhido
 

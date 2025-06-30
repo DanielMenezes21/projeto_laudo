@@ -544,17 +544,38 @@ def desc_imovel(doc):
     return doc
 
 def declividade(doc, imagem_path=None):
-
+    heading = doc.add_heading("6.4.1 - Declividade", level=2)
     if imagem_path:
         p = doc.add_paragraph()
         run = p.add_run()
         run.add_picture(imagem_path, width=Cm(14))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    paragraph = doc.add_paragraph("a área apresenta declividade")
+    paragraph = doc.add_paragraph("a área apresenta declividade #DECLIVIDADE_I")
     return doc
 
+def hidrografia(doc, imagem_path=None):
+    heading = doc.add_heading("6.4.2 - Hidrografia", level=2)
+    if imagem_path:
+        p = doc.add_paragraph()
+        run = p.add_run()
+        run.add_picture(imagem_path, width=Cm(14))
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    paragraph = doc.add_paragraph("a área apresenta hidrografia #HIDROGRAFIA_I")
+    return doc
+
+def pedologia(doc, imagem_path=None):
+    heading = doc.add_heading("6.4.3 - Solo/Pedologia", level=2)
+    if imagem_path:
+        p = doc.add_paragraph()
+        run = p.add_run()
+        run.add_picture(imagem_path, width=Cm(14))
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    paragraph = doc.add_paragraph("a pedologia da região é predominada por #TIPO_SOLO")
+    paragraph2 = doc.add_paragraph("a área apresenta #DESCRICAO_SOLO")
+    return doc
 
 
 

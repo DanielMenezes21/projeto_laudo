@@ -67,6 +67,9 @@ def go_next1(self):
     if hasattr(self, "caminho_rotas"):
         tela_pdf.caminho_rotas = self.caminho_rotas
         print(f"Caminho Rotas: {self.caminho_rotas}")
+    if hasattr(self, "caminho_solos"):
+        tela_pdf.caminho_solos = self.caminho_solos
+        print(f"Caminho Solos: {self.caminho_solos}")
 
     self.manager.current_screen.manager.current = "pdf"
 
@@ -99,6 +102,14 @@ def open_file_rotas(self):
         )
     self.file_manager.show(self.current_path)
 
+def open_file_solos(self):
+    self.file_manager = MDFileManager(
+            exit_manager=lambda *args: exit_file_manager(self, *args),
+            select_path=lambda path: select_path_solos(self, path),
+            preview=True,
+        )
+    self.file_manager.show(self.current_path)
+
 def exit_file_manager(self, *args):
     if hasattr(self, "file_manager") and self.file_manager:
         self.file_manager.close()
@@ -117,6 +128,11 @@ def select_path_rotas(self, path):
     exit_file_manager(self)
     self.caminho_rotas = path
     print(f"Caminho Rotas selecionado: {path}")
+
+def select_path_solos(self, path):
+    exit_file_manager(self)
+    self.caminho_solos = path
+    print(f"Caminho Solos selecionado: {path}")
 
 def abrir_dropdown(self, *args):
     self.textos_completos = extrair_textos(self)

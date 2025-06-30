@@ -15,8 +15,9 @@ from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.matricula_deta
 from app.screen3_dadosp.screen3_1_matriculas.matricula_function import go_back
 
 class MatriculaScreen(MDScreen):
-    def __init__(self, **kwargs):
+    def __init__(self, lista_dados_matriculas=None, **kwargs):
         super().__init__(**kwargs)
+        self.lista_dados_matriculas = lista_dados_matriculas if lista_dados_matriculas is not None else []
 
         self.layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20)
         self.scroll = MDScrollView()
@@ -223,19 +224,54 @@ class MatriculaScreen(MDScreen):
 
     def abrir_tela_detalhe(self, nome_matricula):
         nome_tela = f"detalhe_{nome_matricula.replace(' ', '_').lower()}"
+        lista_dados = self.lista_dados_matriculas
+        indice = None
+        for i, d in enumerate(lista_dados):
+            if d["nome_imovel"] == nome_matricula or d["matricula"] == nome_matricula:
+                indice = i
+                break
+        if indice is None:
+            indice = 0 
+
         if not self.manager.has_screen(nome_tela):
-            nova_tela = MatriculaDetalheScreen(nome_matricula, name=nome_tela)
+            nova_tela = MatriculaDetalheScreen(
+                nome_matricula,
+                lista_dados_matriculas=self.lista_dados_matriculas, 
+                indice_matricula_atual=indice,
+                name=nome_tela
+            )
             self.manager.add_widget(nova_tela)
         self.manager.current = nome_tela
 
     def salvar_dados(self):
-        dados = self.coletar_dados_matriculas()
-        print(f"🔄 Salvando dados para tela PDF: {dados}")
+        for i, nome_matricula in enumerate(self.matriculas):
+            campos = self.matriculas[nome_matricula]["campos"]
+            if i < len(self.lista_dados_matriculas):
+                self.lista_dados_matriculas[i].update({
+                    "nome_imovel": campos["nome_imovel"].text,
+                    "matricula": campos["numero"].text,
+                    "valor_total": campos["valor"].text,
+                    "valor_liq": campos["valor_liq"].text,
+                    "latitude": campos["latitude"].text,
+                    "longitude": campos["longitude"].text,
+                    "proprietario": campos["proprietario"].text,
+                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", "")
+                })
+            else:
+                self.lista_dados_matriculas.append({
+                    "nome_imovel": campos["nome_imovel"].text,
+                    "matricula": campos["numero"].text,
+                    "valor_total": campos["valor"].text,
+                    "valor_liq": campos["valor_liq"].text,
+                    "latitude": campos["latitude"].text,
+                    "longitude": campos["longitude"].text,
+                    "proprietario": campos["proprietario"].text,
+                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", "")
+                })
+        print(f"🔄 Salvando dados para tela PDF: {self.lista_dados_matriculas}")
         tela_pdf = self.manager.get_screen('pdf')
         if hasattr(tela_pdf, "receber_dados_matriculas"):
-            tela_pdf.receber_dados_matriculas(dados)
-        else:
-            print("❌ A tela PDF não possui o método 'receber_dados_matriculas'")
+            tela_pdf.receber_dados_matriculas(self.lista_dados_matriculas)
 
 
     def receber_dados_imoveis(self, imoveis, latitudes, longitudes, dados_completos=None, nomes_proprietarios=None):
@@ -302,10 +338,27 @@ class MatriculaScreen(MDScreen):
         self.botoes_matriculas.add_widget(main_layout)
         self.botoes_matriculas.add_widget(add_layout)
 
+        self.lista_dados_matriculas.clear()
+        for i in range(quantidade):
+            self.lista_dados_matriculas.append({
+                "nome_imovel": "",
+                "matricula": "",
+                "valor_total": "",
+                "valor_liq": "",
+                "latitude": "",
+                "longitude": "",
+                "proprietario": "",
+                "imagem": ""
+            })
+
     def _adicionar_grupo_matricula(self, numero, layout_pai):
-        """Cria todos os campos para uma matrícula"""
+        """Cria todos os campos para uma matrícula, incluindo dropdown de múltipla escolha para proprietários"""
+        from kivymd.uix.menu import MDDropdownMenu
+        from kivymd.uix.boxlayout import MDBoxLayout
+        from kivymd.uix.button import MDIconButton
+
         grupo = MDBoxLayout(orientation="vertical", spacing=20, size_hint_y=None, height=dp(750))
-        
+
         dados_imovel = {}
         if hasattr(self, 'dados_imoveis'):
             if isinstance(self.dados_imoveis, list) and len(self.dados_imoveis) >= numero:
@@ -316,7 +369,7 @@ class MatriculaScreen(MDScreen):
                     'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
                     'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))],
                     'proprietario': self.dados_imoveis.get('nomes_proprietarios', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_proprietarios',[])))]
-            }
+                }
 
         campo_nome = MDTextField(
             MDTextFieldHintText(text=f"Nome do Imóvel {numero}"),
@@ -324,11 +377,52 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
+        proponentes_dict = self.manager.get_screen('dados').proponentes
+        nomes_proponentes = list(proponentes_dict.keys())
+
+        linha_prop = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_x=0.9)
+
         campo_prop = MDTextField(
-            MDTextFieldHintText(text=f"Nome do(s) proprietário(s) do imóvel {numero}"),
+            MDTextFieldHintText(text=f"Proprietário(s) do imóvel {numero}"),
             text=dados_imovel.get('proprietario', ''),
-            size_hint_x=0.9
+            size_hint_x=0.85,
+            readonly=True
         )
+
+        selecionados = []
+
+        def atualizar_campo():
+            campo_prop.text = ", ".join(selecionados)
+
+        def toggle_proprietario(nome):
+            if nome in selecionados:
+                selecionados.remove(nome)
+            else:
+                selecionados.append(nome)
+            atualizar_campo()
+
+        menu_items = [
+            {
+                "text": nome,
+                "on_release": lambda x=nome: toggle_proprietario(x)
+            }
+            for nome in nomes_proponentes
+        ]
+
+        btn_menu = MDIconButton(
+            icon="menu-down",
+            pos_hint={"center_y": 0.5},
+            on_release=lambda x: menu.open()
+        )
+
+        menu = MDDropdownMenu(
+            caller=btn_menu,
+            items=menu_items,
+            width_mult=4,
+        )
+
+        linha_prop.add_widget(campo_prop)
+        linha_prop.add_widget(btn_menu)
 
         campo_matricula = MDTextField(
             MDTextFieldHintText(text=f"Nº da Matrícula {numero}"),
@@ -375,7 +469,7 @@ class MatriculaScreen(MDScreen):
         )
 
         grupo.add_widget(campo_nome)
-        grupo.add_widget(campo_prop)
+        grupo.add_widget(linha_prop)  # Adicione o layout horizontal com campo + botão
         grupo.add_widget(campo_matricula)
         grupo.add_widget(campo_valor_total)
         grupo.add_widget(campo_valor_liq)
@@ -386,7 +480,7 @@ class MatriculaScreen(MDScreen):
 
         self.matriculas[f"Matrícula {numero}"] = {
             "campos": {
-                "proprietario": campo_prop,
+                "proprietario": campo_prop,  # campo_prop.text terá todos os selecionados, separados por vírgula
                 "nome_imovel": campo_nome,
                 "numero": campo_matricula,
                 "valor": campo_valor_total,
