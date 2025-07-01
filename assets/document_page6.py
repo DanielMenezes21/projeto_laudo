@@ -21,16 +21,16 @@ def set_table_fixed_width(table):
     tblPr.append(tblLayout)
 
 def title_imovel(doc):
-    heading = doc.add_heading("6 - IDENTIFICAÇÃO E CARACTERIZAÇÃO DO IMÓVEL AVALIANDO", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading 1')
+    run = heading.add_run("6 - IDENTIFICAÇÃO E CARACTERIZAÇÃO DO IMÓVEL AVALIANDO")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph("  \n  ")
+    run1 = doc.add_paragraph("  \n  ")
 
     return doc
 
 def localizacao(doc, lista_dados_matriculas):
-    heading = doc.add_heading("6.1 - Localização", level=2)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.1 - Localização")
     run.font.color.rgb = RGBColor(0, 0, 0)
 
     locais_set = set()
@@ -60,8 +60,8 @@ def localizacao(doc, lista_dados_matriculas):
         print(f"  Matrícula(s): {[m for m, _ in lista]} | Imóvel(is): {[n for _, n in lista]} | Latitude: {lat} | Longitude: {lon}")
 
     texto_locais = ", ".join(sorted(locais_set))
-    doc.add_paragraph(f"Zona Rural, Município: #CIDADE_I - #ESTADO_I")
-    doc.add_paragraph("")
+    run1 = doc.add_paragraph(f"Zona Rural, Município: #CIDADE_I - #ESTADO_I")
+    run2 = doc.add_paragraph("")
 
     for (lat, lon), lista in coords_dict.items():
         matriculas = [m for m, _ in lista]
@@ -71,8 +71,8 @@ def localizacao(doc, lista_dados_matriculas):
             par.runs[0].underline = True
             par2 = doc.add_paragraph("Coordenadas:")
             par2.runs[0].underline = True
-            doc.add_paragraph(f"Latitude: {lat}")
-            doc.add_paragraph(f"Longitude: {lon}")
+            par3 = doc.add_paragraph(f"Latitude: {lat}")
+            par4 = doc.add_paragraph(f"Longitude: {lon}")
         else:
             matriculas_str = ", ".join(matriculas[:-1]) + " e " + matriculas[-1]
             imoveis_str = ", ".join(imoveis[:-1]) + " e " + imoveis[-1]
@@ -80,14 +80,14 @@ def localizacao(doc, lista_dados_matriculas):
             par.runs[0].underline = True
             par2 = doc.add_paragraph("Coordenadas (centróide compartilhado):")
             par2.runs[0].underline = True
-            doc.add_paragraph(f"Latitude: {lat}")
-            doc.add_paragraph(f"Longitude: {lon}")
+            par3 = doc.add_paragraph(f"Latitude: {lat}")
+            par4 = doc.add_paragraph(f"Longitude: {lon}")
 
     return doc
 
 def acesso(doc, imagem_acesso=None):
-    heading = doc.add_heading("6.2 - ROTA DE ACESSO MATRÌCULA {mat}", level=2)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.2 - ROTA DE ACESSO MATRÌCULA {mat}")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -98,7 +98,7 @@ def acesso(doc, imagem_acesso=None):
         try:
             p_img = doc.add_paragraph()
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = p_img.add_run()
+            run = p_img.add_run("#IMAGEM_ACESSO")
             shape = run.add_picture(imagem_acesso, width=Cm(15), height=Cm(8.77))
             border_xml = (
                 '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" '
@@ -119,15 +119,15 @@ def acesso(doc, imagem_acesso=None):
             
         except Exception as e:
             print(f"Erro ao adicionar imagem: {e}")
-            doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
+            par = doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
     else:
-        doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
+        par = doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
 
     return doc
 
 def carac_reg(doc):
-    heading = doc.add_heading("6.3 - Caracterização da Região", level=2)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.3 - Caracterização da Região")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -135,8 +135,8 @@ def carac_reg(doc):
     return doc
 
 def desc_imovel(doc):
-    heading = doc.add_heading("6.4 - Descrição do imóvel", level=2)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4 - Descrição do imóvel")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -544,10 +544,14 @@ def desc_imovel(doc):
     return doc
 
 def declividade(doc, imagem_path=None):
-    heading = doc.add_heading("6.4.1 - Declividade", level=2)
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4.1 - Declividade")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
     if imagem_path:
         p = doc.add_paragraph()
-        run = p.add_run()
+        run = p.add_run("#IMAGEM_DECLIVIDADE")
         run.add_picture(imagem_path, width=Cm(14))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -555,10 +559,14 @@ def declividade(doc, imagem_path=None):
     return doc
 
 def hidrografia(doc, imagem_path=None):
-    heading = doc.add_heading("6.4.2 - Hidrografia", level=2)
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4.2 - Hidrografia")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
     if imagem_path:
         p = doc.add_paragraph()
-        run = p.add_run()
+        run = p.add_run("#IMAGEM_HIDROGRAFIA")
         run.add_picture(imagem_path, width=Cm(14))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -566,10 +574,14 @@ def hidrografia(doc, imagem_path=None):
     return doc
 
 def pedologia(doc, imagem_path=None):
-    heading = doc.add_heading("6.4.3 - Solo/Pedologia", level=2)
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4.3 - Solo/Pedologia")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
     if imagem_path:
         p = doc.add_paragraph()
-        run = p.add_run()
+        run = p.add_run("#IMAGEM_SOLOS")
         run.add_picture(imagem_path, width=Cm(14))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -577,5 +589,294 @@ def pedologia(doc, imagem_path=None):
     paragraph2 = doc.add_paragraph("a área apresenta #DESCRICAO_SOLO")
     return doc
 
+def uso_imovel(doc):
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4.4 – Potencial de Utilização do Imóvel")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
 
+    paragraph = doc.add_paragraph("O imóvel é utilizado para #ATIVIDADE_IMOVEL")
+    return doc
 
+def benfeitoria(doc):
+    heading = doc.add_paragraph( style='Heading 2')
+    run = heading.add_run("6.4.5 – Benfeitorias")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+    paragraph = doc.add_paragraph("O imóvel possui as seguintes benfeitorias: ")
+    table = doc.add_table(rows=4, cols=2)
+    table.style = 'Table Grid'
+
+    cell_1_1 = table.cell(0, 0)
+    cell_1_2 = table.cell(0, 1)
+    cell_1_1.text = 'BENFEITORIA'
+    cell_1_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cell_1_1.paragraphs[0].runs[0].bold = True
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell_1_1._tc.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>' 
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell_1_1._tc.get_or_add_tcPr().append(borders)
+
+    cell_1_2.text = 'DESCRIÇÃO'
+    cell_1_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cell_1_2.paragraphs[0].runs[0].bold = True
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell_1_2._tc.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell_1_2._tc.get_or_add_tcPr().append(borders)
+
+    cell_benfeitoria = table.cell(1, 0).merge(table.cell(3, 0))
+
+    cell_dimensoes = table.cell(1, 1)
+    par = cell_dimensoes.paragraphs[0]
+    par.add_run('Comprimento: 20,0 m\n')
+    par.add_run('Largura: 10,0 m\n')
+    par.add_run('Altura: 10,0 m\n')
+    par.add_run('Área Total: 200,0 m²')
+
+    cell_desc = table.cell(2, 1)
+    cell_desc.text = (
+        'O galpão é ideal para armazenamento e organização de bags de fertilizantes e sementes para plantio, '
+        'além de alocar os maquinários da propriedade.'
+    )
+
+    cell_ava = table.cell(3, 1)
+    adicionar_estado_conservacao_com_tabela(cell_ava)
+
+    return doc
+
+def adicionar_estado_conservacao_com_tabela(cell):
+    """Insere uma mini-tabela com estado de conservação dentro da célula"""
+    p = cell.paragraphs[0]
+    p.add_run('Estado de conservação:')
+
+    nested_table = cell.add_table(rows=3, cols=7)
+    nested_table.autofit = True
+    nested_table.style = 'Table Grid'
+
+    cell1_1 = nested_table.cell(0, 0)
+    cell1_1.text = 'Bom'
+    cell1_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_1._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_2 = nested_table.cell(0, 1)
+    cell1_2.text = ' '
+    cell1_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_2._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_3 = nested_table.cell(0, 2)
+    cell1_3.text = ' '
+    cell1_3.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_3._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_4 = nested_table.cell(0, 3)
+    cell1_4.text = ' '
+    cell1_4.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_4._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_5 = nested_table.cell(0, 4)
+    cell1_5.text = 'Ruim'
+    cell1_5.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_5._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_6 = nested_table.cell(0, 5)
+    cell1_6.text = ' '
+    cell1_6.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_6._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell1_7 = nested_table.cell(0, 6)
+    cell1_7.text = ' '
+    cell1_7.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell1_7._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_1 = nested_table.cell(1, 0)
+    cell2_1.text = ' '
+    cell2_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_1._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_2 = nested_table.cell(1, 1)
+    cell2_2.text = ' '
+    cell2_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_2._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+    cell2_3 = nested_table.cell(1, 2)
+    cell2_3.text = 'Mediano'
+    cell2_3.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    tcPr = cell2_3._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_4 = nested_table.cell(1, 3)
+    cell2_4.text = ' '
+    cell2_4.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_4._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_5 = nested_table.cell(1, 4)
+    cell2_5.text = ' '
+    cell2_5.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_5._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_6 = nested_table.cell(1, 5)
+    cell2_6.text = ' '
+    cell2_6.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_6._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell2_7 = nested_table.cell(1, 6)
+    cell2_7.text = ' '
+    cell2_7.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell2_7._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="nil"/>'
+        '<w:bottom w:val="nil"/>'
+        '<w:right w:val="nil"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)
+
+    cell3_1 = nested_table.cell(2, 0)
+    cell3_1.merge(nested_table.cell(2, 6))
+    cell3_1.text = ' '
+    cell3_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tcPr = cell3_1._tc.get_or_add_tcPr()
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="nil"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    tcPr.append(borders)

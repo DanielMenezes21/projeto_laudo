@@ -55,10 +55,11 @@ def gerar_texto_proprietarios(lista_matriculas):
     return "\n\n".join(paragrafos)
 
 def texto_solicitante(doc, solicitante, lista_matriculas):
-    heading = doc.add_heading("1 - SOLICITANTE", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph(style='Heading1')
+    run = heading.add_run("1 - SOLICITANTE")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph(" ")
+    par = doc.add_paragraph()
+    runpar = par.add_run("")
 
     nomes_imoveis = sorted(set([m.get("nome_imovel", "").strip() for m in lista_matriculas if m.get("nome_imovel")]))
 
@@ -68,14 +69,16 @@ def texto_solicitante(doc, solicitante, lista_matriculas):
         imoveis = ", ".join(nomes_imoveis[:-1]) + f" e {nomes_imoveis[-1]}"
         texto = f"        Fomos solicitados pelo {solicitante}, para avaliar os imóveis rurais, denominados {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
 
-    doc.add_paragraph(texto)
+    par = doc.add_paragraph()
+    runpar2 = par.add_run(texto)
     return doc
 
 def texto_objetivo(doc, lista_matriculas):
-    heading = doc.add_heading("2 - OBJETIVO", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading1')
+    run = heading.add_run("2 - OBJETIVO")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph(" ")
+    par = doc.add_paragraph()
+    runpar = par.add_run("")
 
     nomes_imoveis = sorted(set([m.get("nome_imovel", "").strip() for m in lista_matriculas if m.get("nome_imovel")]))
 
@@ -85,34 +88,35 @@ def texto_objetivo(doc, lista_matriculas):
         imoveis = ", ".join(nomes_imoveis[:-1]) + f" e {nomes_imoveis[-1]}"
         texto = f"        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente aos imóveis {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
 
-    doc.add_paragraph(texto)
+    par = doc.add_paragraph()
+    runpar2 = par.add_run(texto)
     return doc
 
 
 def texto_finalidade(doc):
-    heading = doc.add_heading("3 - FINALIDADE", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph(style='Heading1')
+    run = heading.add_run("3 - FINALIDADE")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph(" ")
-    doc.add_paragraph("        Garantia bancária")
+    run1 = doc.add_paragraph(" ")
+    run2 = doc.add_paragraph("        Garantia bancária")
 
     return doc
 
 def texto_proprietario(doc, lista_matriculas):
-    heading = doc.add_heading("4 - PROPRIETÁRIO", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading1')
+    run = heading.add_run("4 - PROPRIETÁRIO")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph(" ")
+    run1 =doc.add_paragraph(" ")
     texto = gerar_texto_proprietarios(lista_matriculas)
-    doc.add_paragraph(texto)
+    run2 = doc.add_paragraph(texto)
     return doc
 
 def texto_ressalvas(doc):
-    heading = doc.add_heading("5 - PRESSUPOSTOS, RESSALVAS E FATORES IMPORTANTES", level=1)
-    run = heading.runs[0]
+    heading = doc.add_paragraph( style='Heading1')
+    run = heading.add_run("5 - PRESSUPOSTOS, RESSALVAS E FATORES IMPORTANTES")
     run.font.color.rgb = RGBColor(0, 0, 0)
-    doc.add_paragraph(" ")
-    doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\
+    run1 = doc.add_paragraph(" ")
+    run2 = doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\
     "Avaliação de Bens, NBR 14653 – Parte 1 (Procedimentos Gerais/Revisão 2019) e Parte 3"\
     "(Imóveis Rurais/Revisão 2011), e baseia-se na documentação fornecida referente ao imóvel localizado"\
     "em #CIDADE_I - #ESTADO_I, situação na qual o #TRATAMENTO #PROPONENTE solicita a avaliação do mesmo." \

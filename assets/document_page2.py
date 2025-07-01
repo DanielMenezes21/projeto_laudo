@@ -358,9 +358,11 @@ def criar_secao_croqui(doc, imagem_path=None):
             run.add_picture(imagem_path, width=Cm(15), height=Cm(10.61))
         except Exception as e:
             print(f"⚠ Erro ao adicionar imagem do croqui: {e}")
-            doc.add_paragraph("[ESPAÇO PARA CROQUI]", style='Normal')
+            par = doc.add_paragraph(style='Normal')
+            runpar = par.add_run("[ESPAÇO PARA CROQUI]")
     else:
-        doc.add_paragraph("[ESPAÇO PARA CROQUI]", style='Normal')
+        par = doc.add_paragraph( style='Normal')
+        runpar = par.add_run("[ESPAÇO PARA CROQUI]")
 
     return doc
 

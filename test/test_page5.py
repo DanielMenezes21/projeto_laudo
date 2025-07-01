@@ -19,7 +19,7 @@ def adicionar_espaco(doc):
 
 def texto_solicitante(doc):
     heading = doc.add_heading("1 - SOLICITANTE", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
     doc.add_paragraph("        Fomos solicitados pelo {prop} {nome}, para avaliar um imóvel rural, denominado {imovel}, localizado em {cid_est} ")
@@ -28,7 +28,7 @@ def texto_solicitante(doc):
 
 def texto_objetivo(doc):
     heading = doc.add_heading("2 - OBJETIVO", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
     doc.add_paragraph("        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente ao imóvel {imovel}, localizado em {cid_est}")
@@ -37,7 +37,7 @@ def texto_objetivo(doc):
 
 def texto_finalidade(doc):
     heading = doc.add_heading("3 - FINALIDADE", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
     doc.add_paragraph("        Garantia bancária")
@@ -46,7 +46,7 @@ def texto_finalidade(doc):
 
 def texto_proprietario(doc):
     heading = doc.add_heading("4 - PROPRIETÁRIO", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
     doc.add_paragraph("        Em conformidade com o exposto na matrícula de nº 154.725, o {trat} {nome} inscrito sob o CPF nº {cpf}, é o proprietário do imóvel rural denominado {imovel}, {sit_civil}")
@@ -55,7 +55,7 @@ def texto_proprietario(doc):
 
 def texto_ressalvas(doc):
     heading = doc.add_heading("5 - PRESSUPOSTOS, RESSALVAS E FATORES IMPORTANTES", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph(" ")
     doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\

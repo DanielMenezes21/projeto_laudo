@@ -22,7 +22,7 @@ def set_table_fixed_width(table):
 
 def title_imovel(doc):
     heading = doc.add_heading("6 - IDENTIFICAÇÃO E CARACTERIZAÇÃO DO IMÓVEL AVALIANDO", level=1)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_paragraph("  \n  ")
 
@@ -30,7 +30,7 @@ def title_imovel(doc):
 
 def localizacao(doc):
     heading = doc.add_heading("6.1 - Localização", level=2)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 = doc.add_paragraph("Zona Rural, Município de {cid_est}")
     run2 = doc.add_paragraph("")
@@ -47,7 +47,7 @@ def localizacao(doc):
 
 def acesso(doc, imagem_acesso=None):
     heading = doc.add_heading("6.2 - ROTA DE ACESSO MATRÌCULA {mat}", level=2)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -87,7 +87,7 @@ def acesso(doc, imagem_acesso=None):
 
 def carac_reg(doc):
     heading = doc.add_heading("6.3 - Caracterização da Região", level=2)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -96,7 +96,7 @@ def carac_reg(doc):
 
 def desc_imovel(doc):
     heading = doc.add_heading("6.4 - Descrição do imóvel", level=2)
-    run = heading.runs[0]
+    run = heading.add_runs[0]
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)

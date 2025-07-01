@@ -2,23 +2,49 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 def inserir_sumario(doc):
+    # Cria um marcador chamado SUMARIO
     paragraph = doc.add_paragraph()
     run = paragraph.add_run()
-
-    fldChar1 = OxmlElement('w:fldChar')
-    fldChar1.set(qn('w:fldCharType'), 'begin')
-    instrText = OxmlElement('w:instrText')
-    instrText.text = 'TOC \\o "1-3" \\h \\z \\u'
-    fldChar2 = OxmlElement('w:fldChar')
-    fldChar2.set(qn('w:fldCharType'), 'separate')
-    fldChar3 = OxmlElement('w:fldChar')
-    fldChar3.set(qn('w:fldCharType'), 'end')
-    
-    run._r.append(fldChar1)
-    run._r.append(instrText)
-    run._r.append(fldChar2)
-    run._r.append(fldChar3)
-
-    p = doc.add_paragraph("Título Principal")
-
+    tag_start = OxmlElement('w:bookmarkStart')
+    tag_start.set(qn('w:id'), '1')
+    tag_start.set(qn('w:name'), 'SUMARIO')
+    paragraph._p.append(tag_start)
+    paragraph.add_run()
+    tag_end = OxmlElement('w:bookmarkEnd')
+    tag_end.set(qn('w:id'), '1')
+    paragraph._p.append(tag_end)
+    # Opcional: texto visível
+    paragraph = doc.add_paragraph()
+    runpar = paragraph.add_run("SUMÁRIO")
+    paragraph.runs[0].bold = True
     return doc
+
+import win32com.client
+
+def inserir_e_atualizar_sumario_no_bookmark(docx_path, bookmark_name="SUMARIO"):
+    word = win32com.client.Dispatch("Word.Application")
+    word.Visible = False
+    doc = word.Documents.Open(docx_path)
+
+    if doc.Bookmarks.Exists(bookmark_name):
+        rng = doc.Bookmarks(bookmark_name).Range
+        doc.TablesOfContents.Add(
+            Range=rng,
+            RightAlignPageNumbers=True,
+            UseHeadingStyles=True,
+            UpperHeadingLevel=1,
+            LowerHeadingLevel=3,
+            IncludePageNumbers=True,
+            AddedStyles="",
+            UseHyperlinks=True,
+            HidePageNumbersInWeb=True,
+            UseOutlineLevels=True
+        )
+        doc.TablesOfContents(1).Update()
+        print("✅ Sumário inserido e atualizado!")
+    else:
+        print(f"❌ Bookmark '{bookmark_name}' não encontrado.")
+
+    doc.Save()
+    doc.Close(False)
+    word.Quit()

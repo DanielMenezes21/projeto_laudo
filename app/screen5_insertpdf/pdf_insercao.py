@@ -12,6 +12,7 @@ from assets.document_page3 import *
 from assets.document_page4 import *
 from assets.document_page5 import *
 from assets.document_page6 import *
+from assets.document_page7 import *
 
 def inserir_pdf_no_word(self, caminho_pdf, placeholder):
     if not hasattr(self, "doc"):
@@ -155,11 +156,28 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = desc_imovel(doc)
     doc.add_page_break()
-    doc = declividade(doc)
+    doc = declividade(doc, imagem_path=getattr(self, "caminho_declividade", None))
     doc.add_page_break()
-    doc = hidrografia(doc)
+    doc = hidrografia(doc, imagem_path=getattr(self, "caminho_hidrografia", None))
     doc.add_page_break()
-    doc = pedologia(doc)
+    doc = pedologia(doc, imagem_path=getattr(self, "caminho_solos", None))
+    doc.add_page_break()
+    doc = uso_imovel(doc)
+    doc = adicionar_espaco(doc)
+    doc = benfeitoria(doc)
+    doc = diag_mercado(doc)
+    doc = metodologia(doc)
+    doc.add_page_break()
+    doc = metodo_comparativo(doc)
+    doc = adicionar_espaco(doc)
+    doc = aproveitamento(doc)
+    doc = adicionar_espaco(doc)
+    doc = especificacao(doc)
+    doc = grau_especificacao(doc)
+    doc = adicionar_espaco(doc)
+    doc = grau_precisao(doc)
+    doc = adicionar_espaco(doc)
+    doc = grau_precisao2(doc)
     doc.add_page_break()
 
     return doc
@@ -270,6 +288,7 @@ def gerar_documento(self):
         output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
+        inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
         output_path = os.path.normpath(output_path)
         texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
         substituicoes = {
