@@ -43,7 +43,7 @@ def show_file_manager(self):
     initial_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
     initial_path = os.path.join(initial_path, mes)
     if not os.path.exists(initial_path):
-        initial_path = os.path.join("C:\\Users\\DESKTOP\\Documents", mes)
+        initial_path = os.path.join(os.path.expanduser("~/Documents"), mes)
     self.file_manager = MDFileManager(
         exit_manager=lambda *args: close_file_manager(self, *args),
         select_path=lambda path: select_pdf_file(self, path),

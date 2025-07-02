@@ -62,8 +62,9 @@ def metodo_comparativo(doc):
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
 
-    run1 = doc.add_paragraph("Conforme item 7.3.1 da NBR 14.653-1, a conceituação do método é a seguinte: ")
-    run1_1 = doc.add_run("“Identifica o custo do bem por meio de tratamento técnico dos atributos dos elementos comparáveis, constituintes da amostra”.")
+    par = doc.add_paragraph()
+    run1 = par.add_run("Conforme item 7.3.1 da NBR 14.653-1, a conceituação do método é a seguinte: ")
+    run1_1 = par.add_run("“Identifica o custo do bem por meio de tratamento técnico dos atributos dos elementos comparáveis, constituintes da amostra”.")
     run1_1.italic = True
     run2 = doc.add_paragraph("É condição fundamental para aplicação deste método a existência de um conjunto de dados que possa ser tomada, estatisticamente, " \
     "como amostra do mercado imobiliário.")
@@ -76,11 +77,12 @@ def aproveitamento(doc):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-
-    run1 = doc.add_paragraph("O princípio que norteou o trabalho avaliatório " \
+    
+    par = doc.add_paragraph()
+    run1 = par.add_run("O princípio que norteou o trabalho avaliatório " \
     "foi o do aproveitamento eficiente, determinado por análise do mercado imobiliário, " \
     "cujo conceito encontra-se assim definido pela ABNT NBR 14653-3: ")
-    run1_1=doc.add_run("“Aquele recomendável e tecnicamente possível para o local, numa data de referência, observada a tendência mercadológica nas circunvizinhanças, entre os diversos usos permitidos pela legislação pertinentes”.")
+    run1_1=par.add_run("“Aquele recomendável e tecnicamente possível para o local, numa data de referência, observada a tendência mercadológica nas circunvizinhanças, entre os diversos usos permitidos pela legislação pertinentes”.")
     return doc
 
 def especificacao(doc):
@@ -99,11 +101,14 @@ def grau_especificacao(doc):
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
 
-    run1 = doc.add_paragraph("No desenvolvimento do presente trabalho foi aplicado " \
+    par = doc.add_paragraph()
+
+    run1 = par.add_run("No desenvolvimento do presente trabalho foi aplicado " \
     "tratamento dos dados por homogeneização através de fatores, fundamentados por " \
     "estudos conforme o item 8.2.1.4.2, da norma em questão.")
 
-    run2 = doc.add_paragraph("TABELA 3 – Grau de fundamentação no caso de utilização do " \
+    par2 = doc.add_paragraph()
+    run2 = par2.add_run("TABELA 3 – Grau de fundamentação no caso de utilização do " \
     "tratamento por fatores – Item 9.2.2 – ABNT NBR 14653-3 ")
     run2.font.bold = True
 
@@ -523,7 +528,8 @@ def grau_especificacao(doc):
     run4 = doc.add_paragraph("Neste trabalho foram contabilizados 10 pontos, " \
     "correspondentes à soma de pontos dos itens atingidos e acima destacados.")
 
-    run5 = doc.add_paragraph("TABELA 4 – Enquadramento do laudo segundo seu grau de fundamentação " \
+    parrun5 = doc.add_paragraph()
+    run5 = parrun5.add_run("TABELA 4 – Enquadramento do laudo segundo seu grau de fundamentação " \
     "no caso de utilização de tratamento por fatores – Item 9.2.2.2 – ABNT NBR 14653-3")
     run5.font.bold = True
 
@@ -711,11 +717,13 @@ def grau_especificacao(doc):
     )
     table2cell3_4._element.get_or_add_tcPr().append(borders)
 
-    run6 = doc.add_paragraph("GRAU DE FUNDAMENTAÇÃO ")
+    parrun6 = doc.add_paragraph()
+    run6 = parrun6.add_run("GRAU DE FUNDAMENTAÇÃO ")
     run6.font.bold = True
     run6.underline = True
 
     run_extra = doc.add_paragraph(" ")
+
 
     run7 = doc.add_paragraph("Com base nos parâmetros especificados pelas tabelas 3 e 4 da ABNT, NBR 14653-3, embora tenhamos alcançado 06 pontos e atendido as exigências da norma no grau ll todos os itens atendem à exigência da norma no grau II, consequentemente, o trabalho avaliatório será enquadrado no ")
     run7_1 = run7.add_run("GRAU II")
@@ -727,13 +735,14 @@ def grau_precisao(doc):
     """
     Create a document with a table and text related to the 'Grau de Precisão' section.
     """
-    heading = doc.add_heading(style='Heading2')
+    heading = doc.add_paragraph(style='Heading2')
     run = heading.add_run("9.2 - Grau de Precisão")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
 
-    run1 = doc.add_paragraph("TABELA 5 – Grau de precisão nos casos de utilização de modelos" \
+    par = doc.add_paragraph()
+    run1 = par.add_run("TABELA 5 – Grau de precisão nos casos de utilização de modelos" \
     " de regressão linear ou do tratamento por fatores – Item 9.2.3 ¬– ABNT NBR 14653-3 ")
     run1.font.bold = True
 
@@ -783,6 +792,8 @@ def grau_precisao(doc):
     cell2_1 = table.cell(1, 1)
     cell2_1.text = "I"
     cell2_1.width = Cm(2.5)
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell2_1._element.get_or_add_tcPr().append(shading)
     cell2_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
@@ -797,6 +808,8 @@ def grau_precisao(doc):
     cell2_2 = table.cell(1, 2)
     cell2_2.text = "II"
     cell2_2.width = Cm(2.5)
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell2_2._element.get_or_add_tcPr().append(shading)
     cell2_2.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
@@ -811,6 +824,8 @@ def grau_precisao(doc):
     cell2_3 = table.cell(1, 3)
     cell2_3.text = "III"
     cell2_3.width = Cm(2.5)
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell2_3._element.get_or_add_tcPr().append(shading)
     cell2_3.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
@@ -885,7 +900,7 @@ def grau_precisao2(doc):
     """
     Create a document with a table and text related to the 'Grau de Precisão' section.
     """
-    heading = doc.add_heading(style='Heading1')
+    heading = doc.add_paragraph(style='Heading2')
     run = heading.add_run("9.3 - GRAU DE PRECISÃO")
     for run in heading.runs:
         run.font.size = Pt(12)
@@ -898,4 +913,281 @@ def grau_precisao2(doc):
     run2.font.bold = True
 
     return doc
+
+def resultado(doc):
+    """
+    Create a document with a table and text related to the 'Resultado' section.
+    """
+    heading = doc.add_paragraph(style='Heading2')
+    run = heading.add_run("10 - RESULTADO DA AVALIAÇÃO")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+    parrun1 = doc.add_paragraph()
+    run1 = parrun1.add_run("Conforme a NBR 14653-1, Avaliação de Bens, Parte-1: " \
+    "Procedimentos Gerais, item 3.1.9 e NBR 14653-2, Avaliação de Bens, Parte-3: Imóveis Rurais, " \
+    "item A5 (Anexo A), o Campo de Arbítrio é o intervalo compreendido entre o valor máximo e o " \
+    "mínimo dos preços homogeneizados, efetivamente utilizados no tratamento, limitado a 15% do valor " \
+    "calculado, dentro do qual se pode arbitrar, pelo avaliador, o valor mais representativo do bem.")
+
+    parrun2 = doc.add_paragraph()
+    run2 = parrun2.add_run("De acordo com a análise do diagnóstico de mercado apurado e " \
+    "levantamentos realizados, com base na identificação da realidade mercadológica da " \
+    "região onde se encontra situado o imóvel, os valores mínimo, médio e máximo que espelham o " \
+    "valor venal de mercado foram discriminados de acordo com a amplitude do intervalo de confiança " \
+    "de 80% em torno do valor central da estimativa. ")
+
+    table_ava(doc)
+
+    return doc
+
+def table_ava(doc):
+    table = doc.add_table(rows=5, cols=5)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+
+    table.rows[0].height = Cm(0.8)
+    table.rows[1].height = Cm(1)
+    table.rows[2].height = Cm(0.8)
+    table.rows[3].height = Cm(0.8)
+    table.rows[4].height = Cm(0.8)
+
+    cell1_1 = table.cell(0, 0)
+    cell1_1.merge(table.cell(0, 4))
+    cell1_1.text = "VALORES ALCANÇADOS NA AVALIAÇÃO"
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+    cell1_1._element.get_or_add_tcPr().append(shading)
+    cell1_1.width = Cm(18.0)
+    cell1_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell1_1._element.get_or_add_tcPr().append(borders)
+
+    cell2_1 = table.cell(1, 0)
+    cell2_1.text = "ITEM"
+    cell2_1.width = Cm(3.0)
+    cell2_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="D3E1D9"/>')
+    cell2_1._element.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell2_1._element.get_or_add_tcPr().append(borders)
+
+    cell2_2 = table.cell(1, 1)
+    cell2_2.text = "ÁREA \n (ha)"
+    cell2_2.width = Cm(3.0)
+    cell2_2.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="D3E1D9"/>')
+    cell2_2._element.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell2_2._element.get_or_add_tcPr().append(borders)
+
+    cell2_3 = table.cell(1, 2)
+    cell2_3.text = "VALOR MÍNIMO \n (R$)"
+    cell2_3.width = Cm(3.0)
+    cell2_3.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="D3E1D9"/>')
+    cell2_3._element.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell2_3._element.get_or_add_tcPr().append(borders)
+
+    cell2_4 = table.cell(1, 3)
+    cell2_4.text = "VALOR MÉDIO \n (R$)"
+    cell2_4.width = Cm(3.0)
+    cell2_4.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="D3E1D9"/>')
+    cell2_4._element.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell2_4._element.get_or_add_tcPr().append(borders)
+
+    cell2_5 = table.cell(1, 4)
+    cell2_5.text = "VALOR MÁXIMO \n (R$)"
+    cell2_5.width = Cm(3.0)
+    cell2_5.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="D3E1D9"/>')
+    cell2_5._element.get_or_add_tcPr().append(shading)
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell2_5._element.get_or_add_tcPr().append(borders)
+
+    cell3_1 = table.cell(2, 0)
+    cell3_1.text = "FAZENDA"
+    cell3_1.width = Cm(3.0)
+    cell3_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell3_1._element.get_or_add_tcPr().append(borders)
+
+    cell3_2 = table.cell(2, 1)
+    cell3_2.text = "{area_total}"
+    cell3_2.width = Cm(3.0)
+    cell3_2.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell3_2._element.get_or_add_tcPr().append(borders)
+
+    cell3_3 = table.cell(2, 2)
+    cell3_3.text = "{valor_minimo}"
+    cell3_3.width = Cm(3.0)
+    cell3_3.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell3_3._element.get_or_add_tcPr().append(borders)
+
+    cell3_4 = table.cell(2,3)
+    cell3_4.text = "{valor_medio}"
+    cell3_4.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell3_4._element.get_or_add_tcPr().append(borders)
+
+    cell3_5 = table.cell(2,4)
+    cell3_5.text = "{valor_maximo}"
+    cell3_5.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell3_5._element.get_or_add_tcPr().append(borders)
+
+    cell4_1 = table.cell(3,0)
+    cell4_1.merge(table.cell(3,2))
+    par = cell4_1.paragraphs[0]
+    par.clear()
+    run = par.add_run("VALOR VENAL ADOTADO")
+    run.bold = True
+    run.font.size = Pt(12)
+    cell4_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell4_1._element.get_or_add_tcPr().append(borders)
+
+    cell4_2 = table.cell(3,3)
+    cell4_2.merge(table.cell(3,4))
+    par = cell4_2.paragraphs[0]
+    par.clear()
+    run = par.add_run("{valor_venal}")
+    run.bold = True
+    run.font.size = Pt(12)
+    cell4_2.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell4_2._element.get_or_add_tcPr().append(borders)
+
+    cell5_1 = table.cell(4,0)
+    cell5_1.merge(table.cell(4,2))
+    par = cell5_1.paragraphs[0]
+    par.clear()
+    run = par.add_run("Valor de Liquidação Venal Adotado")
+    run.bold = True
+    run.font.size = Pt(12)
+    cell5_1.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell5_1._element.get_or_add_tcPr().append(borders)
+
+    cell5_2 = table.cell(4,3)
+    cell5_2.merge(table.cell(4,4))
+    par = cell5_2.paragraphs[0]
+    par.clear()
+    run = par.add_run("{valor_liq_venal}")
+    run.bold = True
+    run.font.size = Pt(12)
+    cell5_2.paragraphs[0].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    borders = parse_xml(
+        f'<w:tcBorders {nsdecls("w")}>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '</w:tcBorders>'
+    )
+    cell5_2._element.get_or_add_tcPr().append(borders)
 

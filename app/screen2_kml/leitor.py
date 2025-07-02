@@ -22,7 +22,7 @@ class LeitorScreen(MDScreen):
 
         root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
         if not os.path.exists(root_path):
-            root_path = os.path.join(r"C:\\Users\\DESKTOP\\Documents")
+            root_path = os.path.join(os.path.expanduser("~/Documents"))
         self.root_path = root_path
         self.current_path = self.root_path
 

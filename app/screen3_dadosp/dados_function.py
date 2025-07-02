@@ -77,6 +77,8 @@ def abrir_seletor_pdf(self, *args):
         mes = f'{data_nome.month:02d}. {data.split("de")[1].strip()}'
         initial_path = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
         initial_path = os.path.join(initial_path, mes)
+        if not os.path.exists(initial_path):
+            initial_path = os.path.join(os.path.expanduser("~/Documents"), mes)
         self.file_manager.show(initial_path)
 
 def fechar_arquivo(self, *args):

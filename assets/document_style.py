@@ -33,14 +33,16 @@ def inserir_imagem_ultima_pagina(docx_path, img_fim):
         word.Quit()
 
 
-def imagens_fundo(docx_path, img_marca):
+def imagens_fundo(docx_path, img_marca, ignorar_secao=None):
     try:
         word = win32com.client.Dispatch("Word.Application")
         word.Visible = False
         doc = word.Documents.Open(docx_path)
 
-        for section in doc.Sections:
-            header = section.Headers(1)  
+        for i, section in enumerate(doc.Sections, start=1):
+            if ignorar_secao and i == ignorar_secao:
+                continue  
+            header = section.Headers(1)
             shape = header.Shapes.AddPicture(
                 FileName=os.path.abspath(img_marca),
                 LinkToFile=False,

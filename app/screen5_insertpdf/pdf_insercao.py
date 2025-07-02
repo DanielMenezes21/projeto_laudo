@@ -2,6 +2,7 @@ from kivy.metrics import dp
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 from docx.shared import Cm
 from docx.oxml.ns import qn
+from docx.enum.section import WD_SECTION
 import os
 import re
 from app.screen5_insertpdf.pdf_extracao import extrair_paginas_como_imagens
@@ -13,6 +14,7 @@ from assets.document_page4 import *
 from assets.document_page5 import *
 from assets.document_page6 import *
 from assets.document_page7 import *
+from assets.document_page8 import *
 
 def inserir_pdf_no_word(self, caminho_pdf, placeholder):
     if not hasattr(self, "doc"):
@@ -179,11 +181,19 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = grau_precisao2(doc)
     doc.add_page_break()
+    doc = resultado(doc)
+    doc.add_page_break()
+    doc = encerramento(doc)
+    doc.add_page_break()
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    doc = inserir_caixa_texto(doc)
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    doc.add_page_break()
 
     return doc
 
 def gerar_documento(self): 
-    try:
+    #try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -297,6 +307,7 @@ def gerar_documento(self):
         } 
         if hasattr(self, "imagem_marca_dagua"):
             imagens_fundo(output_path, self.imagem_marca_dagua)
+        inserir_marcadagua_so_na_secao(output_path, "models\\anexos.png", secao=2, manter_existente=True)
         if hasattr(self, "imagem_final"):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_capa"):
@@ -308,7 +319,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-    except Exception as e:
+"""except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -324,4 +335,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()
+        ).open()"""

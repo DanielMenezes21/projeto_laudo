@@ -1,10 +1,10 @@
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+import win32com.client
 
 def inserir_sumario(doc):
-    # Cria um marcador chamado SUMARIO
     paragraph = doc.add_paragraph()
-    run = paragraph.add_run()
+    run = paragraph.add_run("SUMÁRIO")
     tag_start = OxmlElement('w:bookmarkStart')
     tag_start.set(qn('w:id'), '1')
     tag_start.set(qn('w:name'), 'SUMARIO')
@@ -19,14 +19,12 @@ def inserir_sumario(doc):
     paragraph.runs[0].bold = True
     return doc
 
-import win32com.client
-
 def inserir_e_atualizar_sumario_no_bookmark(docx_path, bookmark_name="SUMARIO"):
     word = win32com.client.Dispatch("Word.Application")
     word.Visible = False
     doc = word.Documents.Open(docx_path)
 
-    if doc.Bookmarks.Exists(bookmark_name):
+    if hasattr(doc, "Bookmarks") and doc.Bookmarks.Exists(bookmark_name):
         rng = doc.Bookmarks(bookmark_name).Range
         doc.TablesOfContents.Add(
             Range=rng,

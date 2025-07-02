@@ -3,6 +3,7 @@ from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.boxlayout import BoxLayout
 from kivymd.uix.screen import MDScreen
 from app.screen3_dadosp.dados_function import extrair_dados_multiplos_pdfs, receber_dados_pdf
+import os
 
 class ManagerScreen(MDScreen):
     def __init__(self, **kwargs):
@@ -26,7 +27,12 @@ class ManagerScreen(MDScreen):
         self.add_widget(layout)
 
     def open_file_manager(self):
-        self.file_manager.show("H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL")  
+        caminho_padrao = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        if os.path.exists(caminho_padrao):
+            caminho = caminho_padrao
+        else:
+            caminho = os.path.expanduser("~/Documents")
+        self.file_manager.show(caminho)
 
     def on_files_selected(self, paths):
         (nomes, cpfs, nomes_imoveis, municipio, estado, 

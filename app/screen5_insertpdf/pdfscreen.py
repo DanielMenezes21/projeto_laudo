@@ -36,7 +36,7 @@ class PDFInsert(MDScreen):
         self.root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
         self.root_path = os.path.join(self.root_path, mes)
         if not os.path.exists(self.root_path):
-            self.root_path = os.path.join("C:\\Users\\DESKTOP\\Documents", mes)
+            self.root_path = os.path.join(os.path.expanduser("~/Documents"), mes)
         self.current_path = self.root_path
 
         self.layout = MDBoxLayout(orientation="vertical")
