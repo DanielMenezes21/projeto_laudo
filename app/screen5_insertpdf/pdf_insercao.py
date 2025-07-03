@@ -193,11 +193,13 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = anexo_doc(doc)
     doc.add_page_break()
+    doc = anexo_parametros(doc)
+    doc.add_page_break()
 
     return doc
 
 def gerar_documento(self): 
-    #try:
+    try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -307,12 +309,10 @@ def gerar_documento(self):
             output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        self.doc.save(output_path)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
         for dados in self.lista_dados_matriculas:
             caminho_excel = dados.get("planilha")
-            print(f"caminho da planilha {caminho_excel}")
             if caminho_excel and os.path.exists(caminho_excel):
                 inserir_tabela_excel_no_word(
                     docx_path=output_path,
@@ -323,6 +323,18 @@ def gerar_documento(self):
                     excel_path=caminho_excel
                 )
                 inserir_tabela_depreciacao_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_classe_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabelas_amostras_auto(
+                    docx_path=output_path,
+                    excel_path=caminho_excel,
+                )
+                inserir_tabela_situacao_no_word(
                     docx_path=output_path,
                     excel_path=caminho_excel
                 )
@@ -347,7 +359,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-"""except Exception as e:
+    except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -363,4 +375,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()"""
+        ).open()
