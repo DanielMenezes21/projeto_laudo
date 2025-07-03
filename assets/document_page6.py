@@ -88,40 +88,10 @@ def localizacao(doc, lista_dados_matriculas):
 def acesso(doc, imagem_acesso=None):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.2 - ROTA DE ACESSO MATRÌCULA {mat}")
-    for run in heading.runs:
-        run.font.size = Pt(12)
-        run.font.color.rgb = RGBColor(0, 0, 0)
-    run1 = doc.add_paragraph("{rota_acesso}")
-    for r in run1.runs:
-        r.font.size = Pt(12)
-    if imagem_acesso:
-        try:
-            p_img = doc.add_paragraph()
-            p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = p_img.add_run("#IMAGEM_ACESSO")
-            shape = run.add_picture(imagem_acesso, width=Cm(15), height=Cm(8.77))
-            border_xml = (
-                '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" '
-                'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
-                '<pic:spPr>'
-                '<a:ln w="9525">'  
-                '<a:solidFill>'
-                '<a:srgbClr val="000000"/>'  
-                '</a:solidFill>'
-                '<a:prstDash val="solid"/>'  
-                '</a:ln>'
-                '</pic:spPr>'
-                '</pic:pic>'
-            )
 
-            pic = run._r.xpath('.//pic:pic')[0]
-            pic.append(parse_xml(border_xml))
-            
-        except Exception as e:
-            print(f"Erro ao adicionar imagem: {e}")
-            par = doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
-    else:
-        par = doc.add_paragraph("[ESPAÇO PARA ACESSO]", style='Normal')
+    par = doc.add_paragraph()
+    run1 = par.add_run("#IMAGEM_ACESSO")
+    
 
     return doc
 
@@ -183,314 +153,6 @@ def desc_imovel(doc):
     run.font.size = Pt(12)
     run.font.color.rgb = RGBColor(0, 0, 0)
 
-    table1 = doc.add_table(rows=5, cols=4)
-    table1.allow_autofit = False
-    table1.width = Cm(16)
-    set_table_fixed_width(table1)
-    table1.style = 'Table Grid'
-
-    table1.rows[0].height = Cm(0.5)
-    table1.rows[1].height = Cm(0.5)
-    table1.rows[2].height = Cm(0.5)
-    table1.rows[3].height = Cm(0.5)
-    table1.rows[4].height = Cm(0.5)
-
-    col_widths = [Cm(4), Cm(8), Cm(2), Cm(2)]
-
-    for col_idx, width in enumerate(col_widths):
-        for row in table1.rows:
-            row.cells[col_idx].width = width
-
-    line1r1table1 = table1.rows[0].cells[0]
-    line1r1table1.text = "Proprietário(s): "
-    line1r1table1.paragraphs[0].runs[0].bold = True
-    line1r1table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tcPr = line1r1table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line1r2table1 = table1.rows[0].cells[1]
-    line1r2table1.text = "{nome}"
-    line1r2table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-    tcPr = line1r2table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line1r3table1 = table1.rows[0].cells[2]
-    line1r3table1.text = "Contato: "
-    line1r3table1.paragraphs[0].runs[0].bold = True
-    line1r3table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tcPr = line1r3table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line1r4table1 = table1.rows[0].cells[3]
-    line1r4table1.text = "{contato}"
-    line1r4table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    tcPr = line1r4table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line2r1table1 = table1.rows[1].cells[0]
-    line2r1table1.text = "Localização do imóvel: "
-    line2r1table1.paragraphs[0].runs[0].bold = True
-    line2r1table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tcPr = line2r1table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line2r2table1 = table1.rows[1].cells[1]
-    line2r2table1.text = "{cit_est}"
-    line2r2table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-    tcPr = line2r2table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line2r3table1 = table1.rows[1].cells[2]
-    line2r3table1.text = "Situação: "
-    line2r3table1.paragraphs[0].runs[0].bold = True
-    line2r3table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tcPr = line2r3table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line2r4table1 = table1.rows[1].cells[3]
-    line2r4table1.text = "{situacao}"
-    line2r4table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    tcPr = line2r4table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line3r1table1 = table1.rows[2].cells[0]
-    line3r1table1.text = "Área do imóvel (ha): "
-    line3r1table1.paragraphs[0].runs[0].bold = True
-    line3r1table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tcPr = line3r1table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line3r2table1 = table1.rows[2].cells[1]
-    line3r2table1.text = "{area_imovel}"
-    line3r2table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-    tcPr = line3r2table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line3r3table1 = table1.rows[2].cells[2]
-    line3r3table1.text = "Benfeitoria: "
-    line3r3table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    line3r3table1.paragraphs[0].runs[0].bold = True
-    tcPr = line3r3table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line3r4table1 = table1.rows[2].cells[3]
-    line3r4table1.text = "{situacao}"
-    line3r4table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    tcPr = line3r4table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line4r1table1 = table1.rows[3].cells[0]
-    line4r1table1.text = "Hidrografia: "
-    line4r1table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    line4r1table1.paragraphs[0].runs[0].bold = True
-    tcPr = line4r1table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line4r2table1 = table1.rows[3].cells[1]
-    line4r2table1.text = "{hidrografia}"
-    line4r2table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-    tcPr = line4r2table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line4r3table1 = table1.rows[3].cells[2]
-    line4r3table1.text = "Data: "
-    line4r3table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    line4r3table1.paragraphs[0].runs[0].bold = True
-    tcPr = line4r3table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line4r4table1 = table1.rows[3].cells[3]
-    line4r4table1.text = "{data_planilha}"
-    line4r4table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    tcPr = line4r4table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line5r1table1 = table1.rows[4].cells[0]
-    line5r1table1.text = "Matrículas: "
-    line5r1table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    line5r1table1.paragraphs[0].runs[0].bold = True
-    tcPr = line5r1table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line5r2table1 = table1.rows[4].cells[1]
-    line5r2table1.text = "{matricula}"
-    line5r2table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-    tcPr = line5r2table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line5r3table1 = table1.rows[4].cells[2]
-    line5r3table1.text = "Outros: "
-    line5r3table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    line5r3table1.paragraphs[0].runs[0].bold = True
-    tcPr = line5r3table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="nil"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
-    line5r4table1 = table1.rows[4].cells[3]
-    line5r4table1.text = "{outros}"
-    line5r4table1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    tcPr = line5r4table1._tc.get_or_add_tcPr()
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="nil"/>'
-        '<w:left w:val="nil"/>'
-        '<w:bottom w:val="nil"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    tcPr.append(borders)
-
     extra_table = doc.add_paragraph("[INSERIR_TABELA_AQUI]")
 
     run4
@@ -549,11 +211,9 @@ def declividade(doc, imagem_path=None):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-    if imagem_path:
-        p = doc.add_paragraph()
-        run = p.add_run("#IMAGEM_DECLIVIDADE")
-        run.add_picture(imagem_path, width=Cm(14))
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p = doc.add_paragraph()
+    run1 = p.add_run("#IMAGEM_DECLIVIDADE")
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a área apresenta declividade #DECLIVIDADE_I")
     return doc
@@ -564,11 +224,9 @@ def hidrografia(doc, imagem_path=None):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-    if imagem_path:
-        p = doc.add_paragraph()
-        run = p.add_run("#IMAGEM_HIDROGRAFIA")
-        run.add_picture(imagem_path, width=Cm(14))
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p = doc.add_paragraph()
+    run1 = p.add_run("#IMAGEM_HIDROGRAFIA")
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a área apresenta hidrografia #HIDROGRAFIA_I")
     return doc
@@ -579,11 +237,9 @@ def pedologia(doc, imagem_path=None):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-    if imagem_path:
-        p = doc.add_paragraph()
-        run = p.add_run("#IMAGEM_SOLOS")
-        run.add_picture(imagem_path, width=Cm(14))
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p = doc.add_paragraph()
+    run1 = p.add_run("#IMAGEM_SOLOS")
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a pedologia da região é predominada por #TIPO_SOLO")
     paragraph2 = doc.add_paragraph("a área apresenta #DESCRICAO_SOLO")

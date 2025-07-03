@@ -185,7 +185,8 @@ class MatriculaScreen(MDScreen):
                 "latitude": campos["latitude"].text,
                 "longitude": campos["longitude"].text,
                 "proprietario": campos["proprietario"].text,
-                "imagem": arquivos.get("imagem", "")
+                "imagem": arquivos.get("imagem", ""),
+                "planilha": arquivos.get("planilha", "")
             })
         print(f"Matrícula: {nome_matricula} | Proprietário coletado: {campos['proprietario'].text}")
         return dados
@@ -246,6 +247,7 @@ class MatriculaScreen(MDScreen):
     def salvar_dados(self):
         for i, nome_matricula in enumerate(self.matriculas):
             campos = self.matriculas[nome_matricula]["campos"]
+            arquivos = self.matriculas[nome_matricula]["arquivos"]
             if i < len(self.lista_dados_matriculas):
                 self.lista_dados_matriculas[i].update({
                     "nome_imovel": campos["nome_imovel"].text,
@@ -255,7 +257,8 @@ class MatriculaScreen(MDScreen):
                     "latitude": campos["latitude"].text,
                     "longitude": campos["longitude"].text,
                     "proprietario": campos["proprietario"].text,
-                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", "")
+                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
+                    "planilha": arquivos.get("planilha", "")
                 })
             else:
                 self.lista_dados_matriculas.append({
@@ -266,7 +269,8 @@ class MatriculaScreen(MDScreen):
                     "latitude": campos["latitude"].text,
                     "longitude": campos["longitude"].text,
                     "proprietario": campos["proprietario"].text,
-                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", "")
+                    "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
+                    "planilha": arquivos.get("planilha", "")
                 })
         print(f"🔄 Salvando dados para tela PDF: {self.lista_dados_matriculas}")
         tela_pdf = self.manager.get_screen('pdf')

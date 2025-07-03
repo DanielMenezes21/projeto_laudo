@@ -918,7 +918,7 @@ def resultado(doc):
     """
     Create a document with a table and text related to the 'Resultado' section.
     """
-    heading = doc.add_paragraph(style='Heading2')
+    heading = doc.add_paragraph(style='Heading1')
     run = heading.add_run("10 - RESULTADO DA AVALIAÇÃO")
     for run in heading.runs:
         run.font.size = Pt(12)

@@ -187,6 +187,7 @@ class SoloScreen(MDScreen):
             text_color=(1, 1, 1, 1),
             on_release=lambda x: open_file_solos(self)
         )
+        solo.add_widget(self.imagem_solos)
 
         self.texto_solos = MDTextField(
             MDTextFieldHintText(text="Texto completo selecionado"),

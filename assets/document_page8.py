@@ -30,10 +30,8 @@ def encerramento(doc):
     run2 = par.add_run("{valor_liq}")
     run2.bold = True
 
-    # Espaço antes das assinaturas
     doc.add_paragraph("\n\n")
 
-    # Assinatura 1
     linha1 = doc.add_paragraph()
     linha1.alignment = WD_ALIGN_PARAGRAPH.CENTER
     linha1.add_run("_________________________________________")
@@ -41,10 +39,8 @@ def encerramento(doc):
     assinatura1.alignment = WD_ALIGN_PARAGRAPH.CENTER
     assinatura1.add_run("Eng. Marcos Felipe Oliveira Sousa\nCREA 333267/D-TO")
 
-    # Espaço entre assinaturas
     doc.add_paragraph("\n")
 
-    # Assinatura 2
     linha2 = doc.add_paragraph()
     linha2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     linha2.add_run("_________________________________________")
@@ -52,10 +48,8 @@ def encerramento(doc):
     assinatura2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     assinatura2.add_run("Eng. Luhan Marcos Pereira Lustosa\nCREA 326186/D-TO")
 
-    # Espaço entre assinaturas
     doc.add_paragraph("\n")
 
-    # Assinatura 3
     linha3 = doc.add_paragraph()
     linha3.alignment = WD_ALIGN_PARAGRAPH.CENTER
     linha3.add_run("_________________________________________")
@@ -86,14 +80,8 @@ def inserir_marcadagua_so_na_secao(path_docx, path_img, secao=2):
         shape.LockAspectRatio = False
         shape.RelativeHorizontalPosition = 0
         shape.RelativeVerticalPosition = 0
-        try:
-            shape.Fill.Transparency = 0
-        except Exception:
-            pass
-        try:
-            shape.PictureFormat.TransparencyColor = -1
-        except Exception:
-            pass
+        shape.Left = 0
+        shape.Top = 0
         doc.Save()
     doc.Close()
     word.Quit()
@@ -139,3 +127,68 @@ def inserir_caixa_texto(doc):
 
     return doc
 
+def anexos_fotos(doc):
+    heading = doc.add_paragraph(style='Heading 1')
+    run = heading.add_run("ANEXO I - RELATÓRIO FOTOGRÁFICO")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+    return doc
+
+def anexo_doc(doc):
+    heading = doc.add_paragraph(style='Heading 1')
+    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run = heading.add_run("ANEXO II - DOCUMENTAÇÂO DO IMÓVEL")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+    par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run1 = par.add_run("CERTIDÃO DE INTEIRO TEOR")
+    run1.bold = True
+
+    par2 = doc.add_paragraph()
+    par2.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run2 = par2.add_run("#SUBSTITUIR_CIT")
+
+    par3 = doc.add_paragraph()
+    par3.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run3 = par3.add_run("RECIBO DO CADASTRO AMBIENTAL RURAL – CAR")
+    run3.bold = True
+
+    par4 = doc.add_paragraph()
+    par4.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run4 = par4.add_run("#SUBSTITUIR_CAR")
+
+    return doc
+
+def anexo_parametros(doc):
+    heading = doc.add_paragraph(style='Heading 1')
+    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER 
+    run = heading.add_run("ANEXO III – PARÂMETROS DE AVALIAÇÃO E MEMORIAL DE CÁLCULO")
+    for run in heading.runs:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+
+    par1 = doc.add_paragraph()
+    run1 = par1.add_run("Benfeitoria")
+    run1.bold = True
+
+    par2 = doc.add_paragraph()
+    run2 = par2.add_run("[INSERIR_BENFEITORIA_AQUI]")
+
+    par3 = doc.add_paragraph()
+    run3 = par3.add_run("Depreciação de benfeitorias")
+    run3.bold = True
+
+    par4 = doc.add_paragraph()
+    run4 = par4.add_run("[INSERIR_DEPRECIACAO_AQUI]")
+
+    par5 = doc.add_paragraph()
+    run5 = par5.add_run("•	Adequada")
+    run5.bold = True
+    run5_1 = par5.add_run("= edificação está perfeitamente adequada à sua utilização; " \
+    "está 100% aproveitada e/ou funcional e/ou utilizada, considerando o imóvel e a região " \
+    "num período de um ano agrícola;")

@@ -5,6 +5,7 @@ from docx.oxml.ns import qn
 from docx.enum.section import WD_SECTION
 import os
 import re
+from modules.tabela_excel_para_word import *
 from app.screen5_insertpdf.pdf_extracao import extrair_paginas_como_imagens
 from assets.document_style import *
 from assets.document_page1 import *
@@ -188,6 +189,9 @@ def montar_documento(self, doc):
     doc.add_section(WD_SECTION.NEW_PAGE)
     doc = inserir_caixa_texto(doc)
     doc.add_section(WD_SECTION.NEW_PAGE)
+    doc = anexos_fotos(doc)
+    doc.add_page_break()
+    doc = anexo_doc(doc)
     doc.add_page_break()
 
     return doc
@@ -294,10 +298,34 @@ def gerar_documento(self):
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
             
         nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.nome)
-        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx" 
-        output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
+        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx"
+        if self.current_path and os.path.exists(self.current_path):
+            enviados_dir = os.path.join(self.current_path, "ENVIADOS")
+            os.makedirs(enviados_dir, exist_ok=True)
+            output_path = os.path.join(enviados_dir, nome_arquivo)
+        else:
+            output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        self.doc.save(output_path)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
+        for dados in self.lista_dados_matriculas:
+            caminho_excel = dados.get("planilha")
+            print(f"caminho da planilha {caminho_excel}")
+            if caminho_excel and os.path.exists(caminho_excel):
+                inserir_tabela_excel_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_benfeitoria_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_depreciacao_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
         output_path = os.path.normpath(output_path)
         texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
