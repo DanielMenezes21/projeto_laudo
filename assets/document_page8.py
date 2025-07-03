@@ -69,22 +69,32 @@ def inserir_marcadagua_so_na_secao(path_docx, path_img, secao=2):
     word = win32com.client.Dispatch("Word.Application")
     word.Visible = False
     doc = word.Documents.Open(path_docx)
-    section = doc.Sections(secao)
-    header = section.Headers(1)
-    shape = header.Shapes.AddPicture(
-        FileName=os.path.abspath(path_img),
-        LinkToFile=False,
-        SaveWithDocument=True
-    )
-    shape.WrapFormat.Type = 3  
-    shape.LockAspectRatio = False 
-    shape.RelativeHorizontalPosition = 0  
-    shape.RelativeVerticalPosition = 0    
-    shape.Left = 0
-    shape.Top = 0
-    shape.Width = doc.PageSetup.PageWidth
-    shape.Height = doc.PageSetup.PageHeight
-    doc.Save()
+    if doc.Sections.Count >= secao:
+        section = doc.Sections(secao)
+        rng = section.Range
+        shape = doc.Shapes.AddPicture(
+            FileName=os.path.abspath(path_img),
+            LinkToFile=False,
+            SaveWithDocument=True,
+            Left=0,
+            Top=0,
+            Width=section.PageSetup.PageWidth,
+            Height=section.PageSetup.PageHeight,
+            Anchor=rng
+        )
+        shape.WrapFormat.Type = 3  # Behind text
+        shape.LockAspectRatio = False
+        shape.RelativeHorizontalPosition = 0
+        shape.RelativeVerticalPosition = 0
+        try:
+            shape.Fill.Transparency = 0
+        except Exception:
+            pass
+        try:
+            shape.PictureFormat.TransparencyColor = -1
+        except Exception:
+            pass
+        doc.Save()
     doc.Close()
     word.Quit()
 
@@ -128,3 +138,4 @@ def inserir_caixa_texto(doc):
     table2.alignment = WD_ALIGN_PARAGRAPH.LEFT 
 
     return doc
+

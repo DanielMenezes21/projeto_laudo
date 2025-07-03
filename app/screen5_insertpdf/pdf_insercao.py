@@ -307,12 +307,12 @@ def gerar_documento(self):
         } 
         if hasattr(self, "imagem_marca_dagua"):
             imagens_fundo(output_path, self.imagem_marca_dagua)
-        inserir_marcadagua_so_na_secao(output_path, "models\\anexos.png", secao=2, manter_existente=True)
         if hasattr(self, "imagem_final"):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
-        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
+        inserir_marcadagua_so_na_secao(output_path, "models\\anexos.png", secao=2)
+        #inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
             MDSnackbarText(text="\u2705Documento gerado com sucesso!"),
