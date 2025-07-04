@@ -39,7 +39,7 @@ def titulo(doc, dados):
 
     return doc
 
-def table_geo(doc):
+def table_geo(doc, dados):
     table = doc.add_table(rows=12, cols=10)
     table.allow_autofit = False
     usable_width = LARGURA
@@ -58,6 +58,8 @@ def table_geo(doc):
     table.rows[9].height = Cm(0.5)
     table.rows[10].height = Cm(1.2)
     table.rows[11].height = Cm(0.1)
+
+    cor_hex = "4EA65D"
 
     linha1 = table.rows[0].cells[0]
     linha1.merge(table.rows[0].cells[9])
@@ -167,11 +169,12 @@ def table_geo(doc):
     )
     tcPr.append(borders)
 
+    cod_geo = dados.get("numero_georref", '')
     cell2_6 = table.rows[1].cells[6]
     cell2_6.merge(table.rows[1].cells[8])
     par = cell2_6.paragraphs[0]
     par.clear()
-    run = par.add_run(" ")
+    run = par.add_run(f"{cod_geo}")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     cell2_6.width = Cm(3.5)
     run.font.size = Pt(12)
@@ -235,11 +238,12 @@ def table_geo(doc):
     )
     tcPr.append(borders)
 
+    car = dados.get("car", "")
     cell4_1 = table.rows[3].cells[1]
     cell4_1.merge(table.rows[3].cells[7])
     par = cell4_1.paragraphs[0]
     par.clear()
-    run = par.add_run(" ")
+    run = par.add_run(f"{car}")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     cell4_1.width = Cm(5.5)
     tcPr = cell4_1._tc.get_or_add_tcPr()
@@ -291,7 +295,7 @@ def table_geo(doc):
 
     linha6 = table.rows[5].cells[0]
     linha6.merge(table.rows[5].cells[1])
-    par = cell2_2.paragraphs[0]
+    par = linha6.paragraphs[0]
     par.clear()
     run = par.add_run("Não")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -431,6 +435,7 @@ def table_geo(doc):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+    
     cell7_3 = table.rows[7].cells[2]
     par = cell7_3.paragraphs[0]
     par.clear()
@@ -464,6 +469,7 @@ def table_geo(doc):
     )
     tcPr.append(borders)
 
+    
     cell7_5 = table.rows[7].cells[4]
     cell7_5.merge(table.rows[7].cells[9])
     par = cell7_5.paragraphs[0]
@@ -500,6 +506,7 @@ def table_geo(doc):
     )
     tcPr.append(borders)
 
+    alienacao = dados.get("detalhes_alienacao", "")
     cell8_5 = table.rows[8].cells[5]
     par = cell8_5.paragraphs[0]
     par.clear()
@@ -522,7 +529,7 @@ def table_geo(doc):
     cell8_6.merge(table.rows[8].cells[8])
     par = cell8_6.paragraphs[0]
     par.clear()
-    run = par.add_run(" ")
+    run = par.add_run(f"{alienacao}")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run.font.size = Pt(12)
     tcPr = cell8_6._tc.get_or_add_tcPr()
@@ -572,12 +579,13 @@ def table_geo(doc):
     )
     tcPr.append(borders)
 
+    obs = dados.get("observacoes_parecer", "")
     linha10 = table.rows[10].cells[0]
     linha10.merge(table.rows[10].cells[5])
     paragraph = linha10.paragraphs[0]
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    run = paragraph.add_run(" ")
+    run = paragraph.add_run(f"{obs}")
     run.font.size = Pt(12)
     run.bold = True
     run.space_after = Twips(0)
@@ -650,7 +658,7 @@ def table_geo(doc):
 
     return doc
 
-def tabela_bioma(doc):
+def tabela_bioma(doc, dados):
     """
     Cria uma tabela no documento Word com informações sobre biomas.
     """
@@ -1002,7 +1010,7 @@ def tabela_bioma(doc):
 
     return doc
 
-def area_APA(doc):
+def area_APA(doc, dados):
     """pequena tabela sobre a propriedade e a Área de Proteção Ambiental"""
     table = doc.add_table(rows=3, cols=10)
     table.allow_autofit = False
@@ -1051,9 +1059,9 @@ def area_APA(doc):
     tcPr.append(borders)
 
     cell1_2 = table.rows[1].cells[1]
-    par = cell1_1.paragraphs[0]
+    par = cell1_2.paragraphs[0]
     par.clear()
-    run = par.add_run("sim")
+    run = par.add_run(" ")
     par.alignment = WD_ALIGN_PARAGRAPH.LEFT
     run.font.size = Pt(12)
     run.bold = True
@@ -1122,11 +1130,12 @@ def area_APA(doc):
     )
     tcPr.append(borders)
 
+    apa = dados.get("nome_apa", "")
     cell1_6 = table.rows[1].cells[5]
     cell1_6.merge(table.rows[1].cells[7])
     par = cell1_6.paragraphs[0]
     par.clear()
-    run = par.add_run(" ")
+    run = par.add_run(f"{apa}")
     par.alignment = WD_ALIGN_PARAGRAPH.LEFT
     run.font.size = Pt(12)
     tcPr = cell1_6._tc.get_or_add_tcPr()
@@ -1178,7 +1187,7 @@ def area_APA(doc):
 
     return doc
 
-def table_passivo_ambiental(doc):
+def table_passivo_ambiental(doc, dados):
     '''Tabela de passivo ambiental'''
     table = doc.add_table(rows=11, cols=11)
     table.autofit = False
@@ -1535,8 +1544,14 @@ def table_passivo_ambiental(doc):
     )
     tcPr.append(borders)
 
+    passivo = dados.get("detalhes_passivo", "")
     cell9_2 = table.rows[9].cells[2]
     cell9_2.merge(table.rows[9].cells[9])
+    par = cell9_2.paragraphs[0]
+    par.clear()
+    run = par.add_run(f"{passivo}")
+    par.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run.font.size = Pt(12)
     cell9_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
     tcPr = cell9_2._tc.get_or_add_tcPr()
     borders = parse_xml(

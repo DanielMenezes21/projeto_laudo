@@ -102,7 +102,7 @@ def montar_documento(self, doc):
         imagem_path = dados.get("imagem", "")
         doc = criar_secao_croqui(doc, imagem_path=imagem_path)
         doc = adicionar_linha_fina(doc)
-        doc, tabela = geometria_terreno(doc)
+        doc = geometria_terreno(doc, dados)
         doc = adicionar_linha_fina(doc)
         doc = criar_secao_caracteristicas(doc, dados)
         if i < self.qtd_imoveis - 1:
@@ -113,13 +113,13 @@ def montar_documento(self, doc):
     for i, dados in enumerate(self.lista_dados_matriculas):
         doc = adicionar_linha_fina(doc)
         doc = titulo(doc, dados)
-        doc = table_geo(doc)
+        doc = table_geo(doc, dados)
         doc = adicionar_linha_fina(doc)
-        doc = tabela_bioma(doc)
+        doc = tabela_bioma(doc, dados)
         doc = adicionar_linha_fina(doc)
-        doc = area_APA(doc)
+        doc = area_APA(doc, dados)
         doc = adicionar_linha_fina(doc)
-        doc = table_passivo_ambiental(doc)
+        doc = table_passivo_ambiental(doc, dados)
         if i == self.qtd_imoveis - 1:
             doc = campo_assinatura(doc)
             doc.add_page_break()
@@ -157,7 +157,8 @@ def montar_documento(self, doc):
     doc = acesso(doc)
     doc = carac_reg(doc)
     doc.add_page_break()
-    doc = desc_imovel(doc)
+    for i, dados in enumerate(self.lista_dados_matriculas):
+        doc = desc_imovel(doc, dados)
     doc.add_page_break()
     doc = declividade(doc, imagem_path=getattr(self, "caminho_declividade", None))
     doc.add_page_break()
@@ -204,15 +205,19 @@ def gerar_documento(self):
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
         processo = ""
-        if self.current_path:
-            pasta_anexos = self.current_path
-            if os.path.exists(pasta_anexos):
-                for subpasta in os.listdir(pasta_anexos):
-                    subpasta_completa = os.path.join(pasta_anexos, subpasta)
-                    if os.path.isdir(subpasta_completa):
-                        match = re.search(r"(?i)processo\s*n[\u00b0\u00ba]\s*(\d+)", subpasta, re.IGNORECASE)
-                        if match:
-                            processo = match.group(1)
+
+        if hasattr(self, "caminho_car") and self.caminho_car:
+            caminho_processo = os.path.dirname(self.caminho_car)
+
+        elif hasattr(self, "caminho_cit") and self.caminho_cit:
+            caminho_processo = os.path.dirname(self.caminho_cit)
+        else:
+            caminho_processo = ""
+
+        if caminho_processo:
+            match = re.search(r"processo\s*n[\u00b0\u00ba]?\s*(\d+)", caminho_processo, re.IGNORECASE)
+            if match:
+                processo = match.group(1)
 
         doc = configurar_documento()
         self.doc = montar_documento(self, doc)
@@ -338,6 +343,26 @@ def gerar_documento(self):
                     docx_path=output_path,
                     excel_path=caminho_excel
                 )
+                inserir_tabela_quadro_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_homog_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_saneamento_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_liquidacao_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
+                inserir_tabela_valores_no_word(
+                    docx_path=output_path,
+                    excel_path=caminho_excel
+                )
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
         output_path = os.path.normpath(output_path)
         texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
@@ -352,7 +377,7 @@ def gerar_documento(self):
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
         inserir_marcadagua_so_na_secao(output_path, "models\\anexos.png", secao=2)
-        #inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
+        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
             MDSnackbarText(text="\u2705Documento gerado com sucesso!"),

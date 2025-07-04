@@ -132,15 +132,22 @@ class MatriculaScreen(MDScreen):
         return ""
     
     def extrair_valor_liq_excel(self, caminho_arquivo):
-        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
         aba = "LIQUIDAÇÃO"
-        if aba not in wb.sheetnames:
-            print(f"{aba} não encontrado")
+        try:
+            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        except Exception as e:
+            print(f"Erro ao abrir a planilha: {e}")
             return ""
+
+        if aba not in wb.sheetnames:
+            print(f"Aba '{aba}' não encontrada")
+            return ""
+
         ws = wb[aba]
+
         for row in ws.iter_rows(values_only=True):
             for idx, cell in enumerate(row):
-                if isinstance(cell, str) and cell.strip().lower() == "Valor de Liquidação Forçada":
+                if isinstance(cell, str) and cell.strip().lower() == "valor de liquidação forçada":
                     for prox in row[idx+1:]:
                         if prox not in (None, "", "-"):
                             try:
@@ -150,7 +157,36 @@ class MatriculaScreen(MDScreen):
                                 valor_formatado = str(prox)
                             print(f"Valor de Liquidação Forçada encontrado: {valor_formatado}")
                             return valor_formatado
+
         print("Valor de Liquidação Forçada não encontrado")
+        return ""
+    
+    def extrair_area_total_excel(self, caminho_arquivo):
+        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        aba = "AREA UTIL "
+        if aba not in wb.sheetnames:
+            print(f"{aba} não encontrado")
+            return ""
+        
+        ws = wb[aba]
+        for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
+            for col_idx, cell in enumerate(row):
+                if isinstance(cell, str) and cell.strip().lower() == "AREA TOTAL":
+                    try:
+                        valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
+                        if valor not in (None, "", "-"):
+                            try:
+                                valor = float(valor)
+                                valor_formatado = f"{valor:.4f}".replace(".", ",") 
+                            except Exception:
+                                valor_formatado = str(valor)
+                            print(f"Área TOTAL encontrada: {valor_formatado}")
+                            return valor_formatado
+                    except Exception as e:
+                        print(f"Erro ao acessar valor abaixo da célula: {e}")
+                        return ""
+
+        print("Área TOTAL não encontrada")
         return ""
 
     def abrir_filemanager(self, matricula_nome, tipo):
@@ -185,6 +221,7 @@ class MatriculaScreen(MDScreen):
                 "latitude": campos["latitude"].text,
                 "longitude": campos["longitude"].text,
                 "proprietario": campos["proprietario"].text,
+                "area_total": campos["area_total"].text,
                 "imagem": arquivos.get("imagem", ""),
                 "planilha": arquivos.get("planilha", "")
             })
@@ -216,6 +253,9 @@ class MatriculaScreen(MDScreen):
                     valor_liq = self.extrair_valor_liq_excel(caminho)
                     if valor_liq:
                         self.matriculas[m]["campos"]["valor_liq"].text = str(valor_liq)
+                    area_total = self.extrair_area_total_excel(caminho)
+                    if area_total:
+                        self.matriculas[m]["camos"]["area_total"].text = str(area_total)
                 except Exception as e:
                     print(f"❌ Erro ao processar planilha: {e}")
             else:
@@ -255,6 +295,7 @@ class MatriculaScreen(MDScreen):
                     "valor_total": campos["valor"].text,
                     "valor_liq": campos["valor_liq"].text,
                     "latitude": campos["latitude"].text,
+                    "area_total": campos["area_total"].text,
                     "longitude": campos["longitude"].text,
                     "proprietario": campos["proprietario"].text,
                     "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
@@ -268,6 +309,7 @@ class MatriculaScreen(MDScreen):
                     "valor_liq": campos["valor_liq"].text,
                     "latitude": campos["latitude"].text,
                     "longitude": campos["longitude"].text,
+                    "area_total": campos["area_total"].text,
                     "proprietario": campos["proprietario"].text,
                     "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
                     "planilha": arquivos.get("planilha", "")
@@ -350,6 +392,7 @@ class MatriculaScreen(MDScreen):
                 "valor_total": "",
                 "valor_liq": "",
                 "latitude": "",
+                "area_total": "",
                 "longitude": "",
                 "proprietario": "",
                 "imagem": ""
@@ -443,6 +486,11 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
+        campo_area_total = MDTextField(
+            MDTextFieldHintText(text=f"Área total da matrícula {numero}"),
+            size_hint_x=0.9
+        )
+
         coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(180))
         campo_latitude = MDTextField(
             MDTextFieldHintText(text=f"Latitude {numero}"),
@@ -489,6 +537,7 @@ class MatriculaScreen(MDScreen):
                 "numero": campo_matricula,
                 "valor": campo_valor_total,
                 "valor_liq": campo_valor_liq,
+                "area_total":campo_area_total,
                 "latitude": campo_latitude,
                 "longitude": campo_longitude
             },

@@ -298,3 +298,233 @@ def inserir_tabelas_amostras_auto(
     doc.Close()
     wb.Close(SaveChanges=False)
     excel.Quit()
+
+def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_maxima_cm=16):
+    """
+    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    """
+    xlUp = -4162
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
+
+    excel = Dispatch("Excel.Application")
+    wb = excel.Workbooks.Open(excel_path)
+    sheet = wb.Sheets(aba)
+
+    last_row = sheet.Cells(sheet.Rows.Count, "B").End(xlUp).Row
+
+    intervalo = f"B3:L9"
+    sheet.Range(intervalo).Copy()
+
+    word = Dispatch("Word.Application")
+    try:
+        word.Visible = False
+    except AttributeError:
+        pass
+    doc = word.Documents.Open(docx_path)
+
+    word.Selection.HomeKey(Unit=6)  
+    if word.Selection.Find.Execute("[INSERIR_QUADRO_AQUI]"):
+        word.Selection.TypeBackspace()  
+        word.Selection.Paste()
+
+        table = doc.Tables(doc.Tables.Count)
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        max_width = largura_maxima_cm * 28.35
+        final_width = min(usable_width, max_width)
+
+        table.PreferredWidthType = 1
+        table.PreferredWidth = final_width
+        print("sucesso")
+    else:
+        print("erro")
+
+    doc.Save()
+    doc.Close()
+    wb.Close(SaveChanges=False)
+    excel.Quit()
+
+def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16):
+    """
+    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    """
+    xlUp = -4162
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
+
+    excel = Dispatch("Excel.Application")
+    wb = excel.Workbooks.Open(excel_path)
+    sheet = wb.Sheets(aba)
+
+    last_row = sheet.Cells(sheet.Rows.Count, "A").End(xlUp).Row
+
+    intervalo = f"A3:R26"
+    sheet.Range(intervalo).Copy()
+
+    word = Dispatch("Word.Application")
+    try:
+        word.Visible = False
+    except AttributeError:
+        pass
+    doc = word.Documents.Open(docx_path)
+
+    word.Selection.HomeKey(Unit=6)  
+    if word.Selection.Find.Execute("[INSERIR_HOMOG_AQUI]"):
+        word.Selection.TypeBackspace()  
+        word.Selection.Paste()
+
+        table = doc.Tables(doc.Tables.Count)
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        max_width = largura_maxima_cm * 28.35
+        final_width = min(usable_width, max_width)
+
+        table.PreferredWidthType = 1
+        table.PreferredWidth = final_width
+        print("sucesso")
+    else:
+        print("erro")
+
+    doc.Save()
+    doc.Close()
+    wb.Close(SaveChanges=False)
+    excel.Quit()
+
+def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16):
+    """
+    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    """
+    xlUp = -4162
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
+
+    excel = Dispatch("Excel.Application")
+    wb = excel.Workbooks.Open(excel_path)
+    sheet = wb.Sheets(aba)
+
+    last_row = sheet.Cells(sheet.Rows.Count, "C").End(xlUp).Row
+
+    intervalo = f"C4:H20"
+    sheet.Range(intervalo).Copy()
+
+    word = Dispatch("Word.Application")
+    try:
+        word.Visible = False
+    except AttributeError:
+        pass
+    doc = word.Documents.Open(docx_path)
+
+    word.Selection.HomeKey(Unit=6)  
+    if word.Selection.Find.Execute("[INSERIR_SANEAMENTO_AQUI]"):
+        word.Selection.TypeBackspace()  
+        word.Selection.Paste()
+
+        table = doc.Tables(doc.Tables.Count)
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        max_width = largura_maxima_cm * 28.35
+        final_width = min(usable_width, max_width)
+
+        table.PreferredWidthType = 1
+        table.PreferredWidth = final_width
+        print("sucesso")
+    else:
+        print("erro")
+
+    doc.Save()
+    doc.Close()
+    wb.Close(SaveChanges=False)
+    excel.Quit()
+
+def inserir_tabela_liquidacao_no_word(docx_path, excel_path, aba="LIQUIDAÇÃO", largura_maxima_cm=16):
+    """
+    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    """
+    xlUp = -4162
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
+
+    excel = Dispatch("Excel.Application")
+    wb = excel.Workbooks.Open(excel_path)
+    sheet = wb.Sheets(aba)
+
+    last_row = sheet.Cells(sheet.Rows.Count, "C").End(xlUp).Row
+
+    intervalo = f"C5:H11"
+    sheet.Range(intervalo).Copy()
+
+    word = Dispatch("Word.Application")
+    try:
+        word.Visible = False
+    except AttributeError:
+        pass
+    doc = word.Documents.Open(docx_path)
+
+    word.Selection.HomeKey(Unit=6)  
+    if word.Selection.Find.Execute("[INSERIR_LIQUIDACAO_AQUI]"):
+        word.Selection.TypeBackspace()  
+        word.Selection.Paste()
+
+        table = doc.Tables(doc.Tables.Count)
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        max_width = largura_maxima_cm * 28.35
+        final_width = min(usable_width, max_width)
+
+        table.PreferredWidthType = 1
+        table.PreferredWidth = final_width
+        print("sucesso")
+    else:
+        print("erro")
+
+    doc.Save()
+    doc.Close()
+    wb.Close(SaveChanges=False)
+    excel.Quit()
+
+def inserir_tabela_valores_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16):
+    """
+    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    """
+    xlUp = -4162
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
+
+    excel = Dispatch("Excel.Application")
+    wb = excel.Workbooks.Open(excel_path)
+    sheet = wb.Sheets(aba)
+
+    last_row = sheet.Cells(sheet.Rows.Count, "J").End(xlUp).Row
+
+    intervalo = f"J36:N41"
+    sheet.Range(intervalo).Copy()
+
+    word = Dispatch("Word.Application")
+    try:
+        word.Visible = False
+    except AttributeError:
+        pass
+    doc = word.Documents.Open(docx_path)
+
+    word.Selection.HomeKey(Unit=6)  
+    if word.Selection.Find.Execute("[INSERIR_VALORES_AQUI]"):
+        word.Selection.TypeBackspace()  
+        word.Selection.Paste()
+
+        table = doc.Tables(doc.Tables.Count)
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        max_width = largura_maxima_cm * 28.35
+        final_width = min(usable_width, max_width)
+
+        table.PreferredWidthType = 1
+        table.PreferredWidth = final_width
+        print("sucesso")
+    else:
+        print("erro")
+
+    doc.Save()
+    doc.Close()
+    wb.Close(SaveChanges=False)
+    excel.Quit()

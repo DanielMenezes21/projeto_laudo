@@ -18,7 +18,14 @@ class MatriculaParecerScreen(MDScreen):
         "Pampa": False,
         "Pantanal": False
     }
-    
+    biomas_selecionados = DictProperty({})
+
+    tipos_passivo = DictProperty({
+        "Embargo": False,
+        "Déficit de Reserva Legal": False,
+        "Alerta MapBiomas": False
+    })
+
     def voltar(self, *args):
         self.manager.current = 'matricula'
 
@@ -35,12 +42,7 @@ class MatriculaParecerScreen(MDScreen):
         self.passivo_ambiental_sim = BooleanProperty(False)
         
         # Dictionaries for multiple selections
-        self.biomas_selecionados = DictProperty(self.biomas.copy())
-        self.tipos_passivo = DictProperty({
-            "Embargo": False,
-            "Déficit de Reserva Legal": False,
-            "Alerta MapBiomas": False
-        })
+        self.biomas_selecionados = self.biomas.copy()
         
         # Text properties
         self.detalhes_passivo = StringProperty("")
@@ -165,7 +167,7 @@ class MatriculaParecerScreen(MDScreen):
         )
         
         self.checkboxes_passivo = []
-        for tipo in self.tipos_passivo:
+        for tipo in ["Embargo", "Déficit de Reserva Legal", "Alerta MapBiomas"]:
             box = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=40)
             checkbox = MDCheckbox(
                 size_hint_x=None,
@@ -201,7 +203,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.button_concluido)
         
-        # Add some spacing at the bottom
         scroll_content.add_widget(Widget(size_hint_y=None, height=20))
         
         scroll.add_widget(scroll_content)
@@ -214,7 +215,7 @@ class MatriculaParecerScreen(MDScreen):
         checkbox = MDCheckbox(
             size_hint_x=None,
             width=30,
-            active=self.biomas_selecionados[nome_bioma],
+            active=self.biomas_selecionados.get(nome_bioma, False),
             on_release=lambda x, b=nome_bioma: self._atualizar_bioma(b, x.active)
         )
         box.add_widget(checkbox)
@@ -223,7 +224,9 @@ class MatriculaParecerScreen(MDScreen):
 
     def _atualizar_bioma(self, bioma, estado):
         """Updates biome selection state."""
-        self.biomas_selecionados[bioma] = estado
+        current = dict(self.biomas_selecionados)
+        current[bioma] = estado
+        self.biomas_selecionados = current
 
     def _criar_selecao_sim_nao(self, texto, grupo, callback):
         """Creates a Yes/No selection widget."""
@@ -260,17 +263,18 @@ class MatriculaParecerScreen(MDScreen):
         self.layout_tipos_passivo.disabled = not ativar
         self.campo_detalhes_passivo.disabled = not ativar
         
-        # Clear fields if deactivated
         if not ativar:
             for checkbox in self.checkboxes_passivo:
                 checkbox.active = False
-            for tipo in self.tipos_passivo:
+            for tipo in self.tipos_passivo.keys():
                 self.tipos_passivo[tipo] = False
             self.campo_detalhes_passivo.text = ""
 
     def _atualizar_tipo_passivo(self, tipo, estado):
         """Updates environmental liability type selection."""
-        self.tipos_passivo[tipo] = estado
+        current = dict(self.tipos_passivo)
+        current[tipo] = estado
+        self.tipos_passivo[tipo] = current
 
     def salvar_dados(self):
         """Saves all data including environmental liability."""
@@ -283,7 +287,7 @@ class MatriculaParecerScreen(MDScreen):
             "detalhes_alienacao": self.campo_alienacao.text if self.alienacao_sim else "",
             "possui_apa": self.apa_sim,
             "nome_apa": self.campo_apa.text if self.apa_sim else "",
-            "biomas": {bioma: estado for bioma, estado in self.biomas_selecionados.items() if estado},
+            "biomas": {bioma: estado for bioma, estado in dict(self.biomas_selecionados).items() if estado},
             "possui_passivo": self.passivo_ambiental_sim,
             "tipos_passivo": {tipo: estado for tipo, estado in self.tipos_passivo.items() if estado},
             "detalhes_passivo": self.campo_detalhes_passivo.text if self.passivo_ambiental_sim else ""

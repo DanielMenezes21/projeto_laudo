@@ -406,5 +406,96 @@ def anexo_parametros(doc):
         par33 = doc.add_paragraph()
         run33 = par33.add_run(f"[INSERIR_TABELA_AMOSTRAL_{i:02d}]")
 
+    par34 = doc.add_paragraph()
+    run34 = par34.add_run("Quadro de amostras")
+    run34.bold = True
+    
+    par35 = doc.add_paragraph()
+    run35 = par35.add_run("Para a adequação e depuração dos dados coletados, foi empregado " \
+    "o ""Tratamento por Fatores de Homogeneização"". Esse procedimento, aplicável ao método " \
+    "comparativo de dados de mercado, pressupõe a existência de relações fixas entre atributos " \
+    "específicos e seus respectivos preços. Para viabilizar essa abordagem, são utilizados fatores " \
+    "de homogeneização calculados conforme a norma ABNT NBR 14.653-3:2019, item 7.7.2.1, garantindo " \
+    "que tais fatores expressem, de maneira relativa, o comportamento do mercado dentro de um " \
+    "determinado contexto espacial e temporal.")
+
+    par36 = doc.add_paragraph()
+    run36 = par36.add_run("[INSERIR_QUADRO_AQUI]")
+
+    par37 = doc.add_paragraph()
+    run37 = par37.add_run("Quadro de amostras")
+    run37.bold = True
+
+    par38 = doc.add_paragraph()
+    run38 = par38.add_run("[INSERIR_HOMOG_AQUI]")
+
+    par39 = doc.add_paragraph()
+    run39 = par39.add_run("Saneamento de Amostras")
+    run39.bold = True
+
+    par40 = doc.add_paragraph()
+    run40 = par40.add_run("A depuração e análise dos resultados obtidos foram realizadas considerando " \
+    "uma faixa de 30% em torno da média, com a exclusão dos elementos discrepantes. O intervalo de " \
+    "confiança foi determinado com base na distribuição t de Student, em conformidade com as Normas da " \
+    "ABNT, garantindo um nível mínimo de certeza de 80%. Por meio da aplicação de métodos estatísticos " \
+    "descritivos à amostra, conforme detalhado na memória de cálculo do item 8.2, foram identificados os " \
+    "seguintes valores:")
+
+    par41 = doc.add_paragraph()
+    run41 = par41.add_run("[INSERIR_SANEAMENTO_AQUI]")
+
+    par42 = doc.add_paragraph()
+    run42 = par42.add_run("Valor de Liquidação Forçada")
+    run42.bold = True
+
+    par43 = doc.add_paragraph()
+    run43 = par43.add_run("O princípio da prudência é um elemento fundamental nas avaliações realizadas " \
+    "para fins de garantia, abrangendo tanto o valor de mercado quanto o valor de liquidação forçada. " \
+    "A definição de valor de liquidação forçada, conforme estabelecido pela norma ABNT NBR 14.653-1, pode " \
+    "ser descrita da seguinte forma:\n" \
+    "Valor de liquidação forçada: trata-se da estimativa de um bem em uma situação de venda compulsória ou " \
+    "dentro de um período inferior ao convencionalmente observado no mercado.\n"\
+    "A determinação desse valor é realizada por meio de uma função financeira, na qual as variáveis essenciais " \
+    "são o valor do imóvel, o prazo de comercialização e as taxas de juros vigentes. Esses fatores representam o " \
+    "custo de oportunidade associado à necessidade de uma venda acelerada do ativo.\n"
+    "O coeficiente aplicado ao valor de mercado obtido é calculado utilizando a seguinte fórmula:\n")
+
+    par44 = doc.add_paragraph()
+    run44 = par44.add_run("VP=VM×(1 - i)n")
+    run44.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    par45 = doc.add_paragraph()
+    run45 = par45.add_run("Onde:\n" \
+    "•	VP = Valor de Liquidação Forçada (R$)\n" \
+    "•	VM = Valor de Mercado (R$)\n"\
+    "•	i = Taxa de Desconto Adotada (%)\n"\
+    "•	n = Prazo de comercialização (meses)\n" \
+    "Essa metodologia permite ajustar o valor do imóvel considerando o impacto das condições de venda " \
+    "acelerada sobre o preço final de transação.")
+    
+    par46 = doc.add_paragraph()
+    run46 = par46.add_run("[INSERIR_LIQUIDACAO_AQUI]")
+
+    par47 = doc.add_paragraph()
+    run47 = par47.add_run("Referencias")
+    run47.bold = True
+
+    par48 = doc.add_paragraph()
+    run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n"\
+    "Abunahman, Sérgio Antonio. Engenharia Legal e de Avaliações. Pini- 4ª ed., 2000.\n"\
+    "Alves, C. S. Método Prático de Determinação de Percentual de Servidão para Faixa e Áreas Remanescentes. Revista de Avaliações e Perícias. IBAPE-RS, 2002.\n"\
+    "Arantes, Carlos Augusto. Depreciação de Área remanescente por Apossamento Administrativo. Fortaleza: XIII COBREAP, 2006.\n"\
+    "Arantes, Carlos Augusto; Saldanha, Marcelo Suarez. Avaliações de Imóveis Rurais. São Paulo: Leud, 2009.\n"\
+    "DESLANDES, C.A. Avaliações de Imóveis Rurais. Editora Aprenda Fácil. Viçosa/MG, 2002.\n"\
+    "Estado do Rio Grande do Sul. Modelo Rural – Requisitos Mínimos para Laudo de Avaliação. Governo do Estado do Rio Grande do Sul, 2020.\n"\
+    "Hantzis, et al. Indemnizaciones por Concepto de Imposición de Servidumbres de Gasoducto. CBAP, 2000.\n"\
+    "LIMA, M. R. C. Avaliação de Propriedades Rurais. Editora Leud: São Paulo/SP, 2011.\n"\
+    "Manual Brasileiro para Levantamento da Capacidade de Uso da Terra (ETA – Escritório Técnico de Agricultura Brasil – Estados Unidos) III aproximação.\n"\
+    "Manual para Classificação da Capacidade de Uso das Terras para fins de Avaliação de Imóveis Rurais – 1º aproximação/CESP.\n"\
+    "PELLEGRINO, J. C. Engenharia de Avaliações. São Paulo: Editora Pini; 1974.\n"\
+    "Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n"\
+    "Sindicato Nacional")
+
+    
     return doc
 

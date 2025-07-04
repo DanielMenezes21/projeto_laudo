@@ -88,9 +88,13 @@ def localizacao(doc, lista_dados_matriculas):
 def acesso(doc, imagem_acesso=None):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.2 - ROTA DE ACESSO MATRÌCULA {mat}")
+    run.font.color.rgb = RGBColor(0, 0, 0)
 
     par = doc.add_paragraph()
     run1 = par.add_run("#IMAGEM_ACESSO")
+
+    par2 = doc.add_paragraph()
+    run2 = par2.add_run("#ROTA_ACESSO")
     
 
     return doc
@@ -104,54 +108,21 @@ def carac_reg(doc):
     run1 = doc.add_paragraph("{caracterização}")
     return doc
 
-def desc_imovel(doc):
+def desc_imovel(doc, dados):
     heading = doc.add_paragraph( style='Heading 2')
-    run = heading.add_run("6.4 - Descrição do imóvel")
+    run = heading.add_run("6.4 - Descrição do imóvel de matrícula N°")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-    run1 = doc.add_paragraph("Trata-se de um imóvel rural de Matrícula nº {n_matricula}, " \
-    "com área total de {area_total} ha, destes, {p_reserva} são separados para Reserva Legal, " \
-    "totalizando uma área de {area_reserva} ha, {observacao}, a sua Área de Preservação Permanente – APP " \
-    "ocupa uma área {p_app}, totalizando {area_app} ha da integralidade do imóvel.")
-    run2 = doc.add_paragraph("{descricao_atividade}")
+    
+    matricula = dados.get("matricula", "")
+    run1 = doc.add_paragraph(f"Trata-se de um imóvel rural de Matrícula nº {matricula}, " \
+    "com área total de #AREA_TOTAL ha, destes, #P_RESERVA são separados para Reserva Legal, " \
+    "totalizando uma área de #AREA_RESERVA ha, #OBS#AREA, a sua Área de Preservação Permanente – APP " \
+    "ocupa uma área #P_APP, totalizando #A_APP ha da integralidade do imóvel.")
+    run2 = doc.add_paragraph("#ATIVIDADE_IMOVEL")
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")
     run4 = doc.add_paragraph(" ")
-
-    table = doc.add_table(rows=1, cols=4)
-    table.allow_autofit = False
-    table.style = 'Table Grid'
-    table.width = Cm(16)
-
-    table.rows[0].height = Cm(0.5)
-
-    col_widths = [Cm(4), Cm(9), Cm(2.5), Cm(2.5)]
-
-    for col_idx, width in enumerate(col_widths):
-        for row in table.rows:
-            row.cells[col_idx].width = width
-
-    merged_cell = table.cell(0, 0).merge(table.cell(0, 3))
-
-    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
-    merged_cell._tc.get_or_add_tcPr().append(shading)
-
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>' 
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    merged_cell._tc.get_or_add_tcPr().append(borders)
-
-    p = merged_cell.paragraphs[0]
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("AVALIANDO")
-    run.bold = True
-    run.font.size = Pt(12)
-    run.font.color.rgb = RGBColor(0, 0, 0)
 
     extra_table = doc.add_paragraph("[INSERIR_TABELA_AQUI]")
 

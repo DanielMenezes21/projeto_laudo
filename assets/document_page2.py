@@ -258,7 +258,11 @@ def criar_secao_identificacao(doc):
 
     row3 = table.rows[2].cells
     row3[0].merge(row3[2])  
-
+    paragraph = row3[0].paragraphs[0]
+    paragraph.clear()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
+    run = paragraph.add_run(" ")
+    run.font.size = Pt(1)
     tcPr = row3[0]._tc.get_or_add_tcPr()
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
@@ -366,7 +370,7 @@ def criar_secao_croqui(doc, imagem_path=None):
 
     return doc
 
-def geometria_terreno(doc):
+def geometria_terreno(doc, dados):
     """Cria a seção de Geometria do Terreno com polígonos"""
     table = doc.add_table(rows=3, cols=5)
     usable_width = LARGURA
@@ -383,6 +387,10 @@ def geometria_terreno(doc):
     title_cell.text = "GEOMETRIA DO TERRENO"
     title_cell.paragraphs[0].runs[0].bold = True
     title_cell.paragraphs[0].runs[0].font.size = Pt(12)
+
+    pol_regular = dados.get("poligono_regular", "")
+    pol_irregular = dados.get("poligono_irregular", "")
+    cor_hex = "4EA65D"
 
     tcPr = title_cell._tc.get_or_add_tcPr()
     borders = parse_xml(
@@ -499,7 +507,17 @@ def geometria_terreno(doc):
     )
     tcPr.append(borders)
 
-    return doc, table
+    if pol_regular:
+        colorir_celula(row[1], cor_hex)
+    else:
+        pass
+
+    if pol_irregular:
+        colorir_celula(row[3], cor_hex)
+    else:
+        pass
+
+    return doc
 
 def criar_secao_caracteristicas(doc, dados):
     """Cria a seção de Características do Terreno"""
