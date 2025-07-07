@@ -13,7 +13,7 @@ def adicionar_espaco(doc):
     p.paragraph_format.space_before = Pt(0)  
     p.paragraph_format.space_after = Pt(0)   
     run = p.add_run(" ")
-    run.font.name = 'Calibri'
+    run.font.name = 'Cambria'
     run.font.size = Pt(12) 
 
     return doc
@@ -78,6 +78,7 @@ def texto_solicitante(doc, solicitante, lista_matriculas):
     heading = doc.add_paragraph(style='Heading1')
     run = heading.add_run("1 - SOLICITANTE")
     run.font.color.rgb = RGBColor(0, 0, 0)
+    run.font.name = "Cambria"
     par = doc.add_paragraph()
     runpar = par.add_run("")
 
@@ -97,6 +98,7 @@ def texto_objetivo(doc, lista_matriculas):
     heading = doc.add_paragraph( style='Heading1')
     run = heading.add_run("2 - OBJETIVO")
     run.font.color.rgb = RGBColor(0, 0, 0)
+    run.font.name = "Cambria"
     par = doc.add_paragraph()
     runpar = par.add_run("")
 
@@ -117,6 +119,7 @@ def texto_finalidade(doc):
     heading = doc.add_paragraph(style='Heading1')
     run = heading.add_run("3 - FINALIDADE")
     run.font.color.rgb = RGBColor(0, 0, 0)
+    run.font.name = "Cambria"
     run1 = doc.add_paragraph(" ")
     run2 = doc.add_paragraph("        Garantia bancária")
 
@@ -125,6 +128,7 @@ def texto_finalidade(doc):
 def texto_proprietario(doc, lista_matriculas):
     heading = doc.add_paragraph( style='Heading1')
     run = heading.add_run("4 - PROPRIETÁRIO")
+    run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 =doc.add_paragraph(" ")
     texto = gerar_texto_proprietarios(lista_matriculas)
@@ -134,6 +138,7 @@ def texto_proprietario(doc, lista_matriculas):
 def texto_ressalvas(doc):
     heading = doc.add_paragraph( style='Heading1')
     run = heading.add_run("5 - PRESSUPOSTOS, RESSALVAS E FATORES IMPORTANTES")
+    run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 = doc.add_paragraph(" ")
     run2 = doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\

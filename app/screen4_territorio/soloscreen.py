@@ -22,9 +22,9 @@ class SoloScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.root = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
-        self.current_path = self.root
         if not os.path.exists(self.root):
             self.root = os.path.join(os.path.expanduser("~/Documents"))
+        self.current_path = self.root
         Window.bind(on_key_down=self._verifica_enter)
 
         self.scroll = MDScrollView(bar_color=(1, 1, 1, 0.5), bar_width=10, scroll_type=["bars", "content"])

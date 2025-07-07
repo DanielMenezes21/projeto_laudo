@@ -103,15 +103,15 @@ def finalize_selection(self):
         return
 
     for path in self.selected_files:
-        try:
-            coords, tipo, origens = extrair_coordenadas_pdf(path)
-            if coords:
-                gerar_kml(coords, path, tipo)
+        #try:
+            coordenadas, tipo, origens = extrair_coordenadas_pdf(path)
+            if coordenadas:
+                gerar_kml(coordenadas, path, tipo)
                 show_dialog(self, "Sucesso", f"Coordenadas extraídas e KML gerado:\n{path}")
             else:
                 show_dialog(self, "Erro", f"Não foi possível extrair coordenadas de:\n{path}")
-        except Exception as e:
-            show_dialog(self, "Erro", f"Erro ao processar o arquivo:\n{path}\n{str(e)}")
+    '''except Exception as e:
+            show_dialog(self, "Erro", f"Erro ao processar o arquivo:\n{path}\n{str(e)}")'''
 
     self.selected_files.clear()
 

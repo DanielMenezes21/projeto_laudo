@@ -200,7 +200,7 @@ def montar_documento(self, doc):
     return doc
 
 def gerar_documento(self): 
-    #try:
+    try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -384,7 +384,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-"""except Exception as e:
+    except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -400,4 +400,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()"""
+        ).open()

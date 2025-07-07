@@ -23,6 +23,7 @@ def set_table_fixed_width(table):
 def title_imovel(doc):
     heading = doc.add_paragraph( style='Heading 1')
     run = heading.add_run("6 - IDENTIFICAÇÃO E CARACTERIZAÇÃO DO IMÓVEL AVALIANDO")
+    run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 = doc.add_paragraph("  \n  ")
 
@@ -30,6 +31,7 @@ def title_imovel(doc):
 
 def localizacao(doc, lista_dados_matriculas):
     heading = doc.add_paragraph( style='Heading 2')
+    run.font.name = "Cambria"
     run = heading.add_run("6.1 - Localização")
     run.font.color.rgb = RGBColor(0, 0, 0)
 
@@ -87,6 +89,7 @@ def localizacao(doc, lista_dados_matriculas):
 
 def acesso(doc, imagem_acesso=None):
     heading = doc.add_paragraph( style='Heading 2')
+    run.font.name = "Cambria"
     run = heading.add_run("6.2 - ROTA DE ACESSO MATRÌCULA {mat}")
     run.font.color.rgb = RGBColor(0, 0, 0)
 
@@ -110,6 +113,7 @@ def carac_reg(doc):
 
 def desc_imovel(doc, dados):
     heading = doc.add_paragraph( style='Heading 2')
+    run.font.name = "Cambria"
     run = heading.add_run("6.4 - Descrição do imóvel de matrícula N°")
     for run in heading.runs:
         run.font.size = Pt(12)
@@ -180,6 +184,7 @@ def desc_imovel(doc, dados):
 
 def declividade(doc, imagem_path=None):
     heading = doc.add_paragraph( style='Heading 2')
+    run.font.name = "Cambria"
     run = heading.add_run("6.4.1 - Declividade")
     for run in heading.runs:
         run.font.size = Pt(12)
@@ -194,6 +199,7 @@ def declividade(doc, imagem_path=None):
 def hidrografia(doc, imagem_path=None):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.4.2 - Hidrografia")
+    run.font.name = "Cambria"
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -207,6 +213,7 @@ def hidrografia(doc, imagem_path=None):
 def pedologia(doc, imagem_path=None):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.4.3 - Solo/Pedologia")
+    run.font.name = "Cambria"
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -224,6 +231,7 @@ def uso_imovel(doc):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
+        run.font.name = "Cambria"
 
     paragraph = doc.add_paragraph("O imóvel é utilizado para #ATIVIDADE_IMOVEL")
     return doc
@@ -234,6 +242,7 @@ def benfeitoria(doc):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
+        run.font.name = "Cambria"
 
     paragraph = doc.add_paragraph("O imóvel possui as seguintes benfeitorias: ")
     table = doc.add_table(rows=4, cols=2)

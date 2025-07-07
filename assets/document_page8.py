@@ -85,7 +85,7 @@ def inserir_marcadagua_so_na_secao(path_docx, path_img, secao=2):
         shape.RelativeVerticalPosition = 0
         shape.Left = 0
         shape.Top = 0
-        doc.Save()
+    doc.Save()
     doc.Close()
     word.Quit()
 

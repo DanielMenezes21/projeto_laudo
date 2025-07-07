@@ -1,5 +1,6 @@
 from docx import Document
 from docx.shared import Pt, Cm
+from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import parse_xml
@@ -46,6 +47,10 @@ def configurar_documento():
     style.paragraph_format.space_before = Cm(0)
     style.paragraph_format.space_after = Cm(0)
     style.paragraph_format.line_spacing = 1
+
+    style.font.name = 'Cambria'
+    style.font.size = Pt(12)
+    style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Cambria')
     
     return doc
 

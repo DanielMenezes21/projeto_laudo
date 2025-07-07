@@ -7,6 +7,7 @@ from PIL import Image
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon
 import simplekml
+from pyproj import Transformer
 import easyocr
 import math
 from shapely.validation import explain_validity
@@ -68,6 +69,18 @@ def dms_para_graus(graus, minutos, segundos):
 
 def detectar_zona_utm(easting):
     if 300000 <= easting < 400000:
+        return 21
+    elif 400000 <= easting < 500000:
+        return 22
+    elif 500000 <= easting < 600000:
+        return 23
+    elif 600000 <= easting < 700000:
+        return 24
+    return 23
+
+
+#def detectar_zona_utm(easting):
+    '''if 300000 <= easting < 400000:
         return "EPSG:31981"  # Zona 21S
     elif 400000 <= easting < 500000:
         return "EPSG:31982"  # Zona 22S
@@ -75,7 +88,7 @@ def detectar_zona_utm(easting):
         return "EPSG:31983"  # Zona 23S
     elif 600000 <= easting < 700000:
         return "EPSG:31984"  # Zona 24S
-    return "EPSG:31982"
+    return "EPSG:31982"'''
 
 def pdf_tem_imagem(caminho_pdf):
     doc = fitz.open(caminho_pdf)
@@ -101,25 +114,28 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
     N[\-=]\s*((?=[\d\.,]*\d)[\d\.,]+)\s*.*?E[\-=']\s*((?=[\d\.,]*\d)[\d\.,]+)|
     Longitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]?\s*[,;]?\s*
     Latitude[:=]?\s*([~\-+]?\d+)[°º*]?\s*(\d+)?[\'’′`´m]?\s*(\d+(?:[\.,]\d+)?)?["”″s]? |
-    
     """
     matches = re.findall(pattern, texto_total, re.VERBOSE)
     
     for match in matches:
-        if match[0] and match[1]:
+        if len(match) >= 2 and match[0] and match[1]:
             tipo = "utm"
             n_raw, e_raw = match[0], match[1]
-            n = n_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip() if n_raw else "0"
-            e = e_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip() if e_raw else "0"
+            n = n_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip()
+            e = e_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip()
             try:
                 n = safe_convert(n)
                 e = safe_convert(e)
-                coordenadas.append((float(f"{e:.3f}"), float(f"{n:.3f}")))
-                coordenadas_originais.append((e_raw, n_raw))
-                coordenadas_originais
-                origens.append("utm-texto")
+                zona = detectar_zona_utm(e)
+                epsg_origem = f"EPSG:327{zona}"
+                transformer = Transformer.from_crs(epsg_origem, "EPSG:4326", always_xy=True)
+                lon, lat = transformer.transform(e, n)
+                coordenadas.append((lat, lon))
+                coordenadas_originais.append((n_raw, e_raw))
+                origens.append("utm-convertido")
             except ValueError as e:
                 print(f"Erro ao converter coordenadas UTM: {e}")
+
         elif match[2] and match[5]:
             tipo = "wgs84"
             lon_grau, lon_min, lon_sec, lat_grau, lat_min, lat_sec = match[2:8]
@@ -139,7 +155,7 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
                 coordenadas.append((latitude, longitude))
                 coordenadas_originais.append((lat_grau, lon_grau))
                 origens.append("wgs84-texto")
-        elif match[7] and match[8] and match[10]:
+        elif len(match) >= 11 and match[7] and match[8] and match[10]:
             if coordenadas:
                 lat, lon = coordenadas[-1]
                 graus = int(match[7])
@@ -151,7 +167,7 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
                 coordenadas.append((novo_lat, novo_lon))
                 coordenadas_originais.append((f"{graus}°{minutos}'{segundos}\"", f"{distancia}m"))
                 origens.append("azimute-dist-texto")
-        elif match[11] and match[12] and match[13]:
+        elif len(match) >= 14 and match[11] and match[12] and match[13]:
             if coordenadas:
                 lat, lon = coordenadas[-1]
                 graus = int(match[11])
@@ -177,7 +193,7 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
             with open(arquivo_texto, "a", encoding="utf-8") as f:
                 f.write(ocr_texto + "\n")
             for match in matches:
-                if match[0] and match[1]:
+                if len(match) >= 2 and match[0] and match[1]:
                     tipo = "utm"
                     n_raw, e_raw = match[0], match[1]
                     n = n_raw.replace('.', '').replace(',', '.').replace('~', '').replace('=', '').strip() if n_raw else "0"
@@ -187,14 +203,18 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
                             n = '-' + n
                         if not e.startswith('-'):
                             e = '-' + e
-                        n = safe_convert(n)
-                        e = safe_convert(e)
-                        coordenadas.append((float(f"{e:.3f}"), float(f"{n:.3f}")))
+                        n = safe_convert(n_raw)
+                        e = safe_convert(e_raw)
+                        zona = detectar_zona_utm(e)
+                        epsg_code = f"327{zona}"
+                        transformer = Transformer.from_crs(f"EPSG:{epsg_code}", "EPSG:4326", always_xy=True)
+                        lon, lat = transformer.transform(e, n)
+                        coordenadas.append((lat, lon))
                         coordenadas_originais.append((e_raw, n_raw))
                         origens.append("utm-ocr")
                     except ValueError as e:
                         print(f"Erro ao converter coordenadas UTM: {e}")
-                elif match[2] and match[5]:
+                elif len(match) >= 6 and match[2] and match[5]:
                     tipo = "wgs84"
                     lon_grau, lon_min, lon_sec, lat_grau, lat_min, lat_sec = match[2:8]
                     lon_grau = lon_grau.strip() if lon_grau else "0"
@@ -241,9 +261,9 @@ def extrair_coordenadas_pdf(caminho_pdf, forcar_ocr=False):
 
     arquivo_texto = f"{caminho_pdf}_coordenadas.txt"
     with open(arquivo_texto, "w", encoding="utf-8") as f:
-        for idx, ((lat, lon), orig) in enumerate(zip(coordenadas, coordenadas_originais), 1):
-            original_str = ", ".join(str(x) for x in orig)
-            f.write(f"{idx}. {lat:.8f}, {lon:.8f} | original: {original_str}\n")
+        for lat, lon in coordenadas:
+            f.write(f"{lon:.14f},{lat:.14f},0\n")
+
     return coordenadas, tipo, origens
 
 def remove_pontos_duplicados(pontos):
@@ -256,14 +276,16 @@ def remove_pontos_duplicados(pontos):
 def gerar_kml(coordenadas, caminho_pdf, tipo):
     if tipo == "utm":
         pontos_utm = [(float(e), float(n)) for e, n in coordenadas]
+        zona = detectar_zona_utm(pontos_utm[0][0])
+        epsg_code = f"EPSG:327{zona}"
         zona_utm = detectar_zona_utm(pontos_utm[0][0])
-        gdf = gpd.GeoDataFrame(geometry=[Point(e, n) for e, n in pontos_utm], crs=zona_utm)
+        gdf = gpd.GeoDataFrame(geometry=[Point(e, n) for e, n in pontos_utm], crs=epsg_code)
         gdf_wgs84 = gdf.to_crs(epsg=4326)
         pontos = [(pt.x, pt.y) for pt in gdf_wgs84.geometry]
     else:
         pontos = [(float(lon), float(lat)) for lat, lon in coordenadas]
 
-    if pontos and (pontos[0] != pontos[-1]):
+    if pontos[0] != pontos[-1]:
         pontos.append(pontos[0])
 
     poligono = Polygon(pontos)
@@ -302,7 +324,7 @@ def gerar_kml(coordenadas, caminho_pdf, tipo):
     print(f"KML '{nome_arquivo}' criado com sucesso!")
     
 if __name__ == "__main__":
-    caminho_pdf = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL\06. JUNHO\27154188.pdf"
+    caminho_pdf = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL\07. JULHO\Processo nº 123456789 - JOELSON SOUSA JUNIOR\DOCUMENTOS\CERT_INTEIRO_TEOR_M.11173.pdf"
 
     coords, tipo1, origens1 = extrair_coordenadas_pdf(caminho_pdf)
     
