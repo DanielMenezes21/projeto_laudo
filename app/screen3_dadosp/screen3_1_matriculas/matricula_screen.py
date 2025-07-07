@@ -200,18 +200,24 @@ class MatriculaScreen(MDScreen):
         return ""
     
     def extrair_area_const_excel(self, caminho_arquivo):
-        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
         aba = "AREA UTIL"
-        if aba not in wb.sheetnames:
-            print(f"{aba} não encontrado")
+        try:
+            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        except Exception as e:
+            print(f"Erro ao abrir a planilha: {e}")
             return ""
-        
+
+        if aba not in wb.sheetnames:
+            print(f"Aba '{aba}' não encontrada. Abas disponíveis: {wb.sheetnames}")
+            return ""
+
         ws = wb[aba]
+
         for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
             for col_idx, cell in enumerate(row):
                 if isinstance(cell, str):
                     texto = cell.strip().lower()
-                    if texto == "area consolidada":
+                    if texto == "ÁREA CONSOLIDADA":
                         try:
                             valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
                             if valor not in (None, "", "-"):
@@ -220,15 +226,15 @@ class MatriculaScreen(MDScreen):
                                     valor_formatado = f"{valor:.4f}".replace(".", ",")
                                 except Exception:
                                     valor_formatado = str(valor)
-                                print(f"✅ Área Consolidada encontrada: {valor_formatado}")
+                                print(f"✅ ÁREA CONSOLIDADA encontrada: {valor_formatado}")
                                 return valor_formatado
                             else:
-                                print(f"⚠️ Célula abaixo de 'AREA Consolidada' está vazia.")
+                                print(f"⚠️ Célula abaixo de 'ÁREA CONSOLIDADA' está vazia.")
                         except Exception as e:
                             print(f"❌ Erro ao acessar célula abaixo: {e}")
                             return ""
 
-        print("ÁREA CONSOLIDADA não encontrada")
+        print("❌ 'ÁREA CONSOLIDADA' não encontrada na aba.")
         return ""
 
     def abrir_filemanager(self, matricula_nome, tipo):
@@ -298,7 +304,7 @@ class MatriculaScreen(MDScreen):
                         self.matriculas[m]["campos"]["valor_liq"].text = str(valor_liq)
                     area_total = self.extrair_area_total_excel(caminho)
                     if area_total:
-                        self.matriculas[m]["camos"]["area_total"].text = str(area_total)
+                        self.matriculas[m]["campos"]["area_total"].text = str(area_total)
                     area_consolidada = self.extrair_area_const_excel(caminho)
                     if area_consolidada:
                         self.matriculas[m]["campos"]["area_consolidada"].text = str(area_consolidada)

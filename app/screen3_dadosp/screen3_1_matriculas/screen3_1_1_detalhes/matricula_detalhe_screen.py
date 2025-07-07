@@ -30,7 +30,7 @@ class MatriculaDetalheScreen(MDScreen):
         )
 
         self.campo_observacoes = MDTextField(
-            hint_text="Observações sobre o imóvel",
+            MDTextFieldHintText(text="Observações sobre o imóvel"),
             multiline=True,
             size_hint=(0.9, None),
             height=100,

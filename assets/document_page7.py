@@ -938,7 +938,7 @@ def resultado(doc):
     "valor venal de mercado foram discriminados de acordo com a amplitude do intervalo de confiança " \
     "de 80% em torno do valor central da estimativa. ")
 
-    parrun3 = doc.add_paraagraph()
+    parrun3 = doc.add_paragraph()
     run3 = parrun3.add_run("[INSERIR_VALORES_AQUI]")
 
     return doc

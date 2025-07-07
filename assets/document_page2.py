@@ -581,8 +581,9 @@ def criar_secao_caracteristicas(doc, dados):
 
     tcPr.append(borders)
 
+    area_total = dados.get("area_total", "")
     row1cell_2 = table.rows[1].cells[2]
-    row1cell_2.text = "106,2710"
+    row1cell_2.text = f"{area_total}"
     row1cell_2.paragraphs[0].runs[0].font.size = Pt(12)
     row1cell_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row1cell_2.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
@@ -600,6 +601,7 @@ def criar_secao_caracteristicas(doc, dados):
 
     tcPr.append(borders)
 
+    area_cons = dados.get("area_consolidada", "")
     row1cell_3 = table.rows[1].cells[3]
     row1cell_3.merge(table.rows[1].cells[8])
     row1cell_3.text = "ÁREA CONSTRUÍDA (m²)"
@@ -622,7 +624,7 @@ def criar_secao_caracteristicas(doc, dados):
 
     row1cell_4 = table.rows[1].cells[9]
     row1cell_4.merge(table.rows[1].cells[10])
-    row1cell_4.text = "0,00"
+    row1cell_4.text = f"{area_cons}"
     row1cell_4.paragraphs[0].runs[0].font.size = Pt(12)
     row1cell_4.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     row1cell_4.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER

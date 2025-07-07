@@ -215,28 +215,28 @@ class MatriculaParecerScreen(MDScreen):
         self.biomas_selecionados = current
 
     def _criar_selecao_sim_nao(self, texto, grupo, callback):
-        """Creates a Yes/No selection widget."""
         layout = MDBoxLayout(orientation="horizontal", spacing=10, size_hint=(0.9, None), height=50, pos_hint={"center_x": 0.5})
         label = MDLabel(text=texto, size_hint_x=0.6, halign="left")
-        
+
         checkbox_sim = MDCheckbox(
             size_hint_x=0.2,
             group=grupo,
-            on_release=callback
+            on_release=lambda chk: callback(True if chk.active else False)
         )
-        
+
         checkbox_nao = MDCheckbox(
             size_hint_x=0.2,
             group=grupo,
-            on_release=lambda x: callback(False)
+            on_release=lambda chk: callback(False)
         )
-        
+
         layout.add_widget(label)
         layout.add_widget(checkbox_sim)
         layout.add_widget(MDLabel(text="Sim", size_hint_x=0.1))
         layout.add_widget(checkbox_nao)
         layout.add_widget(MDLabel(text="Não", size_hint_x=0.1))
         return layout
+
 
     def _ativar_campo(self, campo, ativar, propriedade):
         """Activates/deactivates a conditional field."""

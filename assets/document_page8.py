@@ -14,6 +14,9 @@ from win32com.client.gencache import EnsureDispatch
 from win32com.client import Dispatch
 import num2words
 from docx.shared import Inches
+from docx.enum.section import WD_ORIENT
+from docx.shared import Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 def encerramento(doc):
     heading = doc.add_paragraph(style='Heading 1')

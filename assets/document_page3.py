@@ -6,7 +6,7 @@ from docx.oxml import parse_xml
 from docx.table import Table
 from docx.oxml.ns import nsdecls
 from docx.shared import Twips
-from assets.document_page2 import LARGURA, configurar_documento, adicionar_linha_fina
+from assets.document_page2 import LARGURA, configurar_documento, adicionar_linha_fina, colorir_celula
 
 def titulo(doc, dados):
     table = doc.add_table(rows=1, cols=1)
@@ -150,12 +150,18 @@ def table_geo(doc, dados):
     )
     tcPr.append(borders)
 
+    possui_geo = dados.get('possui_georref','')
+    if possui_geo == True:
+        colorir_celula(cell2_1, cor_hex)
+    else:
+        colorir_celula(cell2_3, cor_hex)
+
     cell2_4 = table.rows[1].cells[4]
     cell2_5 = table.rows[1].cells[5]
     cell2_4.merge(cell2_5)
     par = cell2_4.paragraphs[0]
     par.clear()
-    run = par.add_run("Código Geo")
+    run = par.add_run(f"Código Geo")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     cell2_4.width = Cm(3.5)
     tcPr = cell2_4._tc.get_or_add_tcPr()
@@ -297,7 +303,7 @@ def table_geo(doc, dados):
     linha6.merge(table.rows[5].cells[1])
     par = linha6.paragraphs[0]
     par.clear()
-    run = par.add_run("Não")
+    run = par.add_run("Nome")
     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run.font.size = Pt(12)
     tcPr = linha6._tc.get_or_add_tcPr()
@@ -309,6 +315,7 @@ def table_geo(doc, dados):
         '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
         '</w:tcBorders>'
     )
+
     tcPr.append(borders)
     cell6_2 = table.rows[5].cells[2]
     cell6_2.merge(table.rows[5].cells[4])
@@ -469,6 +476,11 @@ def table_geo(doc, dados):
     )
     tcPr.append(borders)
 
+    alienacao = dados.get('possui_alienacao','')
+    if alienacao == True:
+        colorir_celula(cell7_2, cor_hex)
+    else:
+        colorir_celula(cell7_4, cor_hex)
     
     cell7_5 = table.rows[7].cells[4]
     cell7_5.merge(table.rows[7].cells[9])
@@ -692,6 +704,8 @@ def tabela_bioma(doc, dados):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    biomas = dados.get('biomas', '')
 
     cell1_0 = table.rows[1].cells[0]
     par = cell1_0.paragraphs[0]
@@ -1008,6 +1022,28 @@ def tabela_bioma(doc, dados):
     )
     tcPr.append(borders)
 
+    cell_bioma_amazonia = cell1_1
+    cell_bioma_cerrado = cell2_1
+    cell_bioma_caatinga = cell6_2
+    cell_bioma_mata = cell6_4
+    cell_bioma_pampa = cell1_3
+    cell_bioma_pantanal = cell4_4
+
+    cor_hex = "4EA65D"
+
+    if biomas.get("Amazônia"):
+        colorir_celula(cell_bioma_amazonia, cor_hex)
+    if biomas.get("Cerrado"):
+        colorir_celula(cell_bioma_cerrado, cor_hex)
+    if biomas.get("Caatinga"):
+        colorir_celula(cell_bioma_caatinga, cor_hex)
+    if biomas.get("Mata Atlântica"):
+        colorir_celula(cell_bioma_mata, cor_hex)
+    if biomas.get("Pampa"):
+        colorir_celula(cell_bioma_pampa, cor_hex)
+    if biomas.get("Pantanal"):
+        colorir_celula(cell_bioma_pantanal, cor_hex)
+
     return doc
 
 def area_APA(doc, dados):
@@ -1021,6 +1057,8 @@ def area_APA(doc, dados):
     table.rows[0].height = Cm(0.5)
     table.rows[1].height = Cm(0.5)  
     table.rows[2].height = Cm(0.1)
+
+    cor_hex = "4EA65D"
 
     title_row = table.rows[0].cells[0]
     title_row.merge(table.rows[0].cells[9])
@@ -1040,6 +1078,8 @@ def area_APA(doc, dados):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    apa = dados.get('possui_apa','')
 
     cell1_1 = table.rows[1].cells[0]
     par = cell1_1.paragraphs[0]
@@ -1112,6 +1152,11 @@ def area_APA(doc, dados):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    if apa == True:
+        colorir_celula(cell1_2, cor_hex)
+    else:
+        colorir_celula(cell1_4, cor_hex)
 
     cell1_5 = table.rows[1].cells[4]
     par = cell1_5.paragraphs[0]
@@ -1206,6 +1251,8 @@ def table_passivo_ambiental(doc, dados):
     table.rows[8].height = Cm(0.1)
     table.rows[9].height = Cm(0.5)
     table.rows[10].height = Cm(0.1)
+
+    cor_hex = "4EA65D"
 
     title_row = table.rows[0].cells[0]
     title_row.merge(table.rows[0].cells[10])
@@ -1593,6 +1640,22 @@ def table_passivo_ambiental(doc, dados):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    passivo = dados.get('possui_passivo', '')
+    tipos_passivo = dados.get("tipos_passivo", {})
+
+    if passivo:
+        colorir_celula(cell1_2, cor_hex)  
+    else:
+        colorir_celula(cell1_4, cor_hex)  
+
+    if passivo:
+        if tipos_passivo.get("Embargo", False):
+            colorir_celula(cell3_2, cor_hex)
+        if tipos_passivo.get("Déficit de Reserva Legal", False):
+            colorir_celula(cell4_2, cor_hex)
+        if tipos_passivo.get("Alerta MapBiomas", False):
+            colorir_celula(cell6_2, cor_hex)
 
     return doc
 
