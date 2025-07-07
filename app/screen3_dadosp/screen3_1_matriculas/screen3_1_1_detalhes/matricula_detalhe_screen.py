@@ -29,6 +29,14 @@ class MatriculaDetalheScreen(MDScreen):
             on_release=lambda x: go_back(self),
         )
 
+        self.campo_observacoes = MDTextField(
+            hint_text="Observações sobre o imóvel",
+            multiline=True,
+            size_hint=(0.9, None),
+            height=100,
+            pos_hint={"center_x": 0.5}
+        )
+
         linha_poligonos = MDBoxLayout(orientation="horizontal", spacing=30, size_hint_y=None, height=40)
         self.checkbox_regular = MDCheckbox()
         label_regular = MDLabel(text="Polígono regular", halign="left")
@@ -95,6 +103,7 @@ class MatriculaDetalheScreen(MDScreen):
         )
 
         layout.add_widget(self.button_back)
+        layout.add_widget(self.campo_observacoes)
         layout.add_widget(linha_poligonos)
         layout.add_widget(label_declividade)
         layout.add_widget(linha_af)

@@ -35,16 +35,13 @@ class MatriculaParecerScreen(MDScreen):
         self.indice_matricula_atual = indice_matricula_atual
         self.nome_matricula = nome_matricula
         
-        # Properties for conditional fields
         self.georreferenciamento_sim = BooleanProperty(False)
         self.alienacao_sim = BooleanProperty(False)
         self.apa_sim = BooleanProperty(False)
         self.passivo_ambiental_sim = BooleanProperty(False)
         
-        # Dictionaries for multiple selections
         self.biomas_selecionados = self.biomas.copy()
         
-        # Text properties
         self.detalhes_passivo = StringProperty("")
 
         kwargs.pop('detalhes_screen', None)
@@ -52,13 +49,11 @@ class MatriculaParecerScreen(MDScreen):
         kwargs.pop('indice_matricula_atual', None)
         super().__init__(**kwargs)
 
-        # Main layout with scroll
         layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20)
         scroll = MDScrollView()
         scroll_content = MDBoxLayout(orientation="vertical", spacing=20, padding=10, size_hint_y=None)
         scroll_content.bind(minimum_height=scroll_content.setter('height'))
 
-        # Back button
         self.button_back = MDIconButton(
             icon="arrow-left",
             size_hint=(1, None),
@@ -70,7 +65,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.button_back)
 
-        # Main fields
         self.campo_texto = MDTextField(
             MDTextFieldHintText(text=f"Observações - {nome_matricula}"),
             size_hint=(0.9, None),
@@ -87,7 +81,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.campo_car)
 
-        # Georeferencing section
         scroll_content.add_widget(self._criar_selecao_sim_nao(
             "Possui georreferenciamento?",
             "georref",
@@ -102,7 +95,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.campo_georref)
 
-        # Fiduciary alienation section
         scroll_content.add_widget(self._criar_selecao_sim_nao(
             "Possui alienação fiduciária?",
             "alienacao",
@@ -117,7 +109,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.campo_alienacao)
 
-        # Environmental Protection Area section
         scroll_content.add_widget(self._criar_selecao_sim_nao(
             "O imóvel está inserido em Área de Proteção Ambiental - APA?",
             "apa",
@@ -132,7 +123,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.campo_apa)
 
-        # Biomes section
         layout_biomas = MDBoxLayout(orientation="vertical", spacing=10, size_hint=(0.9, None), pos_hint={"center_x": 0.5})
         label_biomas = MDLabel(text="Biomas do imóvel:", size_hint_y=None, height=30)
         layout_biomas.add_widget(label_biomas)
@@ -149,14 +139,12 @@ class MatriculaParecerScreen(MDScreen):
         layout_biomas.add_widget(linha2)
         scroll_content.add_widget(layout_biomas)
 
-        # Environmental Liability section
         scroll_content.add_widget(self._criar_selecao_sim_nao(
             "Possui Passivo Ambiental?",
             "passivo",
             lambda x: self._ativar_secao_passivo(x)
         ))
         
-        # Liability types checkboxes
         self.layout_tipos_passivo = MDBoxLayout(
             orientation="vertical", 
             spacing=10, 
@@ -180,7 +168,6 @@ class MatriculaParecerScreen(MDScreen):
             self.layout_tipos_passivo.add_widget(box)
         scroll_content.add_widget(self.layout_tipos_passivo)
         
-        # Liability details field
         self.campo_detalhes_passivo = MDTextField(
             MDTextFieldHintText(text="Detalhamento do passivo ambiental"),
             size_hint=(0.9, None),
@@ -191,7 +178,6 @@ class MatriculaParecerScreen(MDScreen):
         )
         scroll_content.add_widget(self.campo_detalhes_passivo)
 
-        # Save button
         self.button_concluido = MDIconButton(
             icon="check",
             size_hint=(1, None),

@@ -116,9 +116,11 @@ def desc_imovel(doc, dados):
         run.font.color.rgb = RGBColor(0, 0, 0)
     
     matricula = dados.get("matricula", "")
+    area_total = dados.get("area_total", "")
+
     run1 = doc.add_paragraph(f"Trata-se de um imóvel rural de Matrícula nº {matricula}, " \
-    "com área total de #AREA_TOTAL ha, destes, #P_RESERVA são separados para Reserva Legal, " \
-    "totalizando uma área de #AREA_RESERVA ha, #OBS#AREA, a sua Área de Preservação Permanente – APP " \
+    f"com área total de {area_total} ha, destes, #P_RESERVA são separados para Reserva Legal, " \
+    "totalizando uma área de #AREA_RESERVA ha, #OBS #AREA, a sua Área de Preservação Permanente – APP " \
     "ocupa uma área #P_APP, totalizando #A_APP ha da integralidade do imóvel.")
     run2 = doc.add_paragraph("#ATIVIDADE_IMOVEL")
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")

@@ -66,7 +66,7 @@ class MatriculaScreen(MDScreen):
 
     def extrair_numero_matricula_excel(self, caminho_arquivo):
         wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        aba = "AREA UTIL "
+        aba = "AREA UTIL"
         if aba not in wb.sheetnames:
             print(f"{aba} não encontrado")
             return ""
@@ -160,10 +160,48 @@ class MatriculaScreen(MDScreen):
 
         print("Valor de Liquidação Forçada não encontrado")
         return ""
-    
+
     def extrair_area_total_excel(self, caminho_arquivo):
+        aba = "AREA UTIL"
+        try:
+            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
+        except Exception as e:
+            print(f"Erro ao abrir a planilha: {e}")
+            return ""
+
+        if aba not in wb.sheetnames:
+            print(f"Aba '{aba}' não encontrada. Abas disponíveis: {wb.sheetnames}")
+            return ""
+
+        ws = wb[aba]
+
+        for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
+            for col_idx, cell in enumerate(row):
+                if isinstance(cell, str):
+                    texto = cell.strip().lower()
+                    if texto == "area total":
+                        try:
+                            valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
+                            if valor not in (None, "", "-"):
+                                try:
+                                    valor = float(valor)
+                                    valor_formatado = f"{valor:.4f}".replace(".", ",")
+                                except Exception:
+                                    valor_formatado = str(valor)
+                                print(f"✅ Área TOTAL encontrada: {valor_formatado}")
+                                return valor_formatado
+                            else:
+                                print(f"⚠️ Célula abaixo de 'AREA TOTAL' está vazia.")
+                        except Exception as e:
+                            print(f"❌ Erro ao acessar célula abaixo: {e}")
+                            return ""
+
+        print("❌ 'AREA TOTAL' não encontrada na aba.")
+        return ""
+    
+    def extrair_area_const_excel(self, caminho_arquivo):
         wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        aba = "AREA UTIL "
+        aba = "AREA UTIL"
         if aba not in wb.sheetnames:
             print(f"{aba} não encontrado")
             return ""
@@ -171,22 +209,26 @@ class MatriculaScreen(MDScreen):
         ws = wb[aba]
         for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
             for col_idx, cell in enumerate(row):
-                if isinstance(cell, str) and cell.strip().lower() == "AREA TOTAL":
-                    try:
-                        valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
-                        if valor not in (None, "", "-"):
-                            try:
-                                valor = float(valor)
-                                valor_formatado = f"{valor:.4f}".replace(".", ",") 
-                            except Exception:
-                                valor_formatado = str(valor)
-                            print(f"Área TOTAL encontrada: {valor_formatado}")
-                            return valor_formatado
-                    except Exception as e:
-                        print(f"Erro ao acessar valor abaixo da célula: {e}")
-                        return ""
+                if isinstance(cell, str):
+                    texto = cell.strip().lower()
+                    if texto == "area consolidada":
+                        try:
+                            valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
+                            if valor not in (None, "", "-"):
+                                try:
+                                    valor = float(valor)
+                                    valor_formatado = f"{valor:.4f}".replace(".", ",")
+                                except Exception:
+                                    valor_formatado = str(valor)
+                                print(f"✅ Área Consolidada encontrada: {valor_formatado}")
+                                return valor_formatado
+                            else:
+                                print(f"⚠️ Célula abaixo de 'AREA Consolidada' está vazia.")
+                        except Exception as e:
+                            print(f"❌ Erro ao acessar célula abaixo: {e}")
+                            return ""
 
-        print("Área TOTAL não encontrada")
+        print("ÁREA CONSOLIDADA não encontrada")
         return ""
 
     def abrir_filemanager(self, matricula_nome, tipo):
@@ -222,6 +264,7 @@ class MatriculaScreen(MDScreen):
                 "longitude": campos["longitude"].text,
                 "proprietario": campos["proprietario"].text,
                 "area_total": campos["area_total"].text,
+                "area_consolidada": campos["area_consolidada"].text,
                 "imagem": arquivos.get("imagem", ""),
                 "planilha": arquivos.get("planilha", "")
             })
@@ -256,6 +299,9 @@ class MatriculaScreen(MDScreen):
                     area_total = self.extrair_area_total_excel(caminho)
                     if area_total:
                         self.matriculas[m]["camos"]["area_total"].text = str(area_total)
+                    area_consolidada = self.extrair_area_const_excel(caminho)
+                    if area_consolidada:
+                        self.matriculas[m]["campos"]["area_consolidada"].text = str(area_consolidada)
                 except Exception as e:
                     print(f"❌ Erro ao processar planilha: {e}")
             else:
@@ -296,6 +342,7 @@ class MatriculaScreen(MDScreen):
                     "valor_liq": campos["valor_liq"].text,
                     "latitude": campos["latitude"].text,
                     "area_total": campos["area_total"].text,
+                    "area_consolidada": campos["area_consolidada"].text,
                     "longitude": campos["longitude"].text,
                     "proprietario": campos["proprietario"].text,
                     "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
@@ -310,6 +357,7 @@ class MatriculaScreen(MDScreen):
                     "latitude": campos["latitude"].text,
                     "longitude": campos["longitude"].text,
                     "area_total": campos["area_total"].text,
+                    "area_consolidada": campos["area_consolidada"].text,
                     "proprietario": campos["proprietario"].text,
                     "imagem": self.matriculas[nome_matricula]["arquivos"].get("imagem", ""),
                     "planilha": arquivos.get("planilha", "")
@@ -393,6 +441,7 @@ class MatriculaScreen(MDScreen):
                 "valor_liq": "",
                 "latitude": "",
                 "area_total": "",
+                "area_consolidada": "",
                 "longitude": "",
                 "proprietario": "",
                 "imagem": ""
@@ -404,7 +453,7 @@ class MatriculaScreen(MDScreen):
         from kivymd.uix.boxlayout import MDBoxLayout
         from kivymd.uix.button import MDIconButton
 
-        grupo = MDBoxLayout(orientation="vertical", spacing=20, size_hint_y=None, height=dp(750))
+        grupo = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(920))
 
         dados_imovel = {}
         if hasattr(self, 'dados_imoveis'):
@@ -486,10 +535,20 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
+        campos_areas = MDBoxLayout(orientation="horizontal", spacing=15, size_hint_y=None, height=dp(180))
+
         campo_area_total = MDTextField(
             MDTextFieldHintText(text=f"Área total da matrícula {numero}"),
-            size_hint_x=0.9
+            size_hint_x=0.45
         )
+
+        campo_area_cons = MDTextField(
+            MDTextFieldHintText(text=f"Área Consolidada da matrícula {numero}"),
+            size_hint_x=0.45
+        )
+
+        campos_areas.add_widget(campo_area_total)
+        campos_areas.add_widget(campo_area_cons)
 
         coords = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(180))
         campo_latitude = MDTextField(
@@ -521,10 +580,11 @@ class MatriculaScreen(MDScreen):
         )
 
         grupo.add_widget(campo_nome)
-        grupo.add_widget(linha_prop)  # Adicione o layout horizontal com campo + botão
+        grupo.add_widget(linha_prop)  
         grupo.add_widget(campo_matricula)
         grupo.add_widget(campo_valor_total)
         grupo.add_widget(campo_valor_liq)
+        grupo.add_widget(campos_areas)
         grupo.add_widget(coords)
         grupo.add_widget(btn_planilha)
         grupo.add_widget(btn_imagem)
@@ -532,12 +592,13 @@ class MatriculaScreen(MDScreen):
 
         self.matriculas[f"Matrícula {numero}"] = {
             "campos": {
-                "proprietario": campo_prop,  # campo_prop.text terá todos os selecionados, separados por vírgula
+                "proprietario": campo_prop,  
                 "nome_imovel": campo_nome,
                 "numero": campo_matricula,
                 "valor": campo_valor_total,
                 "valor_liq": campo_valor_liq,
                 "area_total":campo_area_total,
+                "area_consolidada": campo_area_cons,
                 "latitude": campo_latitude,
                 "longitude": campo_longitude
             },
