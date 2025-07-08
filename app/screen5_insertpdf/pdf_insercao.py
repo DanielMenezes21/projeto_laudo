@@ -187,9 +187,8 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = encerramento(doc)
     doc.add_page_break()
-    doc.add_section(WD_SECTION.NEW_PAGE)
     doc = inserir_caixa_texto(doc)
-    doc.add_section(WD_SECTION.NEW_PAGE)
+    doc.add_page_break()
     doc = anexos_fotos(doc)
     doc.add_page_break()
     doc = anexo_doc(doc)
@@ -200,10 +199,11 @@ def montar_documento(self, doc):
     return doc
 
 def gerar_documento(self): 
-    try:
+    #try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
+        self.img_anexo = "models/anexos.png"
         processo = ""
 
         if hasattr(self, "caminho_car") and self.caminho_car:
@@ -376,7 +376,8 @@ def gerar_documento(self):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
-        inserir_marcadagua_so_na_secao(output_path, "models\\anexos.png", secao=2)
+        if hasattr(self, "img_anexo"):
+            inserir_marcadagua_so_na_secao(output_path, self.img_anexo)
         inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
@@ -384,7 +385,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-    except Exception as e:
+'''except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -400,4 +401,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()
+        ).open()'''

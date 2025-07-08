@@ -19,61 +19,59 @@ def adicionar_espaco(doc):
     return doc
 
 def gerar_texto_proprietarios(lista_matriculas):
-    grupos = defaultdict(lambda: {"matriculas": set(), "imoveis": set()})
+    grupos = []
 
     for item in lista_matriculas:
-        proprietario = item.get("proprietario", "").strip()
-        cpf = item.get("cpf", "").strip()
+        proprietarios = [p.strip() for p in item.get("proprietario", "").split(",") if p.strip()]
+        cpfs = [c.strip() for c in item.get("cpf", "").split(",") if c.strip()]
         imovel = item.get("nome_imovel", "").strip()
         matricula = item.get("matricula", "").strip()
-        chave = (proprietario, cpf)
-        if proprietario:
-            grupos[chave]["matriculas"].add(matricula)
-            grupos[chave]["imoveis"].add(imovel)
 
-    todos_proprietarios = []
-    todas_matriculas = set()
-    todos_imoveis = set()
-    for (nome, cpf), dados in grupos.items():
-        if nome:
-            if cpf:
-                todos_proprietarios.append(f"{nome}, inscrito sob o CPF nº {cpf}")
-            else:
-                todos_proprietarios.append(nome)
-            todas_matriculas.update(dados["matriculas"])
-            todos_imoveis.update(dados["imoveis"])
-            
-    if len(todas_matriculas) == 1 and len(todos_imoveis) == 1:
-        texto_matricula = f"na matrícula de nº {list(todas_matriculas)[0]}"
-        texto_imovel = f"do imóvel rural denominado {list(todos_imoveis)[0]}"
-        proprietarios = ", ".join(todos_proprietarios[:-1]) + " e " + todos_proprietarios[-1] if len(todos_proprietarios) > 1 else todos_proprietarios[0]
-        paragrafo = (
-            f"        Em conformidade com o exposto {texto_matricula}, {proprietarios}, são os proprietários {texto_imovel}."
+        max_len = max(len(proprietarios), len(cpfs))
+        proprietarios += [""] * (max_len - len(proprietarios))
+        cpfs += [""] * (max_len - len(cpfs))
+
+        for i in range(max_len):
+            grupos.append({
+                "nome": proprietarios[i],
+                "cpf": cpfs[i],
+                "matricula": matricula,
+                "imovel": imovel
+            })
+
+    matriculas_dict = defaultdict(list)
+    for g in grupos:
+        chave = (g['matricula'], g['imovel'])
+        matriculas_dict[chave].append((g['nome'], g['cpf']))
+
+    if len(matriculas_dict) == 1:
+        ((matricula, imovel), dados) = list(matriculas_dict.items())[0]
+        proprietarios_texto = formatar_lista_com_e([
+            f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
+            for nome, cpf in set(dados)
+        ])
+
+        return f"        Em conformidade com o exposto na matrícula de nº {matricula}, {proprietarios_texto}, são os proprietários do imóvel rural denominado {imovel}."
+    
+    paragrafos = []
+    for (matricula, imovel), dados in matriculas_dict.items():
+        proprietarios_texto = formatar_lista_com_e([
+            f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
+            for nome, cpf in set(dados)
+        ])
+        paragrafos.append(
+            f"        Em conformidade com o exposto na matrícula de nº {matricula}, {proprietarios_texto}, são os proprietários do imóvel rural denominado {imovel}."
         )
-        return paragrafo
-    else:
-        paragrafos = []
-        for (nome, cpf), dados in grupos.items():
-            if nome:
-                parte_proprietario = f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
-                verbo = "é o proprietário"
-                matriculas = sorted(dados["matriculas"])
-                texto_matricula = (
-                    f"na matrícula de nº {matriculas[0]}" if len(matriculas) == 1
-                    else f"nas matrículas de nº {', '.join(matriculas[:-1])} e {matriculas[-1]}"
-                )
-                imoveis = sorted(dados["imoveis"])
-                texto_imovel = (
-                    f"do imóvel rural denominado {imoveis[0]}" if len(imoveis) == 1
-                    else f"dos imóveis rurais denominados {', '.join(imoveis[:-1])} e {imoveis[-1]}"
-                )
-                paragrafo = (
-                    f"        Em conformidade com o exposto {texto_matricula}, "
-                    f"{parte_proprietario}, {verbo} {texto_imovel}."
-                )
-                paragrafos.append(paragrafo)
-        return "\n\n".join(paragrafos)
+    return "\n\n".join(paragrafos)
 
+def formatar_lista_com_e(itens):
+    if len(itens) == 1:
+        return itens[0]
+    elif len(itens) == 2:
+        return f"{itens[0]} e {itens[1]}"
+    else:
+        return ", ".join(itens[:-1]) + f" e {itens[-1]}"
+    
 def texto_solicitante(doc, solicitante, lista_matriculas):
     heading = doc.add_paragraph(style='Heading1')
     run = heading.add_run("1 - SOLICITANTE")

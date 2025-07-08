@@ -3,7 +3,6 @@ import os
 
 def inserir_caixa_texto_primeira_pagina(docx_path, texto, width=400, height=100, substituicoes=None):
     try:
-        import win32com.client
         word = win32com.client.Dispatch("Word.Application")
         word.Visible = False
         doc = word.Documents.Open(docx_path)
@@ -15,8 +14,7 @@ def inserir_caixa_texto_primeira_pagina(docx_path, texto, width=400, height=100,
         page_width = doc.PageSetup.PageWidth
         page_height = doc.PageSetup.PageHeight
 
-        # Alinhar totalmente à direita, ignorando margens
-        left = page_width - width  # 0 = esquerda, page_width-width = direita total
+        left = page_width - width  
         top = (page_height - height) // 2
 
         shape = doc.Shapes.AddTextbox(

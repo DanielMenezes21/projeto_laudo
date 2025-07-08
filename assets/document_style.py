@@ -8,7 +8,7 @@ def inserir_imagem_ultima_pagina(docx_path, img_fim):
         doc = word.Documents.Open(docx_path)
 
         sel = word.Selection
-        sel.EndKey(Unit=6)  # Vai para o fim do documento
+        sel.EndKey(Unit=6)  
 
         shape = doc.Shapes.AddPicture(
             FileName=os.path.abspath(img_fim),
@@ -20,6 +20,7 @@ def inserir_imagem_ultima_pagina(docx_path, img_fim):
             Height=doc.PageSetup.PageHeight
         )
         shape.WrapFormat.Type = 3  
+        shape.LockAspectRatio = False
         shape.RelativeHorizontalPosition = 1
         shape.RelativeVerticalPosition = 1
         shape.Left = 0

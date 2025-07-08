@@ -62,34 +62,58 @@ def encerramento(doc):
 
     return doc
 
-def inserir_marcadagua_so_na_secao(path_docx, path_img, secao=2):
-    word = win32com.client.Dispatch("Word.Application")
-    word.Visible = False
-    doc = word.Documents.Open(path_docx)
-    if doc.Sections.Count >= secao:
-        section = doc.Sections(secao)
-        rng = section.Range
-        shape = doc.Shapes.AddPicture(
-            FileName=os.path.abspath(path_img),
-            LinkToFile=False,
-            SaveWithDocument=True,
-            Left=0,
-            Top=0,
-            Width=section.PageSetup.PageWidth,
-            Height=section.PageSetup.PageHeight,
-            Anchor=rng
-        )
-        shape.WrapFormat.Type = 3  # Behind text
-        shape.LockAspectRatio = False
-        shape.RelativeHorizontalPosition = 0
-        shape.RelativeVerticalPosition = 0
-        shape.Left = 0
-        shape.Top = 0
-    doc.Save()
-    doc.Close()
-    word.Quit()
+def inserir_marcadagua_so_na_secao(docx_path, imagem_path, marcador='#CAIXATEXTO#'):
+    try:
+        word = win32com.client.Dispatch("Word.Application")
+        word.Visible = False
+        doc = word.Documents.Open(os.path.abspath(docx_path))
+
+        selection = word.Selection
+        find = selection.Find
+        find.Text = marcador
+        find.ClearFormatting()
+        find.Forward = True
+        find.Wrap = 1  
+
+        if find.Execute():
+            rng = selection.Range
+            #selection.Text = ""
+
+            shape = doc.Shapes.AddPicture(
+                FileName=os.path.abspath(imagem_path),
+                LinkToFile=False,
+                SaveWithDocument=True,
+                Left=0,
+                Top=0,
+                Width=doc.PageSetup.PageWidth,
+                Height=doc.PageSetup.PageHeight
+            )
+            shape.ZOrder(4) 
+            shape.WrapFormat.Type = 3  
+            shape.LockAspectRatio = False
+            shape.RelativeHorizontalPosition = 0 
+            shape.RelativeVerticalPosition = 0    
+             
+            shape.Anchor = rng
+
+            doc.Save()
+            print("✅ Imagem inserida atrás do texto na posição marcada.")
+        else:
+            print("⚠️ Marcador não encontrado no documento.")
+
+    except Exception as e:
+        print(f"❌ Erro ao inserir imagem: {e}")
+    finally:
+        doc.Close(False)
+        word.Quit()
 
 def inserir_caixa_texto(doc):
+    p = doc.add_paragraph()
+    r = p.add_run("#CAIXATEXTO#")
+    r.font.color.rgb = RGBColor(255, 255, 255)  
+    r.font.size = Pt(1)  
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
     table1 = doc.add_table(rows=1, cols=1)
     cell1 = table1.cell(0, 0)
     cell1.text = "ANEXOS"
@@ -426,7 +450,7 @@ def anexo_parametros(doc):
     run36 = par36.add_run("[INSERIR_QUADRO_AQUI]")
 
     par37 = doc.add_paragraph()
-    run37 = par37.add_run("Quadro de amostras")
+    run37 = par37.add_run("Quadro de homologação")
     run37.bold = True
 
     par38 = doc.add_paragraph()

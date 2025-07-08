@@ -54,7 +54,9 @@ def go_next(self):
         )
         dialog.open()
         return False"""
-
+    print("🔍 Dados enviados à tela PDF:")
+    for chave, valor in campos.items():
+        print(f"{chave}: {valor}")
     tela_pdf = self.manager.get_screen('pdf')
     tela_pdf.tratamento = campos["Tratamento"]
     tela_pdf.nome = campos["Nome"]
@@ -126,7 +128,7 @@ def extrair_dados_multiplos_pdfs(lista_caminhos_pdf):
             'nome_imovel': nome_imovel if nome_imovel else f"Imóvel {len(dados_imoveis)+1}",
             'latitude': latitude[0] if latitude else "",
             'longitude': longitude[0] if longitude else "",
-            'proprietario': ", ".join(nomes) if nomes else ""  
+            'proprietario': ", ".join(nomes) if nomes else "" ,
         })
 
         if not municipio and municipio_:
@@ -141,6 +143,7 @@ def extrair_dados_multiplos_pdfs(lista_caminhos_pdf):
     longitudes = [imovel['longitude'] for imovel in dados_imoveis]
 
     return (todos_nomes, todos_cpfs, nomes_imoveis, municipio, estado, latitudes, longitudes, dados_imoveis)
+
 def extrair_dados_pdf(caminho_pdf):
     """
     Abre o PDF, varre todas as páginas em busca de Nome, CPF, Nome do Imóvel, Município, Latitude e Longitude.
