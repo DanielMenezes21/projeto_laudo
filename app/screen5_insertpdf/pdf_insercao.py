@@ -72,10 +72,10 @@ def inserir_pdf_no_word(self, caminho_pdf, placeholder):
 
 def inserir_imagem_no_placeholder(self, placeholder, caminho_imagem):
     for par in self.doc.paragraphs:
-        if placeholder in par.text:
+        texto_completo = ''.join(run.text for run in par.runs)
+        if placeholder in texto_completo:
             for run in par.runs:
-                if placeholder in run.text:
-                    run.text = run.text.replace(placeholder, "")
+                run.text = ""
             if os.path.exists(caminho_imagem):
                 novo_run = par.add_run()
                 novo_run.add_picture(caminho_imagem, width=Cm(14))
@@ -157,8 +157,7 @@ def montar_documento(self, doc):
     doc = acesso(doc)
     doc = carac_reg(doc)
     doc.add_page_break()
-    for i, dados in enumerate(self.lista_dados_matriculas):
-        doc = desc_imovel(doc, dados)
+    doc = desc_imovel(doc, dados)
     doc.add_page_break()
     doc = declividade(doc, imagem_path=getattr(self, "caminho_declividade", None))
     doc.add_page_break()
@@ -377,7 +376,7 @@ def gerar_documento(self):
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
         if hasattr(self, "img_anexo"):
-            inserir_marcadagua_so_na_secao(output_path, self.img_anexo)
+            inserir_marcadagua_so_na_secao(output_path, self.img_anexo, marcador='#CAIXATEXTO#')
         inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(

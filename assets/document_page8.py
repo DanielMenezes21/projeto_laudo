@@ -62,58 +62,106 @@ def encerramento(doc):
 
     return doc
 
-def inserir_marcadagua_so_na_secao(docx_path, imagem_path, marcador='#CAIXATEXTO#'):
+def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXATEXTO#'):
+    if not imagem_path:
+        imagem_path = os.path.abspath("models/anexos.png")
+
     try:
         word = win32com.client.Dispatch("Word.Application")
         word.Visible = False
         doc = word.Documents.Open(os.path.abspath(docx_path))
 
-        selection = word.Selection
-        find = selection.Find
-        find.Text = marcador
+        content = doc.Content
+        find = content.Find
+        find.Text = "ANEXOS"
         find.ClearFormatting()
         find.Forward = True
-        find.Wrap = 1  
+        find.Wrap = 1
 
         if find.Execute():
-            rng = selection.Range
-            #selection.Text = ""
+            print("🔎 Encontrado início da seção ANEXOS")
+            start_pos = find.Parent.End
+            remaining_range = doc.Range(start_pos, doc.Content.End)
 
-            shape = doc.Shapes.AddPicture(
-                FileName=os.path.abspath(imagem_path),
-                LinkToFile=False,
-                SaveWithDocument=True,
-                Left=0,
-                Top=0,
-                Width=doc.PageSetup.PageWidth,
-                Height=doc.PageSetup.PageHeight
-            )
-            shape.ZOrder(4) 
-            shape.WrapFormat.Type = 3  
-            shape.LockAspectRatio = False
-            shape.RelativeHorizontalPosition = 0 
-            shape.RelativeVerticalPosition = 0    
-             
-            shape.Anchor = rng
+            reverse_range = doc.Range(0, doc.Content.End)
+            sub_find = reverse_range.Find
+            sub_find.Text = marcador
+            sub_find.ClearFormatting()
+            sub_find.Forward = False  # ⬅ busca reversa!
+            sub_find.Wrap = 0 
 
-            doc.Save()
-            print("✅ Imagem inserida atrás do texto na posição marcada.")
+            if sub_find.Execute():
+                print("📌 Marcador encontrado dentro da seção ANEXOS")
+                sub_find.Parent.Text = ""
+
+                inlineshape = sub_find.Parent.InlineShapes.AddPicture(
+                    FileName=os.path.abspath(imagem_path),
+                    LinkToFile=False,
+                    SaveWithDocument=True
+                )
+                shape = inlineshape.ConvertToShape()
+                
+                shape.WrapFormat.Type = 3  
+                shape.WrapFormat.AllowOverlap = True
+                shape.LockAspectRatio = False
+                shape.RelativeHorizontalPosition = 0
+                shape.RelativeVerticalPosition = 0
+                shape.ZOrder(1)
+
+                print("✅ Imagem inserida atrás do texto.")
+
+                page_width = doc.PageSetup.PageWidth
+                page_height = doc.PageSetup.PageHeight
+                left_margin = doc.PageSetup.LeftMargin
+                right_margin = doc.PageSetup.RightMargin
+
+                width = page_width - left_margin - right_margin
+                height = 120  
+                left = left_margin
+                top = (page_height - height) / 2  
+
+                textbox = doc.Shapes.AddTextbox(
+                    Orientation=1,  
+                    Left=left,
+                    Top=top,
+                    Width=width,
+                    Height=height
+                )
+
+                textbox.TextFrame.TextRange.Text = (
+                    "ANEXOS\n"
+                    "ANEXO I – RELATÓRIO FOTOGRÁFICO\n"
+                    "ANEXO II – DOCUMENTAÇÃO DO IMÓVEL\n"
+                    "ANEXO III – PARÂMETROS DE AVALIAÇÃO E MEMORIAL DE CÁLCULO"
+                )
+                tx = textbox.TextFrame.TextRange
+                tx.Font.Size = 14
+                tx.Font.Name = "Cambria" 
+                tx.ParagraphFormat.Alignment = 1  
+
+                textbox.Fill.Visible = False
+                textbox.Line.Visible = False
+                textbox.TextFrame.MarginLeft = 0
+                textbox.TextFrame.MarginRight = 0
+                textbox.TextFrame.MarginTop = 0
+                textbox.TextFrame.MarginBottom = 0
+                textbox.WrapFormat.Type = 0  
+                textbox.ZOrder(0)  
+
+                print("📦 Caixa de texto 'ANEXOS' inserida por cima da imagem.")
+            else:
+                print("⚠️ Marcador #CAIXATEXTO# não encontrado após seção ANEXOS.")
         else:
-            print("⚠️ Marcador não encontrado no documento.")
+            print("⚠️ Seção ANEXOS não encontrada.")
 
+        doc.Save()
     except Exception as e:
-        print(f"❌ Erro ao inserir imagem: {e}")
+        print(f"❌ Erro ao inserir imagem e caixa de texto: {e}")
     finally:
         doc.Close(False)
         word.Quit()
 
 def inserir_caixa_texto(doc):
-    p = doc.add_paragraph()
-    r = p.add_run("#CAIXATEXTO#")
-    r.font.color.rgb = RGBColor(255, 255, 255)  
-    r.font.size = Pt(1)  
-    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-
     table1 = doc.add_table(rows=1, cols=1)
     cell1 = table1.cell(0, 0)
     cell1.text = "ANEXOS"
@@ -151,6 +199,12 @@ def inserir_caixa_texto(doc):
         tcPr.append(shd)"""
 
     table2.alignment = WD_ALIGN_PARAGRAPH.LEFT 
+
+    p = doc.add_paragraph()
+    r = p.add_run("#CAIXATEXTO#")
+    r.font.color.rgb = RGBColor(255, 255, 255)  
+    r.font.size = Pt(1)  
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
     return doc
 
