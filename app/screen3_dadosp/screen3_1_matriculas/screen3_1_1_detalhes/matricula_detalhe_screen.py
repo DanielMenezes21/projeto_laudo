@@ -4,6 +4,7 @@ from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.label import MDLabel
+from kivymd.uix.scrollview import MDScrollView
 from kivy.metrics import dp
 from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.detalhes_function import go_back, coletar_checkboxes, ir_para_parecer
 
@@ -18,6 +19,11 @@ class MatriculaDetalheScreen(MDScreen):
         super().__init__(**kwargs)
 
         layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20)
+        scroll_view = MDScrollView()
+        layout.size_hint_y = None
+        layout.bind(minimum_height=layout.setter("height"))
+        campo_reserva = MDBoxLayout(orientation="horizontal", padding=20, spacing=20, size_hint_y=None, height=dp(120))
+        campo_app = MDBoxLayout(orientation="horizontal", padding=20, spacing=20, size_hint_y=None, height=dp(120))
 
         self.button_back = MDIconButton(
             icon="arrow-left",
@@ -30,12 +36,44 @@ class MatriculaDetalheScreen(MDScreen):
         )
 
         self.campo_observacoes = MDTextField(
-            MDTextFieldHintText(text="Observações sobre o imóvel"),
+            MDTextFieldHintText(text="Observações sobre o imóvel para o item 6.4 - descrição do imóvel"),
             multiline=True,
             size_hint=(0.9, None),
             height=100,
             pos_hint={"center_x": 0.5}
         )
+
+        self.p_reserva = MDTextField(
+            MDTextFieldHintText(text="Porcentagem da área de reserva"),
+            size_hint=(0.4, None),
+            height=100,
+            pos_hint={"center_x": 0.5}
+        )
+        campo_reserva.add_widget(self.p_reserva)
+
+        self.area_reserva = MDTextField(
+            MDTextFieldHintText(text="Tamanho da área de reserva"),
+            size_hint=(0.4, None),
+            height=100,
+            pos_hint={"center_x": 0.5}
+        )
+        campo_reserva.add_widget(self.area_reserva)
+
+        self.p_app = MDTextField(
+            MDTextFieldHintText(text="Porcentagem da área de APP"),
+            size_hint=(0.4, None),
+            height=100,
+            pos_hint={"center_x": 0.5}
+        )
+        campo_app.add_widget(self.p_app)
+
+        self.a_app = MDTextField(
+            MDTextFieldHintText(text="Tamannho da área de APP"),
+            size_hint=(0.4, None),
+            height=100,
+            pos_hint={"center_x": 0.5}
+        )
+        campo_app.add_widget(self.a_app)
 
         linha_poligonos = MDBoxLayout(orientation="horizontal", spacing=30, size_hint_y=None, height=40)
         self.checkbox_regular = MDCheckbox()
@@ -104,6 +142,8 @@ class MatriculaDetalheScreen(MDScreen):
 
         layout.add_widget(self.button_back)
         layout.add_widget(self.campo_observacoes)
+        layout.add_widget(campo_reserva)
+        layout.add_widget(campo_app)
         layout.add_widget(linha_poligonos)
         layout.add_widget(label_declividade)
         layout.add_widget(linha_af)
@@ -112,6 +152,7 @@ class MatriculaDetalheScreen(MDScreen):
         layout.add_widget(linha_superficie)
         layout.add_widget(self.button_next)
 
-        self.add_widget(layout)
+        scroll_view.add_widget(layout)
+        self.add_widget(scroll_view)
 
         

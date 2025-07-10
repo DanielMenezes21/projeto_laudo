@@ -497,7 +497,7 @@ def inserir_tabela_valores_no_word(docx_path, excel_path, aba="SANEAMENTO", larg
 
     last_row = sheet.Cells(sheet.Rows.Count, "J").End(xlUp).Row
 
-    intervalo = f"J36:N41"
+    intervalo = f"J35:N40"
     sheet.Range(intervalo).Copy()
 
     word = Dispatch("Word.Application")

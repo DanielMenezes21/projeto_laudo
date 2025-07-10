@@ -184,7 +184,7 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = resultado(doc)
     doc.add_page_break()
-    doc = encerramento(doc)
+    doc = encerramento(doc, dados)
     doc.add_page_break()
     doc = inserir_caixa_texto(doc)
     doc.add_page_break()
@@ -303,7 +303,7 @@ def gerar_documento(self):
         if self.caminho_cit:
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
             
-        nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.nome)
+        nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.solicitante)
         nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx"
         if self.current_path and os.path.exists(self.current_path):
             enviados_dir = os.path.join(self.current_path, "ENVIADOS")

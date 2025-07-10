@@ -12,7 +12,7 @@ from modules.data_folder import formatar_data
 import os
 from kivy.metrics import dp
 from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.matricula_detalhe_screen import MatriculaDetalheScreen
-from app.screen3_dadosp.screen3_1_matriculas.matricula_function import go_back
+from app.screen3_dadosp.screen3_1_matriculas.matricula_function import *
 
 class MatriculaScreen(MDScreen):
     def __init__(self, lista_dados_matriculas=None, **kwargs):
@@ -63,36 +63,6 @@ class MatriculaScreen(MDScreen):
         self.matriculas = {}
         self.matricula_selecionada = ""
         self.tipo_planilha = ""
-
-    def extrair_numero_matricula_excel(self, caminho_arquivo):
-        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        aba = "AREA UTIL"
-        if aba not in wb.sheetnames:
-            print(f"{aba} não encontrado")
-            return ""
-        ws = wb[aba]
-        pattern = re.compile(r"matr[ií]cula[\s\:\-\t]*([\d\.\,]+)", re.IGNORECASE)
-        for row in ws.iter_rows(values_only=True):
-            for idx, cell in enumerate(row):
-                if isinstance(cell, str):
-                    cell_limpa = cell.strip().replace('\n', '').replace('\r', '').replace('\t', ' ')
-                    match = pattern.search(cell_limpa)
-                    if match:
-                        numero = match.group(1)
-                        return numero
-                    if "matr" in cell_limpa.lower() and idx + 1 < len(row):
-                        prox = row[idx + 1]
-                        if isinstance(prox, (int, float)):
-                            numero = str(prox)
-                            return numero
-                if isinstance(cell, (int, float)) and idx > 0:
-                    ant = row[idx - 1]
-                    if isinstance(ant, str) and "matr" in ant.lower():
-                        numero = str(cell)
-                        return numero
-        print("Número de matrícula não encontrado")
-        return ""
-    
     
     def receber_lat_long_pdf(self, latitude, longitude):
         """
@@ -108,134 +78,6 @@ class MatriculaScreen(MDScreen):
                 campos["longitude"].text = str(longitude[i])
             else:
                 campos["longitude"].text = str(longitude)
-
-    def extrair_valor_total_excel(self, caminho_arquivo):
-        wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        aba = "SANEAMENTO"
-        if aba not in wb.sheetnames:
-            print(f"{aba} não encontrado")
-            return ""
-        ws = wb[aba]
-        for row in ws.iter_rows(values_only=True):
-            for idx, cell in enumerate(row):
-                if isinstance(cell, str) and cell.strip().lower() == "valor total":
-                    for prox in row[idx+1:]:
-                        if prox not in (None, "", "-"):
-                            try:
-                                valor = float(prox)
-                                valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-                            except Exception:
-                                valor_formatado = str(prox)
-                            print(f"Valor Total encontrado: {valor_formatado}")
-                            return valor_formatado
-        print("Valor Total não encontrado")
-        return ""
-    
-    def extrair_valor_liq_excel(self, caminho_arquivo):
-        aba = "LIQUIDAÇÃO"
-        try:
-            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        except Exception as e:
-            print(f"Erro ao abrir a planilha: {e}")
-            return ""
-
-        if aba not in wb.sheetnames:
-            print(f"Aba '{aba}' não encontrada")
-            return ""
-
-        ws = wb[aba]
-
-        for row in ws.iter_rows(values_only=True):
-            for idx, cell in enumerate(row):
-                if isinstance(cell, str) and cell.strip().lower() == "valor de liquidação forçada":
-                    for prox in row[idx+1:]:
-                        if prox not in (None, "", "-"):
-                            try:
-                                valor = float(prox)
-                                valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-                            except Exception:
-                                valor_formatado = str(prox)
-                            print(f"Valor de Liquidação Forçada encontrado: {valor_formatado}")
-                            return valor_formatado
-
-        print("Valor de Liquidação Forçada não encontrado")
-        return ""
-
-    def extrair_area_total_excel(self, caminho_arquivo):
-        aba = "AREA UTIL"
-        try:
-            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        except Exception as e:
-            print(f"Erro ao abrir a planilha: {e}")
-            return ""
-
-        if aba not in wb.sheetnames:
-            print(f"Aba '{aba}' não encontrada. Abas disponíveis: {wb.sheetnames}")
-            return ""
-
-        ws = wb[aba]
-
-        for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
-            for col_idx, cell in enumerate(row):
-                if isinstance(cell, str):
-                    texto = cell.strip().lower()
-                    if texto == "area total":
-                        try:
-                            valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
-                            if valor not in (None, "", "-"):
-                                try:
-                                    valor = float(valor)
-                                    valor_formatado = f"{valor:.4f}".replace(".", ",")
-                                except Exception:
-                                    valor_formatado = str(valor)
-                                print(f"✅ Área TOTAL encontrada: {valor_formatado}")
-                                return valor_formatado
-                            else:
-                                print(f"⚠️ Célula abaixo de 'AREA TOTAL' está vazia.")
-                        except Exception as e:
-                            print(f"❌ Erro ao acessar célula abaixo: {e}")
-                            return ""
-
-        print("❌ 'AREA TOTAL' não encontrada na aba.")
-        return ""
-    
-    def extrair_area_const_excel(self, caminho_arquivo):
-        aba = "AREA UTIL"
-        try:
-            wb = openpyxl.load_workbook(caminho_arquivo, data_only=True)
-        except Exception as e:
-            print(f"Erro ao abrir a planilha: {e}")
-            return ""
-
-        if aba not in wb.sheetnames:
-            print(f"Aba '{aba}' não encontrada. Abas disponíveis: {wb.sheetnames}")
-            return ""
-
-        ws = wb[aba]
-
-        for row_idx, row in enumerate(ws.iter_rows(values_only=True)):
-            for col_idx, cell in enumerate(row):
-                if isinstance(cell, str):
-                    texto = cell.strip().lower()
-                    if texto == "ÁREA CONSOLIDADA":
-                        try:
-                            valor = ws.cell(row=row_idx + 2, column=col_idx + 1).value
-                            if valor not in (None, "", "-"):
-                                try:
-                                    valor = float(valor)
-                                    valor_formatado = f"{valor:.4f}".replace(".", ",")
-                                except Exception:
-                                    valor_formatado = str(valor)
-                                print(f"✅ ÁREA CONSOLIDADA encontrada: {valor_formatado}")
-                                return valor_formatado
-                            else:
-                                print(f"⚠️ Célula abaixo de 'ÁREA CONSOLIDADA' está vazia.")
-                        except Exception as e:
-                            print(f"❌ Erro ao acessar célula abaixo: {e}")
-                            return ""
-
-        print("❌ 'ÁREA CONSOLIDADA' não encontrada na aba.")
-        return ""
 
     def abrir_filemanager(self, matricula_nome, tipo):
         data = formatar_data()
@@ -266,6 +108,7 @@ class MatriculaScreen(MDScreen):
                 "matricula": campos["numero"].text,
                 "valor_total": campos["valor"].text,
                 "valor_liq": campos["valor_liq"].text,
+                "porcentagem_reserva": campos["porcentagem_reserva"],
                 "latitude": campos["latitude"].text,
                 "longitude": campos["longitude"].text,
                 "proprietario": campos["proprietario"].text,
@@ -293,21 +136,33 @@ class MatriculaScreen(MDScreen):
         if t == "planilha":
             if caminho.endswith(".xlsx") or caminho.endswith(".xls"):
                 try:
-                    numero = self.extrair_numero_matricula_excel(caminho)
+                    numero = extrair_numero_matricula_excel(caminho)
                     if numero:
                         self.matriculas[m]["campos"]["numero"].text = numero
-                    valor_total = self.extrair_valor_total_excel(caminho)
+                    valor_total = extrair_valor_total_excel(caminho)
                     if valor_total:
                         self.matriculas[m]["campos"]["valor"].text = str(valor_total)
-                    valor_liq = self.extrair_valor_liq_excel(caminho)
+                    valor_liq = extrair_valor_liq_excel(caminho)
                     if valor_liq:
                         self.matriculas[m]["campos"]["valor_liq"].text = str(valor_liq)
-                    area_total = self.extrair_area_total_excel(caminho)
+                    area_total = extrair_area_total_excel(caminho)
                     if area_total:
                         self.matriculas[m]["campos"]["area_total"].text = str(area_total)
-                    area_consolidada = self.extrair_area_const_excel(caminho)
+                    area_consolidada = extrair_area_const_excel(caminho)
                     if area_consolidada:
                         self.matriculas[m]["campos"]["area_consolidada"].text = str(area_consolidada)
+                    porcentagem_reserva = extrair_porcentagem_reserva_excel(caminho)
+                    if porcentagem_reserva:
+                        self.matriculas[m]["campos"]["porcentagem_reserva"].text = str(porcentagem_reserva)
+                    area_reserva = extrair_area_reserva_excel(caminho)
+                    if area_reserva:
+                        self.matriculas[m]["campos"]["area_reserva"].text = str(area_reserva)
+                    porcentagem_app = extrair_porcentagem_app_excel(caminho)
+                    if porcentagem_app:
+                        self.matriculas[m]["campos"]["porcentagem_app"].text = str(porcentagem_app)
+                    area_app = extrair_area_app_excel(caminho)
+                    if area_app:
+                        self.matriculas[m]["campos"]["area_app"].text = str(area_app)
                 except Exception as e:
                     print(f"❌ Erro ao processar planilha: {e}")
             else:
@@ -333,6 +188,12 @@ class MatriculaScreen(MDScreen):
                 indice_matricula_atual=indice,
                 name=nome_tela
             )
+            self.matriculas[nome_matricula]["campos"].update({
+                "porcentagem_reserva": nova_tela.p_reserva,
+                "area_reserva": nova_tela.area_reserva,
+                "porcentagem_app": nova_tela.p_app,
+                "area_app": nova_tela.a_app,
+            })
             self.manager.add_widget(nova_tela)
         self.manager.current = nome_tela
 

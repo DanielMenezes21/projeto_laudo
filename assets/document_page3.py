@@ -1031,18 +1031,32 @@ def tabela_bioma(doc, dados):
 
     cor_hex = "4EA65D"
 
-    if biomas.get("Amazônia"):
+    if biomas.get("amazônia"):
         colorir_celula(cell_bioma_amazonia, cor_hex)
-    if biomas.get("Cerrado"):
+    if biomas.get("cerrado"):
         colorir_celula(cell_bioma_cerrado, cor_hex)
-    if biomas.get("Caatinga"):
+    if biomas.get("caatinga"):
         colorir_celula(cell_bioma_caatinga, cor_hex)
-    if biomas.get("Mata Atlântica"):
+    if biomas.get("mata Atlântica"):
         colorir_celula(cell_bioma_mata, cor_hex)
-    if biomas.get("Pampa"):
+    if biomas.get("pampa"):
         colorir_celula(cell_bioma_pampa, cor_hex)
-    if biomas.get("Pantanal"):
+    if biomas.get("pantanal"):
         colorir_celula(cell_bioma_pantanal, cor_hex)
+
+    biomas_raw = dados.get("biomas", "")
+    if isinstance(biomas_raw, str):
+        biomas_lista = [b.strip().lower() for b in biomas_raw.split(",")]
+        biomas = {
+            "amazônia": "amazônia" in biomas_lista,
+            "cerrado": "cerrado" in biomas_lista,
+            "caatinga": "caatinga" in biomas_lista,
+            "mata atlântica": "mata atlântica" in biomas_lista,
+            "pampa": "pampa" in biomas_lista,
+            "pantanal": "pantanal" in biomas_lista
+        }
+    else:
+        biomas = biomas_raw
 
     return doc
 

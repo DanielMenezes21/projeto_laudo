@@ -14,7 +14,11 @@ def coletar_checkboxes(matricula_detalhe_screen):
         "checkboxes_superficie": checkboxes_superficie,
         "poligono_regular": getattr(matricula_detalhe_screen, "checkbox_regular", None) and matricula_detalhe_screen.checkbox_regular.active,
         "poligono_irregular": getattr(matricula_detalhe_screen, "checkbox_irregular", None) and matricula_detalhe_screen.checkbox_irregular.active,
-        "observacoes_imovel": getattr(matricula_detalhe_screen, "campo_observacoes", None).text if hasattr(matricula_detalhe_screen, "campo_observacoes") else ""
+        "observacoes_imovel": getattr(matricula_detalhe_screen, "campo_observacoes", None).text if hasattr(matricula_detalhe_screen, "campo_observacoes") else "",
+        "p_reserva": getattr(matricula_detalhe_screen, "p_reserva", None).text if hasattr(matricula_detalhe_screen, "p_reserva") else "",
+        "area_reserva": getattr(matricula_detalhe_screen, "area_reserva", None).text if hasattr(matricula_detalhe_screen, "area_reserva") else "",
+        "p_app": getattr(matricula_detalhe_screen, "p_app", None).text if hasattr(matricula_detalhe_screen, "p_app") else "",
+        "a_app": getattr(matricula_detalhe_screen, "a_app", None).text if hasattr(matricula_detalhe_screen, "a_app") else ""
     }
 
 def ir_para_parecer(self):

@@ -6,31 +6,53 @@ from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.oxml import OxmlElement
+from win32com.client import constants as c
 from docx.oxml.ns import qn
 from docx.shared import Twips
 import os
 import win32com.client
 from win32com.client.gencache import EnsureDispatch
 from win32com.client import Dispatch
-import num2words
+from num2words import num2words
 from docx.shared import Inches
 from docx.enum.section import WD_ORIENT
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-def encerramento(doc):
+def encerramento(doc, dados):
     heading = doc.add_paragraph(style='Heading 1')
     run = heading.add_run("11 - ENCERRAMENTO:")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
 
+    valor_medio_str = dados.get("valor_total", "")
+    valor_liq_str = dados.get("valor_liq", "")
+
+    def converter_para_float(valor_str):
+        try:
+            return float(valor_str.replace("R$", "").replace(".", "").replace(",", ".").strip())
+        except:
+            return 0.0
+
+    def valor_por_extenso(valor):
+        try:
+            return num2words(valor, lang="pt_BR", to="currency", currency="BRL")
+        except:
+            return ""
+
+    valor_medio = converter_para_float(valor_medio_str)
+    valor_liq = converter_para_float(valor_liq_str)
+
+    valor_extenso = valor_por_extenso(valor_medio)
+    valor_liq_extenso = valor_por_extenso(valor_liq)
+
     par = doc.add_paragraph()
     par.add_run("Ante o exposto e de acordo com a análise técnica realizada, informamos que o valor Venal mais representativo para o imóvel em questão é de ")
-    run1 = par.add_run("{valor_medio} ({valor_extenso})")
+    run1 = par.add_run(f"{valor_medio_str} ({valor_extenso})")
     run1.bold = True
     par.add_run(". Já o valor de liquidação forçada obtido foi de ")
-    run2 = par.add_run("{valor_liq}")
+    run2 = par.add_run(f"{valor_liq_str} ({valor_liq_extenso})")
     run2.bold = True
 
     doc.add_paragraph("\n\n")
@@ -104,9 +126,17 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
                 shape.WrapFormat.Type = 3  
                 shape.WrapFormat.AllowOverlap = True
                 shape.LockAspectRatio = False
-                shape.RelativeHorizontalPosition = 0
-                shape.RelativeVerticalPosition = 0
-                shape.ZOrder(1)
+                shape.RelativeHorizontalPosition = 1
+                shape.RelativeVerticalPosition = 1
+                shape.ZOrder(4)
+
+                page_width = doc.PageSetup.PageWidth
+                page_height = doc.PageSetup.PageHeight
+
+                shape.Left = 0
+                shape.Top = 0
+                shape.Width = page_width
+                shape.Height = page_height
 
                 print("✅ Imagem inserida atrás do texto.")
 
@@ -120,12 +150,15 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
                 left = left_margin
                 top = (page_height - height) / 2  
 
+                anchor_range = sub_find.Parent.Duplicate
+
                 textbox = doc.Shapes.AddTextbox(
                     Orientation=1,  
                     Left=left,
                     Top=top,
                     Width=width,
-                    Height=height
+                    Height=height,
+                    Anchor=anchor_range
                 )
 
                 textbox.TextFrame.TextRange.Text = (
@@ -137,6 +170,7 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
                 tx = textbox.TextFrame.TextRange
                 tx.Font.Size = 14
                 tx.Font.Name = "Cambria" 
+                tx.Font.Color = 16777215
                 tx.ParagraphFormat.Alignment = 1  
 
                 textbox.Fill.Visible = False
