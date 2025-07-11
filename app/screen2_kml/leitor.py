@@ -20,7 +20,7 @@ class LeitorScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        root_path = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
         if not os.path.exists(root_path):
             root_path = os.path.join(os.path.expanduser("~/Documents"))
         self.root_path = root_path

@@ -52,7 +52,7 @@ class EmailAutomator:
             mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
 
             safe_subject = re.sub(r'[\\/*?:"<>|]', "_", subject)
-            folder_path = os.path.join(r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL", mes, safe_subject)
+            folder_path = os.path.join(r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL", mes, safe_subject)
             if folder_path:
                 os.makedirs(folder_path, exist_ok=True)
                 subpastas = ["DOCUMENTOS", "ENVIADOS", "FOTOS", "MAPAS", "PEÇAS TÉCNICAS", "SHAPES"]

@@ -3,6 +3,7 @@ from docx.shared import Pt, Cm
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.section import WD_ORIENT
 from docx.oxml import parse_xml
 import os
 from docx.oxml.ns import nsdecls
@@ -19,7 +20,7 @@ def cm_to_twips(cm):
     """Converte centímetros para Twips (1cm = 567 Twips)."""
     return Twips(cm * 567)
 
-LARGURA = cm_to_twips(18)
+LARGURA = cm_to_twips(18.19)
 
 def adicionar_linha_fina(doc):
     """
@@ -38,6 +39,10 @@ def configurar_documento():
     """Configura as propriedades básicas do documento"""
     doc = Document()
     section = doc.sections[0]
+
+    section.orientation = WD_ORIENT.PORTRAIT
+    section.page_width, section.page_height = section.page_height, section.page_width
+
     section.left_margin = Cm(2)
     section.right_margin = Cm(2)
     section.top_margin = Cm(2.5)
@@ -157,7 +162,7 @@ def criar_secao_valor(doc, dados):
         )
         tcPr.append(borders)
 
-    valor_liq_total = dados.get("valor_liq_total","")
+    valor_liq_total = dados.get("valor_liq","")
     row = table.rows[2].cells
     row[0].text = "LIQUIDAÇÃO"
     row[0].paragraphs[0].runs[0].bold = True
@@ -266,7 +271,7 @@ def criar_secao_identificacao(doc):
     paragraph = row3[0].paragraphs[0]
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
-    run = paragraph.add_run(" ")
+    run = paragraph.add_run("|")
     run.font.size = Pt(1)
     tcPr = row3[0]._tc.get_or_add_tcPr()
     borders = parse_xml(

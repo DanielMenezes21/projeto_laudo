@@ -198,7 +198,10 @@ def montar_documento(self, doc):
     return doc
 
 def gerar_documento(self): 
-    #try:
+    import time
+    from docx import Document
+
+    try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -207,7 +210,6 @@ def gerar_documento(self):
 
         if hasattr(self, "caminho_car") and self.caminho_car:
             caminho_processo = os.path.dirname(self.caminho_car)
-
         elif hasattr(self, "caminho_cit") and self.caminho_cit:
             caminho_processo = os.path.dirname(self.caminho_cit)
         else:
@@ -218,7 +220,35 @@ def gerar_documento(self):
             if match:
                 processo = match.group(1)
 
+        nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.solicitante)
+        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx"
+
+        if self.current_path and os.path.exists(self.current_path):
+            enviados_dir = os.path.join(self.current_path, "ENVIADOS")
+            os.makedirs(enviados_dir, exist_ok=True)
+            output_path = os.path.join(enviados_dir, nome_arquivo)
+        else:
+            output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        output_path = os.path.normpath(output_path)
+
         doc = configurar_documento()
+        doc.save(output_path)
+        time.sleep(1) 
+
+        texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
+        substituicoes = {
+            "#NPROCESSO": processo,
+            "#DATA_ATUAL": self.data_atual
+        }
+
+        if hasattr(self, "img_capa"):
+            inserir_imagem_capa_atras_texto(output_path, self.img_capa)
+        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes)
+        time.sleep(1)
+
+        doc = Document(output_path)
         self.doc = montar_documento(self, doc)
 
         if hasattr(self, "caminho_declividade"):
@@ -285,6 +315,7 @@ def gerar_documento(self):
                                         if chave in r.text:
                                             r.text = r.text.replace(chave, valor)
 
+
         for i, dados in enumerate(self.lista_dados_matriculas):
             substituicoes = substituicoes_base.copy()
             substituicoes.update({
@@ -302,89 +333,39 @@ def gerar_documento(self):
             inserir_pdf_no_word(self, self.caminho_car, "#SUBSTITUIR_CAR")
         if self.caminho_cit:
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
-            
-        nome_sanitizado = re.sub(r'[\\/*?:"<>|]', "_", self.solicitante)
-        nome_arquivo = f"LAUDO DE AVALIACAO Nº {processo} {nome_sanitizado}.docx"
-        if self.current_path and os.path.exists(self.current_path):
-            enviados_dir = os.path.join(self.current_path, "ENVIADOS")
-            os.makedirs(enviados_dir, exist_ok=True)
-            output_path = os.path.join(enviados_dir, nome_arquivo)
-        else:
-            output_path = os.path.join(os.getcwd(), "output", nome_arquivo)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
+
         for dados in self.lista_dados_matriculas:
             caminho_excel = dados.get("planilha")
             if caminho_excel and os.path.exists(caminho_excel):
-                inserir_tabela_excel_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_benfeitoria_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_depreciacao_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_classe_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabelas_amostras_auto(
-                    docx_path=output_path,
-                    excel_path=caminho_excel,
-                )
-                inserir_tabela_situacao_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_quadro_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_homog_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_saneamento_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_liquidacao_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
-                inserir_tabela_valores_no_word(
-                    docx_path=output_path,
-                    excel_path=caminho_excel
-                )
+                inserir_tabela_excel_no_word(output_path, caminho_excel)
+                inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
+                inserir_tabela_depreciacao_no_word(output_path, caminho_excel)
+                inserir_tabela_classe_no_word(output_path, caminho_excel)
+                inserir_tabelas_amostras_auto(output_path, caminho_excel)
+                inserir_tabela_situacao_no_word(output_path, caminho_excel)
+                inserir_tabela_quadro_no_word(output_path, caminho_excel)
+                inserir_tabela_homog_no_word(output_path, caminho_excel)
+                inserir_tabela_saneamento_no_word(output_path, caminho_excel)
+                inserir_tabela_liquidacao_no_word(output_path, caminho_excel)
+                inserir_tabela_valores_no_word(output_path, caminho_excel)
+
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
-        output_path = os.path.normpath(output_path)
-        texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
-        substituicoes = {
-            "#NPROCESSO": processo,
-            "#DATA_ATUAL": self.data_atual
-        } 
+
         if hasattr(self, "imagem_marca_dagua"):
             imagens_fundo(output_path, self.imagem_marca_dagua)
         if hasattr(self, "imagem_final"):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
-        if hasattr(self, "img_capa"):
-            inserir_imagem_capa_atras_texto(output_path, self.img_capa)
         if hasattr(self, "img_anexo"):
             inserir_marcadagua_so_na_secao(output_path, self.img_anexo, marcador='#CAIXATEXTO#')
-        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes) 
+
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
             MDSnackbarText(text="\u2705Documento gerado com sucesso!"),
             y=dp(24)
         ).open()
 
-'''except Exception as e:
+    except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -400,4 +381,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()'''
+        ).open()

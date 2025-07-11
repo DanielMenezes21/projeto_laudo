@@ -3,9 +3,6 @@ from docx.shared import Pt, Cm
 from docx.shared import RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
-from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
-from docx.oxml import OxmlElement
 from win32com.client import constants as c
 from docx.oxml.ns import qn
 from docx.shared import Twips
@@ -15,7 +12,7 @@ from win32com.client.gencache import EnsureDispatch
 from win32com.client import Dispatch
 from num2words import num2words
 from docx.shared import Inches
-from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
@@ -146,9 +143,15 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
                 right_margin = doc.PageSetup.RightMargin
 
                 width = page_width - left_margin - right_margin
-                height = 120  
+                height = 120
                 left = left_margin
-                top = (page_height - height) / 2  
+                top = max(0, (page_height - height) / 2)
+
+                # Garantias adicionais
+                width = max(10, min(width, page_width))
+                height = max(10, min(height, page_height))
+                left = max(0, left)
+                top = max(0, top) 
 
                 anchor_range = sub_find.Parent.Duplicate
 
@@ -493,6 +496,8 @@ def anexo_parametros(doc):
     run27.bold = True
     run27_1 = par27.add_run("Representa, obviamente, uma propriedade com ausência de fontes próprias de água.")
 
+    doc.add_page_break()
+
     par28 = doc.add_paragraph()
     run28 = par28.add_run("Situação")
     run28.bold = True
@@ -513,13 +518,24 @@ def anexo_parametros(doc):
     "processamento das amostras relacionadas a imóveis em oferta, deve-se aplicar um deságio de 10% sobre " \
     "o valor da terra nua ou do terreno, calculado com base na unidade de área correspondente.")
 
+    doc.add_page_break()
+
     par32 = doc.add_paragraph()
     run32 = par32.add_run("Amostras de Mercado")
     run32.bold = True
 
-    for i in range (1, 7):
+    for i in range(1, 7):
         par33 = doc.add_paragraph()
         run33 = par33.add_run(f"[INSERIR_TABELA_AMOSTRAL_{i:02d}]")
+        
+        if i % 2 == 0:  
+            doc.add_page_break()
+
+    new_section = doc.add_section(WD_SECTION.NEW_PAGE)
+    new_section.orientation = WD_ORIENT.LANDSCAPE
+    new_section.page_width, new_section.page_height = new_section.page_height, new_section.page_width
+    
+    extra = doc.add_paragraph()
 
     par34 = doc.add_paragraph()
     run34 = par34.add_run("Quadro de amostras")
@@ -537,12 +553,20 @@ def anexo_parametros(doc):
     par36 = doc.add_paragraph()
     run36 = par36.add_run("[INSERIR_QUADRO_AQUI]")
 
+    doc.add_page_break()
+
     par37 = doc.add_paragraph()
     run37 = par37.add_run("Quadro de homologação")
     run37.bold = True
 
     par38 = doc.add_paragraph()
     run38 = par38.add_run("[INSERIR_HOMOG_AQUI]")
+
+    final_section = doc.add_section(WD_SECTION.NEW_PAGE)
+    final_section.orientation = WD_ORIENT.PORTRAIT
+    final_section.page_width, final_section.page_height = final_section.page_height, final_section.page_width
+
+    doc.add_page_break()
 
     par39 = doc.add_paragraph()
     run39 = par39.add_run("Saneamento de Amostras")
@@ -575,9 +599,11 @@ def anexo_parametros(doc):
     "custo de oportunidade associado à necessidade de uma venda acelerada do ativo.\n"
     "O coeficiente aplicado ao valor de mercado obtido é calculado utilizando a seguinte fórmula:\n")
 
+    doc.add_page_break()
+
     par44 = doc.add_paragraph()
     run44 = par44.add_run("VP=VM×(1 - i)n")
-    run44.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    par44.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     par45 = doc.add_paragraph()
     run45 = par45.add_run("Onde:\n" \
@@ -594,6 +620,8 @@ def anexo_parametros(doc):
     par47 = doc.add_paragraph()
     run47 = par47.add_run("Referencias")
     run47.bold = True
+
+    doc.add_page_break()
 
     par48 = doc.add_paragraph()
     run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n"\

@@ -77,18 +77,30 @@ def abrir_seletor_pdf(self, *args):
         data = formatar_data()
         data_nome = datetime.now()
         mes = f'{data_nome.month:02d}. {data.split("de")[1].strip()}'
-        initial_path = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
+        initial_path = r"\\10.0.100.160\\Agropassos\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
         initial_path = os.path.join(initial_path, mes)
         if not os.path.exists(initial_path):
             initial_path = os.path.join(os.path.expanduser("~/Documents"), mes)
         self.file_manager.show(initial_path)
 
 def fechar_arquivo(self, *args):
-        self.file_manager.close()
+    self.file_manager.close()
+
+def extrair_solicitante_do_caminho(caminho_pdf):
+    """
+    Extrai o nome do solicitante a partir de qualquer parte do caminho.
+    Busca por um padrão do tipo: 'Processo N° 12345 - João da Silva'
+    """
+    match = re.search(r'Processo\s*N[º°]?\s*\d+\s*-\s*([^\\/]+)', caminho_pdf, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    return ""
 
 def on_pdf_selecionado(self, caminho_pdf):
+    print(f"📂 Caminho do PDF selecionado: {caminho_pdf}")
     fechar_arquivo(self)
     nomes, cpfs, nome_imovel, municipio, estado, latitude, longitude = extrair_dados_pdf(caminho_pdf)
+    solicitante = extrair_solicitante_do_caminho(caminho_pdf)
 
     self.proponentes = {
         nome: {
@@ -110,6 +122,7 @@ def on_pdf_selecionado(self, caminho_pdf):
     self.estado.text = estado
     self.latitude.text = latitude
     self.longitude.text = longitude
+    self.solicitante.text = solicitante
 
     if self.menu_proponente.items:
         self.menu_proponente.open()
@@ -244,6 +257,7 @@ def receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imovel, municipio, estado, 
     tela_dados.municipio.text = municipio
     tela_dados.estado.text = estado
 
+
     if tela_dados.menu_proponente.items:
         tela_dados.menu_proponente.open()
     
@@ -254,7 +268,8 @@ def carregar_pdf_dados(self, caminho_car, caminho_cit):
     self.caminho_car = caminho_car
     self.caminho_cit = caminho_cit
 
-    nome, cpf, nome_imovel, municipio, estado, latitude, longitude = extrair_dados_pdf(caminho_car)  
+    nome, cpf, nome_imovel, municipio, estado, latitude, longitude = extrair_dados_pdf(caminho_car)
+    solicitante = extrair_solicitante_do_caminho(caminho_car)  
     self.proponente.text = nome
     self.cpf.text = cpf
     self.nome_imovel.text = nome_imovel
@@ -262,6 +277,7 @@ def carregar_pdf_dados(self, caminho_car, caminho_cit):
     self.estado.text = estado
     self.latitude.text = latitude
     self.longitude.text = longitude
+    self.solicitante.text = solicitante
 
     self.proponentes = {
     nome[0] if isinstance(nome, list) else nome: {

@@ -33,7 +33,7 @@ class PDFInsert(MDScreen):
         data = formatar_data()
         data_nome = datetime.now()
         mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
-        self.root_path = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        self.root_path = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
         self.root_path = os.path.join(self.root_path, mes)
         if not os.path.exists(self.root_path):
             self.root_path = os.path.join(os.path.expanduser("~/Documents"), mes)

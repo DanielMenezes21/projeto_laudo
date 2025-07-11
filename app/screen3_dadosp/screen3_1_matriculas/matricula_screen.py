@@ -86,7 +86,7 @@ class MatriculaScreen(MDScreen):
         self.matricula_selecionada = matricula_nome
         self.tipo_planilha = tipo
 
-        initial_path = r"H:\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
+        initial_path = r"\\10.0.100.160\\Agropassos\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
         initial_path = os.path.join(initial_path, mes)
         if not os.path.exists(initial_path):
             initial_path = os.path.join(os.path.expanduser("~"), "Documents")

@@ -324,7 +324,7 @@ def gerar_kml(coordenadas, caminho_pdf, tipo):
     print(f"KML '{nome_arquivo}' criado com sucesso!")
     
 if __name__ == "__main__":
-    caminho_pdf = r"H:\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL\07. JULHO\Processo nº 123456789 - JOELSON SOUSA JUNIOR\DOCUMENTOS\CERT_INTEIRO_TEOR_M.11173.pdf"
+    caminho_pdf = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL\07. JULHO\Processo nº 123456789 - JOELSON SOUSA JUNIOR\DOCUMENTOS\CERT_INTEIRO_TEOR_M.11173.pdf"
 
     coords, tipo1, origens1 = extrair_coordenadas_pdf(caminho_pdf)
     
