@@ -45,7 +45,9 @@ def encerramento(doc, dados):
     valor_liq_extenso = valor_por_extenso(valor_liq)
 
     par = doc.add_paragraph()
-    par.add_run("Ante o exposto e de acordo com a análise técnica realizada, informamos que o valor Venal mais representativo para o imóvel em questão é de ")
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    par.add_run("Ante o exposto e de acordo com a análise técnica realizada, informamos que o valor Venal mais " \
+    "representativo para o imóvel em questão é de ")
     run1 = par.add_run(f"{valor_medio_str} ({valor_extenso})")
     run1.bold = True
     par.add_run(". Já o valor de liquidação forçada obtido foi de ")
@@ -305,6 +307,7 @@ def anexo_parametros(doc):
     run4 = par4.add_run("[INSERIR_DEPRECIACAO_AQUI]")
 
     par5 = doc.add_paragraph()
+    par5.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run5 = par5.add_run("•	Adequada")
     run5.bold = True
     run5_1 = par5.add_run("= edificação está perfeitamente adequada à sua utilização; " \
@@ -527,13 +530,12 @@ def anexo_parametros(doc):
     for i in range(1, 7):
         par33 = doc.add_paragraph()
         run33 = par33.add_run(f"[INSERIR_TABELA_AMOSTRAL_{i:02d}]")
-        
-        if i % 2 == 0:  
+        if i % 2 == 0 and i != 6:
             doc.add_page_break()
 
+    doc.add_page_break()
     new_section = doc.add_section(WD_SECTION.NEW_PAGE)
     new_section.orientation = WD_ORIENT.LANDSCAPE
-    new_section.page_width, new_section.page_height = new_section.page_height, new_section.page_width
     
     extra = doc.add_paragraph()
 
@@ -562,9 +564,11 @@ def anexo_parametros(doc):
     par38 = doc.add_paragraph()
     run38 = par38.add_run("[INSERIR_HOMOG_AQUI]")
 
+    doc.add_page_break()
     final_section = doc.add_section(WD_SECTION.NEW_PAGE)
     final_section.orientation = WD_ORIENT.PORTRAIT
-    final_section.page_width, final_section.page_height = final_section.page_height, final_section.page_width
+
+    doc.add_paragraph()
 
     doc.add_page_break()
 
@@ -639,6 +643,13 @@ def anexo_parametros(doc):
     "Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n"\
     "Sindicato Nacional")
 
-    
     return doc
 
+def imprimir_secoes(doc):
+    for i, section in enumerate(doc.sections):
+        orientacao = "Paisagem" if section.orientation == WD_ORIENT.LANDSCAPE else "Retrato"
+        largura = round(section.page_width.inches, 2)
+        altura = round(section.page_height.inches, 2)
+        print(f"📄 Seção {i+1}: {orientacao} ({largura}\" x {altura}\")")
+
+        print(f"   Margens (pol): Esq: {round(section.left_margin.inches,2)}, Dir: {round(section.right_margin.inches,2)}, Sup: {round(section.top_margin.inches,2)}, Inf: {round(section.bottom_margin.inches,2)}")

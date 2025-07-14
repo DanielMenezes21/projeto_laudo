@@ -89,6 +89,7 @@ def texto_solicitante(doc, solicitante, lista_matriculas):
         texto = f"        Fomos solicitados pelo {solicitante}, para avaliar os imóveis rurais, denominados {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
 
     par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     runpar2 = par.add_run(texto)
     return doc
 
@@ -109,6 +110,7 @@ def texto_objetivo(doc, lista_matriculas):
         texto = f"        O objetivo dessa peça técnica é aferir os valores de mercado e de liquidação forçada por meio do método comparativo de dados de mercado, referente aos imóveis {imoveis}, localizados em #CIDADE_I - #ESTADO_I."
 
     par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     runpar2 = par.add_run(texto)
     return doc
 
@@ -131,6 +133,7 @@ def texto_proprietario(doc, lista_matriculas):
     run1 =doc.add_paragraph(" ")
     texto = gerar_texto_proprietarios(lista_matriculas)
     run2 = doc.add_paragraph(texto)
+    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def texto_ressalvas(doc):
@@ -149,5 +152,6 @@ def texto_ressalvas(doc):
     " consideradas como válidas.\n "
     "    Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \
     "e informações prestadas por terceiros, admitidas como confiáveis, corretas e de boa fé.")
+    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     return doc

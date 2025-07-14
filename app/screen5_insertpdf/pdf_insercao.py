@@ -4,6 +4,7 @@ from docx.shared import Cm
 from docx.oxml.ns import qn
 from docx.enum.section import WD_SECTION
 import os
+import time
 import re
 from modules.tabela_excel_para_word import *
 from app.screen5_insertpdf.pdf_extracao import extrair_paginas_como_imagens
@@ -194,14 +195,12 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = anexo_parametros(doc)
     doc.add_page_break()
+    #doc = imprimir_secoes(doc)
 
     return doc
 
 def gerar_documento(self): 
-    import time
-    from docx import Document
-
-    try:
+    #try:
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -242,11 +241,6 @@ def gerar_documento(self):
             "#NPROCESSO": processo,
             "#DATA_ATUAL": self.data_atual
         }
-
-        if hasattr(self, "img_capa"):
-            inserir_imagem_capa_atras_texto(output_path, self.img_capa)
-        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes)
-        time.sleep(1)
 
         doc = Document(output_path)
         self.doc = montar_documento(self, doc)
@@ -304,7 +298,6 @@ def gerar_documento(self):
                 substituir_em_tabela(tabela)
             for section in self.doc.sections:
                 substituir_em_paragrafos(section.header.paragraphs)
-                substituir_em_paragrafos(section.footer.paragraphs)
             for shape in self.doc.inline_shapes:
                 if shape._inline.graphic.graphicData.uri.endswith("/wordprocessingShape"):
                     for box in shape._inline.graphic.graphicData.xpath(".//w:txbxContent"):
@@ -358,6 +351,9 @@ def gerar_documento(self):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
         if hasattr(self, "img_anexo"):
             inserir_marcadagua_so_na_secao(output_path, self.img_anexo, marcador='#CAIXATEXTO#')
+        if hasattr(self, "img_capa"):
+            inserir_imagem_capa_atras_texto(output_path, self.img_capa)
+        inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes)
 
         self.word_app = win32com.client.Dispatch("Word.Application")
         MDSnackbar(
@@ -365,7 +361,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-    except Exception as e:
+'''except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -381,4 +377,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()
+        ).open()'''

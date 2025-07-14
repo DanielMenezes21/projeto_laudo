@@ -40,15 +40,15 @@ def configurar_documento():
     doc = Document()
     section = doc.sections[0]
 
-    section.orientation = WD_ORIENT.PORTRAIT
-    section.page_width, section.page_height = section.page_height, section.page_width
-
     section.left_margin = Cm(2)
     section.right_margin = Cm(2)
     section.top_margin = Cm(2.5)
     section.bottom_margin = Cm(2.5)
 
+    section.orientation = WD_ORIENT.PORTRAIT
+
     style = doc.styles['Normal']
+    style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     style.paragraph_format.space_before = Cm(0)
     style.paragraph_format.space_after = Cm(0)
     style.paragraph_format.line_spacing = 1

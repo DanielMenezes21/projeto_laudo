@@ -26,6 +26,7 @@ def diag_mercado(doc):
     "desempenho normal, havendo na cidade um número significativo de transações imobiliárias, " \
     "com absorção considerada normal. A liquidez do imóvel avaliando é considerada como média, " \
     "estando o desempenho do mercado normal. ")
+    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     return doc
 
@@ -39,18 +40,22 @@ def metodologia(doc):
     run1 = doc.add_paragraph("O método adotado para a avaliação do imóvel é o " \
     "Direto de Dados de Mercado que identifica o valor do bem por meio de cálculos " \
     "estatísticos baseados em imóveis semelhantes ao avaliando dos valores de seus componentes.")
+    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = doc.add_paragraph("Para a avaliação da área de terreno, procedemos a pesquisas " \
     "junto ao mercado imobiliário local e corretores atuantes que transacionam imóveis " \
     "semelhantes ao do objeto da presente avaliação.")
+    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = doc.add_paragraph("Conforme pesquisa realizada na região do imóvel avaliando, " \
     "para apuração de valor venal de mercado de terrenos, verificamos ser possível a utilização " \
     "neste trabalho do Método Comparativo Direto de Dados de Mercado, que deve ter a preferência, " \
     "sempre que possível, de acordo com a recomendação constante da NBR 14.653-3, em seu item 8.1.1:")
+    run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     run_extra = doc.add_paragraph("")
 
     run4 = doc.add_paragraph("“... Para a identificação do valor de mercado, " \
     "sempre que possível preferir o Método Comparativo Direto de Dados de Mercado”.")
+    run4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run4.italic = True
 
     return doc
@@ -63,11 +68,13 @@ def metodo_comparativo(doc):
         run.font.color.rgb = RGBColor(0, 0, 0)
 
     par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run1 = par.add_run("Conforme item 7.3.1 da NBR 14.653-1, a conceituação do método é a seguinte: ")
     run1_1 = par.add_run("“Identifica o custo do bem por meio de tratamento técnico dos atributos dos elementos comparáveis, constituintes da amostra”.")
     run1_1.italic = True
     run2 = doc.add_paragraph("É condição fundamental para aplicação deste método a existência de um conjunto de dados que possa ser tomada, estatisticamente, " \
     "como amostra do mercado imobiliário.")
+    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     return doc
 
@@ -83,6 +90,7 @@ def aproveitamento(doc):
     "foi o do aproveitamento eficiente, determinado por análise do mercado imobiliário, " \
     "cujo conceito encontra-se assim definido pela ABNT NBR 14653-3: ")
     run1_1=par.add_run("“Aquele recomendável e tecnicamente possível para o local, numa data de referência, observada a tendência mercadológica nas circunvizinhanças, entre os diversos usos permitidos pela legislação pertinentes”.")
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def especificacao(doc):
@@ -102,12 +110,14 @@ def grau_especificacao(doc):
         run.font.color.rgb = RGBColor(0, 0, 0)
 
     par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     run1 = par.add_run("No desenvolvimento do presente trabalho foi aplicado " \
     "tratamento dos dados por homogeneização através de fatores, fundamentados por " \
     "estudos conforme o item 8.2.1.4.2, da norma em questão.")
 
     par2 = doc.add_paragraph()
+    par2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = par2.add_run("TABELA 3 – Grau de fundamentação no caso de utilização do " \
     "tratamento por fatores – Item 9.2.2 – ABNT NBR 14653-3 ")
     run2.font.bold = True
@@ -524,11 +534,14 @@ def grau_especificacao(doc):
     run3 = doc.add_paragraph("O atendimento a cada exigência do Grau I vale um ponto, " \
     "do Grau II, dois pontos, do Grau III, três pontos. O enquadramento global do Laudo deve " \
     "considerar a soma de pontos obtidos para o conjunto de itens, atendendo a tabela 3.")
+    run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     run4 = doc.add_paragraph("Neste trabalho foram contabilizados 10 pontos, " \
     "correspondentes à soma de pontos dos itens atingidos e acima destacados.")
+    run4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
     parrun5 = doc.add_paragraph()
+    parrun5.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run5 = parrun5.add_run("TABELA 4 – Enquadramento do laudo segundo seu grau de fundamentação " \
     "no caso de utilização de tratamento por fatores – Item 9.2.2.2 – ABNT NBR 14653-3")
     run5.font.bold = True
@@ -725,7 +738,10 @@ def grau_especificacao(doc):
     run_extra = doc.add_paragraph(" ")
 
 
-    run7 = doc.add_paragraph("Com base nos parâmetros especificados pelas tabelas 3 e 4 da ABNT, NBR 14653-3, embora tenhamos alcançado 06 pontos e atendido as exigências da norma no grau ll todos os itens atendem à exigência da norma no grau II, consequentemente, o trabalho avaliatório será enquadrado no ")
+    run7 = doc.add_paragraph("Com base nos parâmetros especificados pelas tabelas 3 e 4 da ABNT, NBR 14653-3, " \
+    "embora tenhamos alcançado 06 pontos e atendido as exigências da norma no grau ll todos os itens atendem à exigência " \
+    "da norma no grau II, consequentemente, o trabalho avaliatório será enquadrado no ")
+    run7.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run7_1 = run7.add_run("GRAU II")
     run7_1.font.bold = True
 
@@ -909,6 +925,7 @@ def grau_precisao2(doc):
     run1 = doc.add_paragraph("Considerando os parâmetros especificados na " \
     "tabela 1 da ABNT NBR 14653-3, referente ao grau de precisão, o presente trabalho " \
     "está enquadrado no ")
+    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = run1.add_run("GRAU II")
     run2.font.bold = True
 
@@ -925,6 +942,7 @@ def resultado(doc):
         run.font.color.rgb = RGBColor(0, 0, 0)
 
     parrun1 = doc.add_paragraph()
+    parrun1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run1 = parrun1.add_run("Conforme a NBR 14653-1, Avaliação de Bens, Parte-1: " \
     "Procedimentos Gerais, item 3.1.9 e NBR 14653-2, Avaliação de Bens, Parte-3: Imóveis Rurais, " \
     "item A5 (Anexo A), o Campo de Arbítrio é o intervalo compreendido entre o valor máximo e o " \
@@ -932,6 +950,7 @@ def resultado(doc):
     "calculado, dentro do qual se pode arbitrar, pelo avaliador, o valor mais representativo do bem.")
 
     parrun2 = doc.add_paragraph()
+    parrun2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = parrun2.add_run("De acordo com a análise do diagnóstico de mercado apurado e " \
     "levantamentos realizados, com base na identificação da realidade mercadológica da " \
     "região onde se encontra situado o imóvel, os valores mínimo, médio e máximo que espelham o " \
@@ -939,6 +958,7 @@ def resultado(doc):
     "de 80% em torno do valor central da estimativa. ")
 
     parrun3 = doc.add_paragraph()
+    parrun3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = parrun3.add_run("[INSERIR_VALORES_AQUI]")
 
     return doc

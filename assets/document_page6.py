@@ -94,9 +94,11 @@ def acesso(doc, imagem_acesso=None):
     run.font.color.rgb = RGBColor(0, 0, 0)
 
     par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run1 = par.add_run("#IMAGEM_ACESSO")
 
     par2 = doc.add_paragraph()
+    par2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = par2.add_run("#ROTA_ACESSO")
     
 
@@ -109,6 +111,7 @@ def carac_reg(doc):
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
     run1 = doc.add_paragraph("{caracterização}")
+    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def desc_imovel(doc, dados):
@@ -130,8 +133,11 @@ def desc_imovel(doc, dados):
     f"com área total de {area_total} ha, destes, {p_reserva} são separados para Reserva Legal, " \
     f"totalizando uma área de {area_reserva} ha, {observacoes}, a sua Área de Preservação Permanente – APP " \
     f"ocupa uma área {p_app}, totalizando {a_app} ha da integralidade do imóvel.")
+    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = doc.add_paragraph("#ATIVIDADE_IMOVEL")
+    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")
+    run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run4 = doc.add_paragraph(" ")
 
     extra_table = doc.add_paragraph("[INSERIR_TABELA_AQUI]")
@@ -197,6 +203,7 @@ def declividade(doc, imagem_path=None):
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a área apresenta declividade #DECLIVIDADE_I")
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def hidrografia(doc, imagem_path=None):
@@ -211,6 +218,7 @@ def hidrografia(doc, imagem_path=None):
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a área apresenta hidrografia #HIDROGRAFIA_I")
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def pedologia(doc, imagem_path=None):
@@ -225,7 +233,9 @@ def pedologia(doc, imagem_path=None):
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     paragraph = doc.add_paragraph("a pedologia da região é predominada por #TIPO_SOLO")
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     paragraph2 = doc.add_paragraph("a área apresenta #DESCRICAO_SOLO")
+    paragraph2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def uso_imovel(doc):
@@ -237,6 +247,7 @@ def uso_imovel(doc):
         run.font.name = "Cambria"
 
     paragraph = doc.add_paragraph("O imóvel é utilizado para #ATIVIDADE_IMOVEL")
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
 def benfeitoria(doc):
@@ -248,6 +259,7 @@ def benfeitoria(doc):
         run.font.name = "Cambria"
 
     paragraph = doc.add_paragraph("O imóvel possui as seguintes benfeitorias: ")
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     table = doc.add_table(rows=4, cols=2)
     table.style = 'Table Grid'
 
