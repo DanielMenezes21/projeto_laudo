@@ -329,6 +329,7 @@ def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_m
         word.Selection.Paste()
 
         table = doc.Tables(doc.Tables.Count)
+        table.AutoFitBehavior(2) 
         usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
 
         max_width = largura_maxima_cm * 28.35
@@ -347,7 +348,7 @@ def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_m
 
 def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16):
     """
-    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    Insere uma tabela do Excel no Word, aplicando formatação de fonte e ajuste automático.
     """
     xlUp = -4162
     if not os.path.exists(excel_path):
@@ -357,9 +358,7 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
     wb = excel.Workbooks.Open(excel_path)
     sheet = wb.Sheets(aba)
 
-    last_row = sheet.Cells(sheet.Rows.Count, "A").End(xlUp).Row
-
-    intervalo = f"A3:R26"
+    intervalo = "A3:R26"
     sheet.Range(intervalo).Copy()
 
     word = Dispatch("Word.Application")
@@ -367,24 +366,30 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
         word.Visible = False
     except AttributeError:
         pass
+
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
     if word.Selection.Find.Execute("[INSERIR_HOMOG_AQUI]"):
-        word.Selection.TypeBackspace()  
+        word.Selection.TypeBackspace()
         word.Selection.Paste()
 
         table = doc.Tables(doc.Tables.Count)
-        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+
+        table.Range.Font.Name = "Cambria"
+        table.Range.Font.Size = 6
+
+        table.AutoFitBehavior(1) 
 
         max_width = largura_maxima_cm * 28.35
+        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
         final_width = min(usable_width, max_width)
-
-        table.PreferredWidthType = 1
+        table.PreferredWidthType = 1  
         table.PreferredWidth = final_width
-        print("sucesso")
+
+        print("✅ Tabela inserida e formatada com sucesso.")
     else:
-        print("erro")
+        print("❌ Marcador [INSERIR_HOMOG_AQUI] não encontrado.")
 
     doc.Save()
     doc.Close()

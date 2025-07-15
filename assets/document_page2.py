@@ -266,14 +266,14 @@ def criar_secao_identificacao(doc):
 
     tcPr.append(borders)
 
-    row3 = table.rows[2].cells
-    row3[0].merge(row3[2])  
-    paragraph = row3[0].paragraphs[0]
+    row3 = table.rows[2].cells[0]
+    row3.merge(table.rows[2].cells[2])  
+    paragraph = row3.paragraphs[0]
     paragraph.clear()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT 
     run = paragraph.add_run("|")
     run.font.size = Pt(1)
-    tcPr = row3[0]._tc.get_or_add_tcPr()
+    tcPr = row3._tc.get_or_add_tcPr()
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
         '<w:top w:val="nil"/>'

@@ -152,7 +152,7 @@ def montar_documento(self, doc):
     doc = texto_proprietario(doc, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
     doc = texto_ressalvas(doc)
-    doc.add_page_break()
+    doc = adicionar_espaco(doc)
     doc = title_imovel(doc)
     doc = localizacao(doc, self.lista_dados_matriculas)
     doc = acesso(doc)

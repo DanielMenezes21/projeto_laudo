@@ -15,6 +15,7 @@ from docx.shared import Inches
 from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from assets.document_page5 import adicionar_espaco
 
 def encerramento(doc, dados):
     heading = doc.add_paragraph(style='Heading 1')
@@ -84,6 +85,9 @@ def encerramento(doc, dados):
     return doc
 
 def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXATEXTO#'):
+    import os
+    import win32com.client
+
     if not imagem_path:
         imagem_path = os.path.abspath("models/anexos.png")
 
@@ -108,86 +112,83 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
             sub_find = reverse_range.Find
             sub_find.Text = marcador
             sub_find.ClearFormatting()
-            sub_find.Forward = False  # ⬅ busca reversa!
-            sub_find.Wrap = 0 
+            sub_find.Forward = False
+            sub_find.Wrap = 0
 
             if sub_find.Execute():
                 print("📌 Marcador encontrado dentro da seção ANEXOS")
                 sub_find.Parent.Text = ""
 
-                inlineshape = sub_find.Parent.InlineShapes.AddPicture(
-                    FileName=os.path.abspath(imagem_path),
-                    LinkToFile=False,
-                    SaveWithDocument=True
-                )
-                shape = inlineshape.ConvertToShape()
-                
-                shape.WrapFormat.Type = 3  
-                shape.WrapFormat.AllowOverlap = True
-                shape.LockAspectRatio = False
-                shape.RelativeHorizontalPosition = 1
-                shape.RelativeVerticalPosition = 1
-                shape.ZOrder(4)
+                section_page = sub_find.Parent.Sections(1).PageSetup
+                page_width = section_page.PageWidth
+                page_height = section_page.PageHeight
 
-                page_width = doc.PageSetup.PageWidth
-                page_height = doc.PageSetup.PageHeight
+                try:
+                    inlineshape = sub_find.Parent.InlineShapes.AddPicture(
+                        FileName=os.path.abspath(imagem_path),
+                        LinkToFile=False,
+                        SaveWithDocument=True
+                    )
+                    shape = inlineshape.ConvertToShape()
+                    shape.WrapFormat.Type = 3
+                    shape.WrapFormat.AllowOverlap = True
+                    shape.LockAspectRatio = False
+                    shape.RelativeHorizontalPosition = 1 
+                    shape.RelativeVerticalPosition = 1   
+                    shape.ZOrder(4)
 
-                shape.Left = 0
-                shape.Top = 0
-                shape.Width = page_width
-                shape.Height = page_height
+                    shape.Left = 0
+                    shape.Top = 0
+                    shape.Width = max(10, page_width)
+                    shape.Height = max(10, page_height)
 
-                print("✅ Imagem inserida atrás do texto.")
+                    print("✅ Imagem inserida atrás do texto.")
+                except Exception as e:
+                    print(f"❌ Erro ao inserir imagem: {e}")
 
-                page_width = doc.PageSetup.PageWidth
-                page_height = doc.PageSetup.PageHeight
-                left_margin = doc.PageSetup.LeftMargin
-                right_margin = doc.PageSetup.RightMargin
+                try:
+                    left_margin = section_page.LeftMargin
+                    right_margin = section_page.RightMargin
+                    width = max(10, page_width - left_margin - right_margin)
+                    height = max(10, min(120, page_height))
+                    left = max(0, left_margin)
+                    top = max(0, (page_height - height) / 2)
 
-                width = page_width - left_margin - right_margin
-                height = 120
-                left = left_margin
-                top = max(0, (page_height - height) / 2)
+                    anchor_range = sub_find.Parent.Duplicate
 
-                # Garantias adicionais
-                width = max(10, min(width, page_width))
-                height = max(10, min(height, page_height))
-                left = max(0, left)
-                top = max(0, top) 
+                    textbox = doc.Shapes.AddTextbox(
+                        Orientation=1,
+                        Left=left,
+                        Top=top,
+                        Width=width,
+                        Height=height,
+                        Anchor=anchor_range
+                    )
 
-                anchor_range = sub_find.Parent.Duplicate
+                    textbox.TextFrame.TextRange.Text = (
+                        "ANEXOS\n"
+                        "ANEXO I – RELATÓRIO FOTOGRÁFICO\n"
+                        "ANEXO II – DOCUMENTAÇÃO DO IMÓVEL\n"
+                        "ANEXO III – PARÂMETROS DE AVALIAÇÃO E MEMORIAL DE CÁLCULO"
+                    )
+                    tx = textbox.TextFrame.TextRange
+                    tx.Font.Size = 14
+                    tx.Font.Name = "Cambria"
+                    tx.Font.Color = 16777215
+                    tx.ParagraphFormat.Alignment = 1 
 
-                textbox = doc.Shapes.AddTextbox(
-                    Orientation=1,  
-                    Left=left,
-                    Top=top,
-                    Width=width,
-                    Height=height,
-                    Anchor=anchor_range
-                )
+                    textbox.Fill.Visible = False
+                    textbox.Line.Visible = False
+                    textbox.TextFrame.MarginLeft = 0
+                    textbox.TextFrame.MarginRight = 0
+                    textbox.TextFrame.MarginTop = 0
+                    textbox.TextFrame.MarginBottom = 0
+                    textbox.WrapFormat.Type = 0  
+                    textbox.ZOrder(0)
 
-                textbox.TextFrame.TextRange.Text = (
-                    "ANEXOS\n"
-                    "ANEXO I – RELATÓRIO FOTOGRÁFICO\n"
-                    "ANEXO II – DOCUMENTAÇÃO DO IMÓVEL\n"
-                    "ANEXO III – PARÂMETROS DE AVALIAÇÃO E MEMORIAL DE CÁLCULO"
-                )
-                tx = textbox.TextFrame.TextRange
-                tx.Font.Size = 14
-                tx.Font.Name = "Cambria" 
-                tx.Font.Color = 16777215
-                tx.ParagraphFormat.Alignment = 1  
-
-                textbox.Fill.Visible = False
-                textbox.Line.Visible = False
-                textbox.TextFrame.MarginLeft = 0
-                textbox.TextFrame.MarginRight = 0
-                textbox.TextFrame.MarginTop = 0
-                textbox.TextFrame.MarginBottom = 0
-                textbox.WrapFormat.Type = 0  
-                textbox.ZOrder(0)  
-
-                print("📦 Caixa de texto 'ANEXOS' inserida por cima da imagem.")
+                    print("📦 Caixa de texto 'ANEXOS' inserida por cima da imagem.")
+                except Exception as e:
+                    print(f"❌ Erro ao inserir caixa de texto: {e}")
             else:
                 print("⚠️ Marcador #CAIXATEXTO# não encontrado após seção ANEXOS.")
         else:
@@ -310,30 +311,34 @@ def anexo_parametros(doc):
     par5.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run5 = par5.add_run("•	Adequada")
     run5.bold = True
-    run5_1 = par5.add_run("= edificação está perfeitamente adequada à sua utilização; " \
+    run5_1 = par5.add_run(" = edificação está perfeitamente adequada à sua utilização; " \
     "está 100% aproveitada e/ou funcional e/ou utilizada, considerando o imóvel e a região " \
     "num período de um ano agrícola;")
+    adicionar_espaco(doc)
 
     par6 = doc.add_paragraph()
     run6 = par6.add_run("•	Inadequada")
     run6.bolod = True
-    run6_1 = par6.add_run("= edificação está parcialmente adequada à sua utilização; " \
+    run6_1 = par6.add_run(" = edificação está parcialmente adequada à sua utilização; " \
     "aproximadamente 75% de sua capacidade é aproveitada e/ou funcional e/ou utilizada, " \
     "considerando o imóvel e a região num período de um ano agrícola;")
+    adicionar_espaco(doc)
 
     par7 = doc.add_paragraph()
     run7 = par7.add_run("•	Superada")
     run7.bold = True
-    run7_1 = par7.add_run("= edificação está superada, considerando as recomendações " \
+    run7_1 = par7.add_run(" = edificação está superada, considerando as recomendações " \
     "técnicas atuais, mas aproximadamente 50% de sua capacidade ainda é aproveitada e/ou " \
     "funcional e/ou utilizada, considerando o imóvel e a região num período de um ano agrícola;")
+    adicionar_espaco(doc)
 
     par8 = doc.add_paragraph()
     run8 = par8.add_run("•	Total")
     run8.bold = True
-    run8_1 = par8.add_run("edificação não tem utilidade nenhuma, servindo apenas como " \
+    run8_1 = par8.add_run(" = edificação não tem utilidade nenhuma, servindo apenas como " \
     "fonte de material usado; 20% aproveitada e/ou funcional e/ou utilizada, considerando o " \
     "imóvel e a região num período de um ano agrícola.")
+    adicionar_espaco(doc)
 
     par9 = doc.add_paragraph()
     run9 = par9.add_run("Uso do solo")
@@ -341,11 +346,13 @@ def anexo_parametros(doc):
 
     par10 = doc.add_paragraph()
     run10 = par10.add_run("[INSERIR_CLASSE_AQUI]")
+    adicionar_espaco(doc)
 
     par11 = doc.add_paragraph()
     run11 = par11.add_run("Classificação das terras quanto a aptidão de acordo com O Manual " \
     "brasileiro para levantamento da capacidade de uso da terra – Escritório Técnico " \
     "de Agricultura- Brasil /Estados Unidos 1971:")
+    adicionar_espaco(doc)
 
     par12 = doc.add_paragraph()
     run12 = par12.add_run("•	CLASSE I ")
@@ -360,6 +367,7 @@ def anexo_parametros(doc):
     "de máquinas agrícolas. Dependendo de bons sistemas de manejo, podem mesmo ser cultivadas com plantas " \
     "que facilitem a erosão, como o algodão, milho ou mandioca, plantadas em linhas retas, sem perigo " \
     "apreciável de erosão acelerada. ")
+    adicionar_espaco(doc)
 
     par13 = doc.add_paragraph()
     run13 = par13.add_run("•	CLASSE II ")
@@ -374,6 +382,7 @@ def anexo_parametros(doc):
     "especiais, como aração e plantio em contorno, plantas de cobertura, cultura em faixas, controle de água, " \
     "proteção contra enxurradas advindas de glebas vizinhas, além das práticas comuns já referidas para a " \
     "classe l, como rotações de cultura e aplicações de corretivos e fertilizantes. ")
+    adicionar_espaco(doc)
 
     par14 = doc.add_paragraph()
     run14 = par14.add_run("•	CLASSE III ")
@@ -385,6 +394,7 @@ def anexo_parametros(doc):
     "(moderada), drenagem eficiente, escassez de água no solo (regiões semiáridas não irrigadas) e " \
     "pedregosidade. Frequentemente, essas limitações restringem muito a escolha das espécies a serem cultivadas, " \
     "ou à época do plantio ou operações de preparo e cultivo do solo. ")
+    adicionar_espaco(doc)
 
     par15 = doc.add_paragraph()
     run15 = par15.add_run("•	CLASSE IV ")
@@ -399,6 +409,7 @@ def anexo_parametros(doc):
     "as tornem impróprias para o cultivo motomecanizado regular. Em algumas regiões onde a escassez de chuvas " \
     "seja muito sentida, de tal maneira a não serem seguras as culturas sem irrigação, as terras deverão ser " \
     "classificadas na Classe IV.")
+    adicionar_espaco(doc)
 
     par16 = doc.add_paragraph()
     run16 = par16.add_run("•	CLASSE V ")
@@ -416,6 +427,7 @@ def anexo_parametros(doc):
     "tanto de forragens como de arbustos e árvores. Entretanto, se tais tratos forem dispensados, não serão " \
     "sujeitas à erosão acelerada. Por isso, podem ser usadas permanentemente sem práticas especiais de controle " \
     "de erosão ou de proteção do solo. ")
+    adicionar_espaco(doc)
 
     par17 = doc.add_paragraph()
     run17 = par17.add_run("•	CLASSE VI ")
@@ -431,6 +443,7 @@ def anexo_parametros(doc):
     "classes VI residem, em geral, na declividade excessiva, na pequena profundidade do solo ou na " \
     "pedregosidade. Nas regiões semiáridas, a escassez de umidade, muitas vezes, é a principal razão " \
     "para o enquadramento da terra na classe VI. ")
+    adicionar_espaco(doc)
 
     par18 = doc.add_paragraph()
     run18 = par18.add_run("•	CLASSE VII ")
@@ -444,6 +457,7 @@ def anexo_parametros(doc):
     "ser necessário maior número de práticas conservacionistas, ou que estas tenham que ser mais intensivas a " \
     "fim de prevenir ou diminuir os danos por erosão. Requerem cuidados extremos para controle da erosão. " \
     "Seu uso, tanto para pastoreio como para produção de madeira, requer sempre cuidados especiais.")
+    adicionar_espaco(doc)
 
     par19 = doc.add_paragraph()
     run19 = par19.add_run("•	CLASSE VIII ")
@@ -455,22 +469,26 @@ def anexo_parametros(doc):
     "áridas, ou acidentadas, ou pedregosas, ou encharcadas (sem possibilidade de pastoreio ou drenagem " \
     "artificial), ou severamente erodidas ou encostas rochosas, ou ainda dunas arenosas. Inclui-se aí a m" \
     "aior parte dos terrenos de mangues e de pântanos e terras muito áridas, que não prestam para pastoreio.")
+    adicionar_espaco(doc)
 
     par20 = doc.add_paragraph()
     run20 = par20.add_run("Hidrografia")
     run20.bold = True
+    adicionar_espaco(doc)
 
     par21 = doc.add_paragraph()
     run21 = par21.add_run("Muito Bom: ")
     run21.bold = True
     run21_1 = par21.add_run("Lâmina Útil apropriada para culturas com alta demanda hídrica. " \
     "Como referência, utilizou-se a cultura de Cana de açúcar e culturas hortícolas.")
+    adicionar_espaco(doc)
 
     par22 = doc.add_paragraph()
     run22 = par22.add_run("Bom: ")
     run22.bold = True
     run22_1 = par22.add_run("Lâmina Útil apropriada para culturas com demanda hídrica moderada, " \
     "como referência, foi adotada a culturas anuais (milho, feijão, trigo...)")
+    adicionar_espaco(doc)
 
 
     par24 = doc.add_paragraph()
@@ -478,6 +496,7 @@ def anexo_parametros(doc):
     run24.bold = True
     run24_1 = par24.add_run("Lâmina Útil apropriada para pastagens artificiais, e " \
     "demais culturas com demanda hídrica baixa.")
+    adicionar_espaco(doc)
 
     par25 = doc.add_paragraph()
     run25 = par25.add_run("Regular: ")
@@ -485,6 +504,7 @@ def anexo_parametros(doc):
     run25_1 = par25.add_run("Representa uma lâmina útil insuficiente para irrigação de culturas agrícolas. " \
     "Foi adotado em razão de representar uma vazão de curso d’água suficiente para a dessedentação dos " \
     "animais em pecuária de confinamento.")
+    adicionar_espaco(doc)
 
     par26 = doc.add_paragraph()
     run26 = par26.add_run("Ruim: ")
@@ -493,11 +513,13 @@ def anexo_parametros(doc):
     "insuficiente para atender qualquer uma das situações expostas nos intervalos superiores; " \
     "entretanto, adequada para pecuária extensiva e fornecimento de água para sede do imóvel, " \
     "quando for o caso.")
+    adicionar_espaco(doc)
 
     par27 = doc.add_paragraph()
     run27 = par27.add_run("Muito ruim: ")
     run27.bold = True
     run27_1 = par27.add_run("Representa, obviamente, uma propriedade com ausência de fontes próprias de água.")
+    adicionar_espaco(doc)
 
     doc.add_page_break()
 
@@ -505,14 +527,16 @@ def anexo_parametros(doc):
     run28 = par28.add_run("Situação")
     run28.bold = True
 
-    extra_par = doc.add_paragraph()
+    adicionar_espaco(doc)
 
     par29 = doc.add_paragraph()
     run29 = par29.add_run("[INSERIR_SITUACAO_AQUI]")
+    adicionar_espaco(doc)
 
     par30 = doc.add_paragraph()
     run30 = par30.add_run("Fonte")
     run30.bold = True
+    adicionar_espaco(doc)
 
     par31 = doc.add_paragraph()
     run31 = par31.add_run("Considerando a tendência de supervalorização observada em imóveis " \
@@ -520,12 +544,14 @@ def anexo_parametros(doc):
     "denominado ""Fator Fonte"", cuja literatura aponta como sendo, em média, 10%. Dessa forma, no " \
     "processamento das amostras relacionadas a imóveis em oferta, deve-se aplicar um deságio de 10% sobre " \
     "o valor da terra nua ou do terreno, calculado com base na unidade de área correspondente.")
+    adicionar_espaco(doc)
 
     doc.add_page_break()
 
     par32 = doc.add_paragraph()
     run32 = par32.add_run("Amostras de Mercado")
     run32.bold = True
+    adicionar_espaco(doc)
 
     for i in range(1, 7):
         par33 = doc.add_paragraph()
@@ -534,14 +560,18 @@ def anexo_parametros(doc):
             doc.add_page_break()
 
     doc.add_page_break()
-    new_section = doc.add_section(WD_SECTION.NEW_PAGE)
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    new_section = doc.sections[-1]
     new_section.orientation = WD_ORIENT.LANDSCAPE
+
+    new_section.page_width, new_section.page_height = new_section.page_height, new_section.page_width
     
     extra = doc.add_paragraph()
 
     par34 = doc.add_paragraph()
     run34 = par34.add_run("Quadro de amostras")
     run34.bold = True
+    adicionar_espaco(doc)
     
     par35 = doc.add_paragraph()
     run35 = par35.add_run("Para a adequação e depuração dos dados coletados, foi empregado " \
@@ -551,6 +581,7 @@ def anexo_parametros(doc):
     "de homogeneização calculados conforme a norma ABNT NBR 14.653-3:2019, item 7.7.2.1, garantindo " \
     "que tais fatores expressem, de maneira relativa, o comportamento do mercado dentro de um " \
     "determinado contexto espacial e temporal.")
+    adicionar_espaco(doc)
 
     par36 = doc.add_paragraph()
     run36 = par36.add_run("[INSERIR_QUADRO_AQUI]")
@@ -560,21 +591,21 @@ def anexo_parametros(doc):
     par37 = doc.add_paragraph()
     run37 = par37.add_run("Quadro de homologação")
     run37.bold = True
+    adicionar_espaco(doc)
 
     par38 = doc.add_paragraph()
     run38 = par38.add_run("[INSERIR_HOMOG_AQUI]")
 
     doc.add_page_break()
-    final_section = doc.add_section(WD_SECTION.NEW_PAGE)
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    final_section = doc.sections[-1]
     final_section.orientation = WD_ORIENT.PORTRAIT
-
-    doc.add_paragraph()
-
-    doc.add_page_break()
+    final_section.page_width, final_section.page_height = final_section.page_height, final_section.page_width
 
     par39 = doc.add_paragraph()
     run39 = par39.add_run("Saneamento de Amostras")
     run39.bold = True
+    adicionar_espaco(doc)
 
     par40 = doc.add_paragraph()
     run40 = par40.add_run("A depuração e análise dos resultados obtidos foram realizadas considerando " \
@@ -583,64 +614,85 @@ def anexo_parametros(doc):
     "ABNT, garantindo um nível mínimo de certeza de 80%. Por meio da aplicação de métodos estatísticos " \
     "descritivos à amostra, conforme detalhado na memória de cálculo do item 8.2, foram identificados os " \
     "seguintes valores:")
+    adicionar_espaco(doc)
 
     par41 = doc.add_paragraph()
     run41 = par41.add_run("[INSERIR_SANEAMENTO_AQUI]")
+    adicionar_espaco(doc)
 
     par42 = doc.add_paragraph()
     run42 = par42.add_run("Valor de Liquidação Forçada")
     run42.bold = True
+    adicionar_espaco(doc)
 
     par43 = doc.add_paragraph()
     run43 = par43.add_run("O princípio da prudência é um elemento fundamental nas avaliações realizadas " \
     "para fins de garantia, abrangendo tanto o valor de mercado quanto o valor de liquidação forçada. " \
     "A definição de valor de liquidação forçada, conforme estabelecido pela norma ABNT NBR 14.653-1, pode " \
-    "ser descrita da seguinte forma:\n" \
-    "Valor de liquidação forçada: trata-se da estimativa de um bem em uma situação de venda compulsória ou " \
-    "dentro de um período inferior ao convencionalmente observado no mercado.\n"\
-    "A determinação desse valor é realizada por meio de uma função financeira, na qual as variáveis essenciais " \
+    "ser descrita da seguinte forma: " )
+    adicionar_espaco(doc)
+    run43_1 = par43.add_run("\nValor de liquidação forçada: trata-se da estimativa de um bem em uma situação de venda compulsória ou " \
+    "dentro de um período inferior ao convencionalmente observado no mercado.")
+    adicionar_espaco(doc)
+    run43_2 = par43.add_run("\nA determinação desse valor é realizada por meio de uma função financeira, na qual as variáveis essenciais " \
     "são o valor do imóvel, o prazo de comercialização e as taxas de juros vigentes. Esses fatores representam o " \
-    "custo de oportunidade associado à necessidade de uma venda acelerada do ativo.\n"
-    "O coeficiente aplicado ao valor de mercado obtido é calculado utilizando a seguinte fórmula:\n")
-
+    "custo de oportunidade associado à necessidade de uma venda acelerada do ativo.\n")
+    adicionar_espaco(doc)
+    
     doc.add_page_break()
+    par44_0 = doc.add_paragraph()
+    run44_0 = par44_0.add_run("O coeficiente aplicado ao valor de mercado obtido é calculado utilizando a seguinte fórmula:")
+    adicionar_espaco(doc)
 
     par44 = doc.add_paragraph()
     run44 = par44.add_run("VP=VM×(1 - i)n")
     par44.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    adicionar_espaco(doc)
 
-    par45 = doc.add_paragraph()
-    run45 = par45.add_run("Onde:\n" \
-    "•	VP = Valor de Liquidação Forçada (R$)\n" \
-    "•	VM = Valor de Mercado (R$)\n"\
-    "•	i = Taxa de Desconto Adotada (%)\n"\
-    "•	n = Prazo de comercialização (meses)\n" \
-    "Essa metodologia permite ajustar o valor do imóvel considerando o impacto das condições de venda " \
-    "acelerada sobre o preço final de transação.")
+    par45 = doc.add_paragraph("Onde:")
+    simbolos = {
+        "VP": "Valor de Liquidação Forçada (R$)",
+        "VM": "Valor de Mercado (R$)",
+        "i": "Taxa de Desconto Adotada (%)",
+        "n": "Prazo de comercialização (meses)"
+    }
+
+    for simbolo, descricao in simbolos.items():
+        item = doc.add_paragraph(style='List Bullet')
+        run = item.add_run(f"{simbolo} = {descricao}")
+        run.bold = True 
+
+    adicionar_espaco(doc) 
+    explicacao = (
+        "Essa metodologia permite ajustar o valor do imóvel considerando "
+        "o impacto das condições de venda acelerada sobre o preço final de transação."
+    )
     
     par46 = doc.add_paragraph()
     run46 = par46.add_run("[INSERIR_LIQUIDACAO_AQUI]")
+    adicionar_espaco(doc)
 
     par47 = doc.add_paragraph()
     run47 = par47.add_run("Referencias")
     run47.bold = True
+    adicionar_espaco(doc)
 
     doc.add_page_break()
 
     par48 = doc.add_paragraph()
-    run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n"\
-    "Abunahman, Sérgio Antonio. Engenharia Legal e de Avaliações. Pini- 4ª ed., 2000.\n"\
-    "Alves, C. S. Método Prático de Determinação de Percentual de Servidão para Faixa e Áreas Remanescentes. Revista de Avaliações e Perícias. IBAPE-RS, 2002.\n"\
-    "Arantes, Carlos Augusto. Depreciação de Área remanescente por Apossamento Administrativo. Fortaleza: XIII COBREAP, 2006.\n"\
-    "Arantes, Carlos Augusto; Saldanha, Marcelo Suarez. Avaliações de Imóveis Rurais. São Paulo: Leud, 2009.\n"\
-    "DESLANDES, C.A. Avaliações de Imóveis Rurais. Editora Aprenda Fácil. Viçosa/MG, 2002.\n"\
-    "Estado do Rio Grande do Sul. Modelo Rural – Requisitos Mínimos para Laudo de Avaliação. Governo do Estado do Rio Grande do Sul, 2020.\n"\
-    "Hantzis, et al. Indemnizaciones por Concepto de Imposición de Servidumbres de Gasoducto. CBAP, 2000.\n"\
-    "LIMA, M. R. C. Avaliação de Propriedades Rurais. Editora Leud: São Paulo/SP, 2011.\n"\
-    "Manual Brasileiro para Levantamento da Capacidade de Uso da Terra (ETA – Escritório Técnico de Agricultura Brasil – Estados Unidos) III aproximação.\n"\
-    "Manual para Classificação da Capacidade de Uso das Terras para fins de Avaliação de Imóveis Rurais – 1º aproximação/CESP.\n"\
-    "PELLEGRINO, J. C. Engenharia de Avaliações. São Paulo: Editora Pini; 1974.\n"\
-    "Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n"\
+    run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n\n"\
+    "Abunahman, Sérgio Antonio. Engenharia Legal e de Avaliações. Pini- 4ª ed., 2000.\n\n"\
+    "Alves, C. S. Método Prático de Determinação de Percentual de Servidão para Faixa e Áreas Remanescentes. Revista de Avaliações e Perícias. IBAPE-RS, 2002.\n\n"\
+    "Arantes, Carlos Augusto. Depreciação de Área remanescente por Apossamento Administrativo. Fortaleza: XIII COBREAP, 2006.\n\n"\
+    "Arantes, Carlos Augusto; Saldanha, Marcelo Suarez. Avaliações de Imóveis Rurais. São Paulo: Leud, 2009.\n\n"\
+    "DESLANDES, C.A. Avaliações de Imóveis Rurais. Editora Aprenda Fácil. Viçosa/MG, 2002.\n\n"\
+    "Estado do Rio Grande do Sul. Modelo Rural – Requisitos Mínimos para Laudo de Avaliação. Governo do Estado do Rio Grande do Sul, 2020.\n\n"\
+    "Hantzis, et al. Indemnizaciones por Concepto de Imposición de Servidumbres de Gasoducto. CBAP, 2000.\n\n"\
+    "LIMA, M. R. C. Avaliação de Propriedades Rurais. Editora Leud: São Paulo/SP, 2011.\n\n"\
+    "Manual Brasileiro para Levantamento da Capacidade de Uso da Terra (ETA – Escritório Técnico de Agricultura Brasil – Estados Unidos) III aproximação.\n\n"\
+    "Manual para Classificação da Capacidade de Uso das Terras para fins de Avaliação de Imóveis Rurais – 1º aproximação/CESP.\n\n"\
+    "PELLEGRINO, J. C. Engenharia de Avaliações. São Paulo: Editora Pini; 1974.\n\n"\
+    "Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n\n"\
     "Sindicato Nacional")
 
     return doc

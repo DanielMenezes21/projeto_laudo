@@ -12,6 +12,7 @@ import os
 import win32com.client
 from win32com.client.gencache import EnsureDispatch
 from win32com.client import Dispatch
+from assets.document_page5 import adicionar_espaco
 
 def set_table_fixed_width(table):
     tbl = table._tbl
@@ -138,11 +139,11 @@ def desc_imovel(doc, dados):
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")
     run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    run4 = doc.add_paragraph(" ")
+    adicionar_espaco(doc)
 
     extra_table = doc.add_paragraph("[INSERIR_TABELA_AQUI]")
 
-    run4
+    adicionar_espaco(doc)
 
     table2 = doc.add_table(rows=3,cols=2)
     table2.autofit
@@ -202,6 +203,8 @@ def declividade(doc, imagem_path=None):
     run1 = p.add_run("#IMAGEM_DECLIVIDADE")
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    adicionar_espaco(doc)
+
     paragraph = doc.add_paragraph("a área apresenta declividade #DECLIVIDADE_I")
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
@@ -216,6 +219,8 @@ def hidrografia(doc, imagem_path=None):
     p = doc.add_paragraph()
     run1 = p.add_run("#IMAGEM_HIDROGRAFIA")
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    adicionar_espaco(doc)
 
     paragraph = doc.add_paragraph("a área apresenta hidrografia #HIDROGRAFIA_I")
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
@@ -232,8 +237,11 @@ def pedologia(doc, imagem_path=None):
     run1 = p.add_run("#IMAGEM_SOLOS")
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    adicionar_espaco(doc)
+
     paragraph = doc.add_paragraph("a pedologia da região é predominada por #TIPO_SOLO")
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    adicionar_espaco(doc)
     paragraph2 = doc.add_paragraph("a área apresenta #DESCRICAO_SOLO")
     paragraph2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
@@ -262,6 +270,7 @@ def benfeitoria(doc):
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     table = doc.add_table(rows=4, cols=2)
     table.style = 'Table Grid'
+    adicionar_espaco(doc)
 
     cell_1_1 = table.cell(0, 0)
     cell_1_2 = table.cell(0, 1)

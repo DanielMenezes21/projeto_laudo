@@ -14,7 +14,7 @@ def adicionar_espaco(doc):
     p.paragraph_format.space_after = Pt(0)   
     run = p.add_run(" ")
     run.font.name = 'Cambria'
-    run.font.size = Pt(12) 
+    run.font.size = Pt(8) 
 
     return doc
 
@@ -114,7 +114,6 @@ def texto_objetivo(doc, lista_matriculas):
     runpar2 = par.add_run(texto)
     return doc
 
-
 def texto_finalidade(doc):
     heading = doc.add_paragraph(style='Heading1')
     run = heading.add_run("3 - FINALIDADE")
@@ -149,8 +148,8 @@ def texto_ressalvas(doc):
     " Quanto às edificações e benfeitorias existentes no imóvel são considerados os quantitativos" \
     "de projetos existentes (se existirem), informações constatadas in loco quando da vistoria ao imóvel, " \
     "realizada em {data_av} e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \
-    " consideradas como válidas.\n "
-    "    Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \
+    " consideradas como válidas.")
+    run3 = doc.add_paragraph("    Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \
     "e informações prestadas por terceiros, admitidas como confiáveis, corretas e de boa fé.")
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
