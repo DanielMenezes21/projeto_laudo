@@ -348,9 +348,8 @@ def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_m
 
 def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16):
     """
-    Insere uma tabela do Excel no Word, aplicando formatação de fonte e ajuste automático.
+    Insere uma tabela do Excel no Word com tratamento para tabelas com células mescladas
     """
-    xlUp = -4162
     if not os.path.exists(excel_path):
         raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
 
@@ -379,13 +378,19 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
         table.Range.Font.Name = "Cambria"
         table.Range.Font.Size = 6
 
-        table.AutoFitBehavior(1) 
-
-        max_width = largura_maxima_cm * 28.35
+        max_width = largura_maxima_cm * 28.35  
         usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
         final_width = min(usable_width, max_width)
-        table.PreferredWidthType = 1  
-        table.PreferredWidth = final_width
+
+        try:
+            for col in table.Columns:
+                col.PreferredWidthType = 2  
+                col.PreferredWidth = final_width / table.Columns.Count
+        except:
+            table.PreferredWidthType = 2
+            table.PreferredWidth = final_width
+            table.AllowAutoFit = True
+            table.AutoFitBehavior(1)  
 
         print("✅ Tabela inserida e formatada com sucesso.")
     else:
