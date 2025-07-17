@@ -29,11 +29,48 @@ class MatriculaParecerScreen(MDScreen):
     def voltar(self, *args):
         self.manager.current = 'matricula'
 
-    def __init__(self, nome_matricula, detalhes_screen=None, lista_dados_matriculas=None, indice_matricula_atual=None, **kwargs):
-        self.detalhes_screen = detalhes_screen
-        self.lista_dados_matriculas = lista_dados_matriculas
-        self.indice_matricula_atual = indice_matricula_atual
+    def _carregar_dados_iniciais(self):
+        """Preenche os campos com os dados iniciais da matrícula"""
+        if not hasattr(self, 'dados_matricula'):
+            return
+
+        self.campo_texto.text = self.dados_matricula.get('observacoes_parecer', '')
+        self.campo_car.text = self.dados_matricula.get('car', '')
+        
+        self.georreferenciamento_sim = self.dados_matricula.get('possui_georref', False)
+        self.campo_georref.text = self.dados_matricula.get('numero_georref', '')
+        self.campo_georref.disabled = not self.georreferenciamento_sim
+        
+        self.alienacao_sim = self.dados_matricula.get('possui_alienacao', False)
+        self.campo_alienacao.text = self.dados_matricula.get('detalhes_alienacao', '')
+        self.campo_alienacao.disabled = not self.alienacao_sim
+        
+        self.apa_sim = self.dados_matricula.get('possui_apa', False)
+        self.campo_apa.text = self.dados_matricula.get('nome_apa', '')
+        self.campo_apa.disabled = not self.apa_sim
+        
+        biomas_salvos = self.dados_matricula.get('biomas', {})
+        for bioma in self.biomas_selecionados:
+            self.biomas_selecionados[bioma] = biomas_salvos.get(bioma, False)
+        
+        self.passivo_ambiental_sim = self.dados_matricula.get('possui_passivo', False)
+        self.layout_tipos_passivo.disabled = not self.passivo_ambiental_sim
+        self.campo_detalhes_passivo.disabled = not self.passivo_ambiental_sim
+        
+        tipos_passivo_salvos = self.dados_matricula.get('tipos_passivo', {})
+        for tipo, estado in tipos_passivo_salvos.items():
+            if tipo in self.tipos_passivo:
+                self.tipos_passivo[tipo] = estado
+        
+        self.campo_detalhes_passivo.text = self.dados_matricula.get('detalhes_passivo', '')
+
+    def __init__(self, nome_matricula, detalhes_screen=None, lista_dados_matriculas=None, indice_matricula=None, **kwargs):
+        super().__init__(**kwargs)
         self.nome_matricula = nome_matricula
+        self.detalhes_screen = detalhes_screen
+        self.lista_dados_matriculas = lista_dados_matriculas or []
+        self.indice_matricula = indice_matricula
+        self.dados_matricula = self.lista_dados_matriculas[indice_matricula] if indice_matricula is not None and indice_matricula < len(self.lista_dados_matriculas) else {}
         
         self.georreferenciamento_sim = BooleanProperty(False)
         self.alienacao_sim = BooleanProperty(False)
@@ -195,6 +232,8 @@ class MatriculaParecerScreen(MDScreen):
         layout.add_widget(scroll)
         self.add_widget(layout)
 
+        self._carregar_dados_iniciais()
+
     def _criar_checkbox_bioma(self, nome_bioma):
         """Creates a checkbox widget for a biome."""
         box = MDBoxLayout(orientation="horizontal", spacing=5, size_hint_x=None, width=150)
@@ -237,7 +276,6 @@ class MatriculaParecerScreen(MDScreen):
         layout.add_widget(MDLabel(text="Não", size_hint_x=0.1))
         return layout
 
-
     def _ativar_campo(self, campo, ativar, propriedade):
         """Activates/deactivates a conditional field."""
         campo.disabled = not ativar
@@ -263,31 +301,34 @@ class MatriculaParecerScreen(MDScreen):
         self.tipos_passivo[tipo] = current
 
     def salvar_dados(self):
-        """Saves all data including environmental liability."""
-        dados = {
-            "observacoes_parecer": self.campo_texto.text,
-            "car": self.campo_car.text,
-            "possui_georref": self.georreferenciamento_sim,
-            "numero_georref": self.campo_georref.text if self.georreferenciamento_sim else "",
-            "possui_alienacao": self.alienacao_sim,
-            "detalhes_alienacao": self.campo_alienacao.text if self.alienacao_sim else "",
-            "possui_apa": self.apa_sim,
-            "nome_apa": self.campo_apa.text if self.apa_sim else "",
-            "biomas": {bioma: estado for bioma, estado in dict(self.biomas_selecionados).items() if estado},
-            "possui_passivo": self.passivo_ambiental_sim,
-            "tipos_passivo": {tipo: estado for tipo, estado in self.tipos_passivo.items() if estado},
-            "detalhes_passivo": self.campo_detalhes_passivo.text if self.passivo_ambiental_sim else ""
-        }
+        """Saves data without overwriting other matricula's data"""
+        try:
+            dados_atualizados = self.lista_dados_matriculas[self.indice_matricula].copy()
+            
+            campos_parecer = {
+                "observacoes_parecer": self.campo_texto.text,
+                "car": self.campo_car.text,
+                "possui_georref": self.georreferenciamento_sim,
+                "numero_georref": self.campo_georref.text if self.georreferenciamento_sim else "",
+                "possui_alienacao": self.alienacao_sim,
+                "detalhes_alienacao": self.campo_alienacao.text if self.alienacao_sim else "",
+                "possui_apa": self.apa_sim,
+                "nome_apa": self.campo_apa.text if self.apa_sim else "",
+                "biomas": {k: v for k, v in self.biomas_selecionados.items() if v},
+                "possui_passivo": self.passivo_ambiental_sim,
+                "tipos_passivo": {k: v for k, v in self.tipos_passivo.items() if v},
+                "detalhes_passivo": self.campo_detalhes_passivo.text if self.passivo_ambiental_sim else ""
+            }
+            
+            for campo, valor in campos_parecer.items():
+                dados_atualizados[campo] = valor
 
-        if self.detalhes_screen:
-            from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.detalhes_function import coletar_checkboxes
-            dados_det = coletar_checkboxes(self.detalhes_screen)
-            dados.update(dados_det)
-
-        if (self.lista_dados_matriculas and self.indice_matricula_atual is not None
-                and 0 <= self.indice_matricula_atual < len(self.lista_dados_matriculas)):
-            self.lista_dados_matriculas[self.indice_matricula_atual].update(dados)
-        else:
-            print("❌ Índice fora do range ou lista vazia!")
-
-        print("DEBUG após salvar:", self.lista_dados_matriculas)
+            self.lista_dados_matriculas[self.indice_matricula] = dados_atualizados
+            
+            print(f"✅ Dados salvos para matrícula {self.indice_matricula}")
+            print(f"Total de matrículas: {len(self.lista_dados_matriculas)}")
+            
+        except Exception as e:
+            print(f"❌ Erro ao salvar: {str(e)}")
+            import traceback
+            traceback.print_exc()

@@ -21,19 +21,33 @@ def coletar_checkboxes(matricula_detalhe_screen):
         "a_app": getattr(matricula_detalhe_screen, "a_app", None).text if hasattr(matricula_detalhe_screen, "a_app") else ""
     }
 
-def ir_para_parecer(self):
-    nome_matricula = getattr(self, "nome_matricula", None)
-    indice = getattr(self, "indice_matricula_atual", None)
-    nome_tela_parecer = f"parecer_{nome_matricula}"
+def _atualizar_dados_apos_salvar(self, instance, indice):
+    if 0 <= indice < len(self.lista_dados_matriculas):
+        print(f"Dados atualizados para matrícula {indice}")
 
-    if not self.manager.has_screen(nome_tela_parecer):
+def ir_para_parecer(self):
+    nome_matricula = getattr(self, "nome_matricula", "")
+    indice = getattr(self, "indice_matricula_atual", None)
+    
+    if not nome_matricula or indice is None:
+        print("❌ Dados insuficientes para abrir parecer")
+        return
+
+    nome_tela = f"parecer_{nome_matricula}_{indice}"  
+
+    if not self.manager.has_screen(nome_tela):
         from app.screen3_dadosp.screen3_1_matriculas.screen3_1_2_parecer.matricula_detalhe_parecer import MatriculaParecerScreen
-        tela_parecer = MatriculaParecerScreen(
-            nome_matricula,
+        
+        if indice >= len(self.lista_dados_matriculas):
+            self.lista_dados_matriculas.append({})
+            
+        tela = MatriculaParecerScreen(
+            nome_matricula=nome_matricula,
             detalhes_screen=self,
-            lista_dados_matriculas=self.lista_dados_matriculas,  
-            indice_matricula_atual=indice,
-            name=nome_tela_parecer
+            lista_dados_matriculas=self.lista_dados_matriculas,
+            indice_matricula=indice,
+            name=nome_tela
         )
-        self.manager.add_widget(tela_parecer)
-    self.manager.current = nome_tela_parecer
+        self.manager.add_widget(tela)
+    
+    self.manager.current = nome_tela

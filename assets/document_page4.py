@@ -13,7 +13,7 @@ def inserir_sumario(doc):
     tag_end = OxmlElement('w:bookmarkEnd')
     tag_end.set(qn('w:id'), '1')
     paragraph._p.append(tag_end)
-    # Opcional: texto visível
+
     paragraph = doc.add_paragraph()
     runpar = paragraph.add_run("SUMÁRIO")
     paragraph.runs[0].bold = True

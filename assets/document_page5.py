@@ -149,7 +149,8 @@ def texto_ressalvas(doc):
     "de projetos existentes (se existirem), informações constatadas in loco quando da vistoria ao imóvel, " \
     "realizada em {data_av} e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \
     " consideradas como válidas.")
-    run3 = doc.add_paragraph("    Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \
+    adicionar_espaco(doc)
+    run3 = doc.add_paragraph("        Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \
     "e informações prestadas por terceiros, admitidas como confiáveis, corretas e de boa fé.")
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 

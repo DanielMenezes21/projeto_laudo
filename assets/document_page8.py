@@ -631,10 +631,12 @@ def anexo_parametros(doc):
     "A definição de valor de liquidação forçada, conforme estabelecido pela norma ABNT NBR 14.653-1, pode " \
     "ser descrita da seguinte forma: " )
     adicionar_espaco(doc)
-    run43_1 = par43.add_run("\nValor de liquidação forçada: trata-se da estimativa de um bem em uma situação de venda compulsória ou " \
+    par43_1 = doc.add_paragraph()
+    run43_1 = par43_1.add_run("\nValor de liquidação forçada: trata-se da estimativa de um bem em uma situação de venda compulsória ou " \
     "dentro de um período inferior ao convencionalmente observado no mercado.")
     adicionar_espaco(doc)
-    run43_2 = par43.add_run("\nA determinação desse valor é realizada por meio de uma função financeira, na qual as variáveis essenciais " \
+    par43_2 = doc.add_paragraph()
+    run43_2 = par43_2.add_run("\nA determinação desse valor é realizada por meio de uma função financeira, na qual as variáveis essenciais " \
     "são o valor do imóvel, o prazo de comercialização e as taxas de juros vigentes. Esses fatores representam o " \
     "custo de oportunidade associado à necessidade de uma venda acelerada do ativo.\n")
     adicionar_espaco(doc)
@@ -672,36 +674,43 @@ def anexo_parametros(doc):
     run46 = par46.add_run("[INSERIR_LIQUIDACAO_AQUI]")
     adicionar_espaco(doc)
 
+    doc.add_page_break()
+
     par47 = doc.add_paragraph()
     run47 = par47.add_run("Referencias")
     run47.bold = True
     adicionar_espaco(doc)
 
-    doc.add_page_break()
-
     par48 = doc.add_paragraph()
-    run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n\n"\
-    "Abunahman, Sérgio Antonio. Engenharia Legal e de Avaliações. Pini- 4ª ed., 2000.\n\n"\
-    "Alves, C. S. Método Prático de Determinação de Percentual de Servidão para Faixa e Áreas Remanescentes. Revista de Avaliações e Perícias. IBAPE-RS, 2002.\n\n"\
-    "Arantes, Carlos Augusto. Depreciação de Área remanescente por Apossamento Administrativo. Fortaleza: XIII COBREAP, 2006.\n\n"\
-    "Arantes, Carlos Augusto; Saldanha, Marcelo Suarez. Avaliações de Imóveis Rurais. São Paulo: Leud, 2009.\n\n"\
-    "DESLANDES, C.A. Avaliações de Imóveis Rurais. Editora Aprenda Fácil. Viçosa/MG, 2002.\n\n"\
-    "Estado do Rio Grande do Sul. Modelo Rural – Requisitos Mínimos para Laudo de Avaliação. Governo do Estado do Rio Grande do Sul, 2020.\n\n"\
-    "Hantzis, et al. Indemnizaciones por Concepto de Imposición de Servidumbres de Gasoducto. CBAP, 2000.\n\n"\
-    "LIMA, M. R. C. Avaliação de Propriedades Rurais. Editora Leud: São Paulo/SP, 2011.\n\n"\
-    "Manual Brasileiro para Levantamento da Capacidade de Uso da Terra (ETA – Escritório Técnico de Agricultura Brasil – Estados Unidos) III aproximação.\n\n"\
-    "Manual para Classificação da Capacidade de Uso das Terras para fins de Avaliação de Imóveis Rurais – 1º aproximação/CESP.\n\n"\
-    "PELLEGRINO, J. C. Engenharia de Avaliações. São Paulo: Editora Pini; 1974.\n\n"\
-    "Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n\n"\
-    "Sindicato Nacional")
+    run48 = par48.add_run("ABNT – Associação Brasileira de Normas Técnicas. NBR nº 14.653:1 (2019) e nº 14.653:3 (2019).\n")
+    par49 = doc.add_paragraph()
+    run49 = par49.add_run("Abunahman, Sérgio Antonio. Engenharia Legal e de Avaliações. Pini- 4ª ed., 2000.\n")
+    par50 = doc.add_paragraph()
+    run50 = par50.add_run("Alves, C. S. Método Prático de Determinação de Percentual de Servidão para Faixa e Áreas Remanescentes. Revista de Avaliações e Perícias. IBAPE-RS, 2002.\n")
+    par51 = doc.add_paragraph()
+    run51 = par51.add_run("Arantes, Carlos Augusto. Depreciação de Área remanescente por Apossamento Administrativo. Fortaleza: XIII COBREAP, 2006.\n")
+    par52 = doc.add_paragraph()
+    run52 = par52.add_run("Arantes, Carlos Augusto; Saldanha, Marcelo Suarez. Avaliações de Imóveis Rurais. São Paulo: Leud, 2009.\n")
+    par53 = doc.add_paragraph()
+    run53 = par53.add_run("DESLANDES, C.A. Avaliações de Imóveis Rurais. Editora Aprenda Fácil. Viçosa/MG, 2002.\n")
+    par54 = doc.add_paragraph()
+    run54 = par54.add_run("Estado do Rio Grande do Sul. Modelo Rural – Requisitos Mínimos para Laudo de Avaliação. Governo do Estado do Rio Grande do Sul, 2020.\n")
+    par55 = doc.add_paragraph()
+    run55 = par55.add_run("Hantzis, et al. Indemnizaciones por Concepto de Imposición de Servidumbres de Gasoducto. CBAP, 2000.\n")
+    par56 = doc.add_paragraph()
+    run56 = par56.add_run("LIMA, M. R. C. Avaliação de Propriedades Rurais. Editora Leud: São Paulo/SP, 2011.\n")
+    par57 = doc.add_paragraph()
+    run57 = par57.add_run("Manual Brasileiro para Levantamento da Capacidade de Uso da Terra (ETA – Escritório Técnico de Agricultura Brasil – Estados Unidos) III aproximação.\n")
+    par58 = doc.add_paragraph()
+    run58 = par58.add_run("Manual para Classificação da Capacidade de Uso das Terras para fins de Avaliação de Imóveis Rurais – 1º aproximação/CESP.\n")
+    par59 = doc.add_paragraph()
+    run59 = par59.add_run("PELLEGRINO, J. C. Engenharia de Avaliações. São Paulo: Editora Pini; 1974.\n")
+    par60 = doc.add_paragraph()
+    run60 = par60.add_run("Resolução n.º 342/90 do CONFEA, que dispõe sobre a responsabilidade técnica do engenheiro agrônomo.\n")
+    par61 = doc.add_paragraph()
+    run61 = par61.add_run("Sindicato Nacional")
+
+    doc.add_page_break()
 
     return doc
 
-def imprimir_secoes(doc):
-    for i, section in enumerate(doc.sections):
-        orientacao = "Paisagem" if section.orientation == WD_ORIENT.LANDSCAPE else "Retrato"
-        largura = round(section.page_width.inches, 2)
-        altura = round(section.page_height.inches, 2)
-        print(f"📄 Seção {i+1}: {orientacao} ({largura}\" x {altura}\")")
-
-        print(f"   Margens (pol): Esq: {round(section.left_margin.inches,2)}, Dir: {round(section.right_margin.inches,2)}, Sup: {round(section.top_margin.inches,2)}, Inf: {round(section.bottom_margin.inches,2)}")

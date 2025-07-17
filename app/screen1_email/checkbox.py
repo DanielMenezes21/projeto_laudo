@@ -1,4 +1,3 @@
-# checkbox.py
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.boxlayout import BoxLayout
 from kivymd.uix.label import MDLabel

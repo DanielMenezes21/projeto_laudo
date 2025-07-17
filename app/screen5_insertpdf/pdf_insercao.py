@@ -194,8 +194,6 @@ def montar_documento(self, doc):
     doc = anexo_doc(doc)
     doc.add_page_break()
     doc = anexo_parametros(doc)
-    doc.add_page_break()
-    #doc = imprimir_secoes(doc)
 
     return doc
 
