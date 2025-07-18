@@ -12,9 +12,9 @@ class MatriculaDetalheScreen(MDScreen):
     def coletar_detalhes(self):
         return coletar_checkboxes(self)
     
-    def __init__(self, nome_matricula, lista_dados_matriculas=None, indice_matricula_atual=None, **kwargs):
+    def __init__(self, nome_matricula, lista_dados_matriculas=None, indice_matricula=None, **kwargs):
         self.lista_dados_matriculas = lista_dados_matriculas
-        self.indice_matricula_atual = indice_matricula_atual
+        self.indice_matricula = indice_matricula
         self.nome_matricula = nome_matricula
         super().__init__(**kwargs)
 

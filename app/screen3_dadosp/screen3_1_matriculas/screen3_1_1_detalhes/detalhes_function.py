@@ -27,9 +27,9 @@ def _atualizar_dados_apos_salvar(self, instance, indice):
 
 def ir_para_parecer(self):
     nome_matricula = getattr(self, "nome_matricula", "")
-    indice = getattr(self, "indice_matricula_atual", None)
+    indice = getattr(self, "indice_matricula", None)
     
-    if not nome_matricula or indice is None:
+    if indice is None:
         print("❌ Dados insuficientes para abrir parecer")
         return
 

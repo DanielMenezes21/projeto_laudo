@@ -70,7 +70,17 @@ class MatriculaParecerScreen(MDScreen):
         self.detalhes_screen = detalhes_screen
         self.lista_dados_matriculas = lista_dados_matriculas or []
         self.indice_matricula = indice_matricula
-        self.dados_matricula = self.lista_dados_matriculas[indice_matricula] if indice_matricula is not None and indice_matricula < len(self.lista_dados_matriculas) else {}
+        
+        if lista_dados_matriculas is None:
+            lista_dados_matriculas = []
+        self.lista_dados_matriculas = lista_dados_matriculas
+        
+        if indice_matricula is None or not (0 <= indice_matricula < len(lista_dados_matriculas)):
+            self.indice_matricula = len(lista_dados_matriculas) - 1 if lista_dados_matriculas else 0
+        else:
+            self.indice_matricula = indice_matricula
+        
+        self.dados_matricula = self.lista_dados_matriculas[self.indice_matricula] if self.lista_dados_matriculas else {}
         
         self.georreferenciamento_sim = BooleanProperty(False)
         self.alienacao_sim = BooleanProperty(False)
@@ -83,7 +93,7 @@ class MatriculaParecerScreen(MDScreen):
 
         kwargs.pop('detalhes_screen', None)
         kwargs.pop('lista_dados_matriculas', None)
-        kwargs.pop('indice_matricula_atual', None)
+        kwargs.pop('indice_matricula', None)
         super().__init__(**kwargs)
 
         layout = MDBoxLayout(orientation="vertical", padding=20, spacing=20)
@@ -319,6 +329,11 @@ class MatriculaParecerScreen(MDScreen):
                 "tipos_passivo": {k: v for k, v in self.tipos_passivo.items() if v},
                 "detalhes_passivo": self.campo_detalhes_passivo.text if self.passivo_ambiental_sim else ""
             }
+            if self.detalhes_screen:
+                from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.detalhes_function import coletar_checkboxes
+                dados_detalhes = coletar_checkboxes(self.detalhes_screen)
+                for campo, valor in dados_detalhes.items():
+                    dados_atualizados[campo] = valor
             
             for campo, valor in campos_parecer.items():
                 dados_atualizados[campo] = valor

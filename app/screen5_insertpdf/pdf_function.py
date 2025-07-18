@@ -78,7 +78,7 @@ def select_path(self, path):
         adicionar_item(self, path, self.tipo_selecionado)
     else:
         MDSnackbar(
-            MDSnackbarText(text="Seleção inválida. Escolha uma pasta ou um arquivo PDF."),
+            MDSnackbarText(text="Seleção inválida. Escolha um arquivo PDF."),
             y=dp(24)
         ).open()
 

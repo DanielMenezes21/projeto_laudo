@@ -175,17 +175,26 @@ class MatriculaScreen(MDScreen):
         lista_dados = self.lista_dados_matriculas
         indice = None
         for i, d in enumerate(lista_dados):
-            if d["nome_imovel"] == nome_matricula or d["matricula"] == nome_matricula:
+            if d.get("nome_imovel", "").lower() == nome_matricula.lower():
                 indice = i
                 break
-        if indice is None:
-            indice = 0 
+
+        if indice is None and nome_matricula.lower().startswith("matrícula"):
+            try:
+                num = int(nome_matricula.split()[-1]) - 1
+                if 0 <= num < len(lista_dados):
+                    indice = num
+            except (ValueError, IndexError):
+                pass
+        
+        if indice is None:  
+            indice = min(len(lista_dados) - 1, 0)
 
         if not self.manager.has_screen(nome_tela):
             nova_tela = MatriculaDetalheScreen(
                 nome_matricula,
                 lista_dados_matriculas=self.lista_dados_matriculas, 
-                indice_matricula_atual=indice,
+                indice_matricula=indice,
                 name=nome_tela
             )
             self.matriculas[nome_matricula]["campos"].update({
