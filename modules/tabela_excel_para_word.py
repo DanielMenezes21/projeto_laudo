@@ -1,7 +1,7 @@
 from win32com.client import Dispatch, constants
 import os
 
-def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_maxima_cm=16):
+def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_maxima_cm=16, marcador_personalizado="[INSERIR_TABELA_AQUI]"):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -46,7 +46,7 @@ def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_TABELA_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 
@@ -242,15 +242,13 @@ def inserir_tabela_situacao_no_word(docx_path, excel_path, aba="FATORES", largur
 def inserir_tabelas_amostras_auto(
     docx_path,
     excel_path,
+    indice_matricula=0,
     aba="AMOSTRAS",
     titulo_base="Dado Amostral",
-    marcador_base="[INSERIR_TABELA_AMOSTRAL_{:02d}]",
+    marcador_base="[INSERIR_TABELA_AMOSTRAL_M{idx}_{num:02d}]",
     largura_maxima_cm=16
 ):
-    """
-    Procura todas as tabelas no Excel cujo título começa com 'Dados Amostrais',
-    copia cada uma e insere no Word em marcadores sequenciais.
-    """
+    from win32com.client import Dispatch
 
     xlUp = -4162
     if not os.path.exists(excel_path):
@@ -274,15 +272,13 @@ def inserir_tabelas_amostras_auto(
         intervalos.append(intervalo)
 
     word = Dispatch("Word.Application")
-    try:
-        word.Visible = False
-    except AttributeError:
-        pass
+    word.Visible = False
     doc = word.Documents.Open(docx_path)
 
-    for idx, intervalo in enumerate(intervalos):
+    for idx_tabela, intervalo in enumerate(intervalos):
         sheet.Range(intervalo).Copy()
-        marcador = marcador_base.format(idx + 1)
+        marcador = marcador_base.format(idx=indice_matricula, num=idx_tabela + 1)
+
         word.Selection.HomeKey(Unit=6)
         if word.Selection.Find.Execute(marcador):
             word.Selection.TypeBackspace()
@@ -299,7 +295,7 @@ def inserir_tabelas_amostras_auto(
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_maxima_cm=16):
+def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_maxima_cm=16, marcador_personalizado="[INSERIR_QUADRO_AQUI]"):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -324,7 +320,7 @@ def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_m
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_QUADRO_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 
@@ -346,7 +342,7 @@ def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_m
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16):
+def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16, marcador_personalizado="[INSERIR_HOMOG_AQUI]"):
     """
     Insere uma tabela do Excel no Word com tratamento para tabelas com células mescladas
     """
@@ -369,7 +365,7 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_HOMOG_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()
         word.Selection.Paste()
 
@@ -401,7 +397,7 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16):
+def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16, marcador_personalizado = "[INSERIR_SANEAMENTO_AQUI]"):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -426,7 +422,7 @@ def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", l
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_SANEAMENTO_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 
@@ -447,7 +443,7 @@ def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", l
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_liquidacao_no_word(docx_path, excel_path, aba="LIQUIDAÇÃO", largura_maxima_cm=16):
+def inserir_tabela_liquidacao_no_word(docx_path, excel_path, aba="LIQUIDAÇÃO", largura_maxima_cm=16, marcador_personalizado="[INSERIR_LIQUIDACAO_AQUI]"):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -472,7 +468,7 @@ def inserir_tabela_liquidacao_no_word(docx_path, excel_path, aba="LIQUIDAÇÃO",
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_LIQUIDACAO_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 

@@ -158,7 +158,7 @@ def montar_documento(self, doc):
     doc = acesso(doc)
     doc = carac_reg(doc)
     doc.add_page_break()
-    doc = desc_imovel(doc, dados)
+    doc = desc_imovel(doc, self.lista_dados_matricula)
     doc.add_page_break()
     doc = declividade(doc, imagem_path=getattr(self, "caminho_declividade", None))
     doc.add_page_break()
@@ -193,7 +193,7 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = anexo_doc(doc)
     doc.add_page_break()
-    doc = anexo_parametros(doc)
+    doc = anexo_parametros(doc, self.lista_dados_matricula)
 
     return doc
 
@@ -306,7 +306,6 @@ def gerar_documento(self):
                                         if chave in r.text:
                                             r.text = r.text.replace(chave, valor)
 
-
         for i, dados in enumerate(self.lista_dados_matriculas):
             substituicoes = substituicoes_base.copy()
             substituicoes.update({
@@ -329,16 +328,21 @@ def gerar_documento(self):
         for dados in self.lista_dados_matriculas:
             caminho_excel = dados.get("planilha")
             if caminho_excel and os.path.exists(caminho_excel):
-                inserir_tabela_excel_no_word(output_path, caminho_excel)
+                marcador = f"[INSERIR_TABELA_{i}_AQUI]"
+                marcador_homog = f"[INSERIR_HOMOG_{i}AQUI]"
+                marcador_saneamento = f"[INSERIR_SANEAMENTO_{i}AQUI]"
+                marcador_quadro = f"[INSERIR_QUADRO_{i+1:02d}_AQUI]"
+                marcador_liq = f"[INSERIR_LIQUIDACAO_{i}AQUI]"
+                inserir_tabela_excel_no_word(output_path, caminho_excel, marcador_personalizado=marcador)
                 inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
                 inserir_tabela_depreciacao_no_word(output_path, caminho_excel)
                 inserir_tabela_classe_no_word(output_path, caminho_excel)
-                inserir_tabelas_amostras_auto(output_path, caminho_excel)
+                inserir_tabelas_amostras_auto(output_path, caminho_excel, indice_matricula=i)
                 inserir_tabela_situacao_no_word(output_path, caminho_excel)
-                inserir_tabela_quadro_no_word(output_path, caminho_excel)
-                inserir_tabela_homog_no_word(output_path, caminho_excel)
-                inserir_tabela_saneamento_no_word(output_path, caminho_excel)
-                inserir_tabela_liquidacao_no_word(output_path, caminho_excel)
+                inserir_tabela_quadro_no_word(output_path, caminho_excel, marcador_quadro)
+                inserir_tabela_homog_no_word(output_path, caminho_excel, marcador_homog)
+                inserir_tabela_saneamento_no_word(output_path, caminho_excel, marcador_saneamento)
+                inserir_tabela_liquidacao_no_word(output_path, caminho_excel, marcador_liq)
                 inserir_tabela_valores_no_word(output_path, caminho_excel)
 
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")

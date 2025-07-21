@@ -115,33 +115,37 @@ def carac_reg(doc):
     run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
-def desc_imovel(doc, dados):
+def desc_imovel(doc, lista_dados_matricula):
     heading = doc.add_paragraph( style='Heading 2')
-    run = heading.add_run("6.4 - Descrição do imóvel de matrícula N°")
+    run = heading.add_run("6.4 - Descrição do imóvel")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
     
-    matricula = dados.get("matricula", "")
-    area_total = dados.get("area_total", "")
-    p_reserva = dados.get("p_reserva", "")
-    area_reserva = dados.get("area_reserva", '')
-    p_app = dados.get("p_app", '')
-    a_app = dados.get("a_app", '')
-    observacoes = dados.get("observacoes_imovel",'')
+    for dados in lista_dados_matricula:
+        matricula = dados.get("matricula", "")
+        area_total = dados.get("area_total", "")
+        p_reserva = dados.get("p_reserva", "")
+        area_reserva = dados.get("area_reserva", '')
+        p_app = dados.get("p_app", '')
+        a_app = dados.get("a_app", '')
+        observacoes = dados.get("observacoes_imovel",'')
 
-    run1 = doc.add_paragraph(f"Trata-se de um imóvel rural de Matrícula nº {matricula}, " \
-    f"com área total de {area_total} ha, destes, {p_reserva} são separados para Reserva Legal, " \
-    f"totalizando uma área de {area_reserva} ha, {observacoes}, a sua Área de Preservação Permanente – APP " \
-    f"ocupa uma área {p_app}, totalizando {a_app} ha da integralidade do imóvel.")
-    run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        run1 = doc.add_paragraph(f"Trata-se de um imóvel rural de Matrícula nº {matricula}, " \
+        f"com área total de {area_total} ha, destes, {p_reserva} são separados para Reserva Legal, " \
+        f"totalizando uma área de {area_reserva} ha, {observacoes}, a sua Área de Preservação Permanente – APP " \
+        f"ocupa uma área {p_app}, totalizando {a_app} ha da integralidade do imóvel.")
+        run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
     run2 = doc.add_paragraph("#ATIVIDADE_IMOVEL")
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")
     run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     adicionar_espaco(doc)
 
-    extra_table = doc.add_paragraph("[INSERIR_TABELA_AQUI]")
+    for i, dados in enumerate(lista_dados_matricula):
+        marcador_tabela = f"[INSERIR_TABELA_{i}_AQUI]"
+        doc.add_paragraph(marcador_tabela)
 
     adicionar_espaco(doc)
 

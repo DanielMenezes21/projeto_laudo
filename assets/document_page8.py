@@ -285,7 +285,7 @@ def anexo_doc(doc):
 
     return doc
 
-def anexo_parametros(doc):
+def anexo_parametros(doc, lista_dados_matricula):
     heading = doc.add_paragraph(style='Heading 1')
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER 
     run = heading.add_run("ANEXO III – PARÂMETROS DE AVALIAÇÃO E MEMORIAL DE CÁLCULO")
@@ -553,11 +553,12 @@ def anexo_parametros(doc):
     run32.bold = True
     adicionar_espaco(doc)
 
-    for i in range(1, 7):
-        par33 = doc.add_paragraph()
-        run33 = par33.add_run(f"[INSERIR_TABELA_AMOSTRAL_{i:02d}]")
-        if i % 2 == 0 and i != 6:
-            doc.add_page_break()
+    for idx, dados in enumerate(lista_dados_matricula):
+        for i in range(1, 7):
+            par = doc.add_paragraph()
+            run = par.add_run(f"[INSERIR_TABELA_AMOSTRAL_M{idx}_{i:02d}]")
+            if i % 3 == 0 and i != 6:
+                doc.add_page_break()
 
     doc.add_page_break()
     doc.add_section(WD_SECTION.NEW_PAGE)
@@ -584,7 +585,8 @@ def anexo_parametros(doc):
     adicionar_espaco(doc)
 
     par36 = doc.add_paragraph()
-    run36 = par36.add_run("[INSERIR_QUADRO_AQUI]")
+    for idx, dados in enumerate(lista_dados_matricula, 1):
+        run36 = par36.add_run(f"[INSERIR_QUADRO_{idx:02d}]")
 
     doc.add_page_break()
 
@@ -594,7 +596,8 @@ def anexo_parametros(doc):
     adicionar_espaco(doc)
 
     par38 = doc.add_paragraph()
-    run38 = par38.add_run("[INSERIR_HOMOG_AQUI]")
+    for idx, dados in enumerate(lista_dados_matricula):
+        run38 = par38.add_run(f"[INSERIR_HOMOG_{idx:02d}AQUI]")
 
     doc.add_page_break()
     doc.add_section(WD_SECTION.NEW_PAGE)
@@ -617,7 +620,8 @@ def anexo_parametros(doc):
     adicionar_espaco(doc)
 
     par41 = doc.add_paragraph()
-    run41 = par41.add_run("[INSERIR_SANEAMENTO_AQUI]")
+    for idx, dados in enumerate(lista_dados_matricula):
+        run41 = par41.add_run(f"[INSERIR_SANEAMENTO_{idx:02d}AQUI]")
     adicionar_espaco(doc)
 
     par42 = doc.add_paragraph()
@@ -671,7 +675,8 @@ def anexo_parametros(doc):
     )
     
     par46 = doc.add_paragraph()
-    run46 = par46.add_run("[INSERIR_LIQUIDACAO_AQUI]")
+    for idx, dados in enumerate(lista_dados_matricula):
+        run46 = par46.add_run(f"[INSERIR_LIQUIDACAO_{idx:02d}AQUI]")
     adicionar_espaco(doc)
 
     doc.add_page_break()
