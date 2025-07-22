@@ -239,6 +239,7 @@ class MatriculaScreen(MDScreen):
                     "planilha": arquivos.get("planilha", "")
                 })
         print(f"🔄 Salvando dados para tela PDF: {self.lista_dados_matriculas}")
+        print(f"🔢 Quantidade de matrículas em lista_dados_matriculas: {len(self.lista_dados_matriculas)}")
         tela_pdf = self.manager.get_screen('pdf')
         if hasattr(tela_pdf, "receber_dados_matriculas"):
             tela_pdf.receber_dados_matriculas(self.lista_dados_matriculas)

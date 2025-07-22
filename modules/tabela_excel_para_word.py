@@ -281,8 +281,9 @@ def inserir_tabelas_amostras_auto(
 
         word.Selection.HomeKey(Unit=6)
         if word.Selection.Find.Execute(marcador):
-            word.Selection.TypeBackspace()
-            word.Selection.Paste()
+            if word.Selection.Text.strip() == marcador:
+                word.Selection.TypeBackspace()
+                word.Selection.Paste()
             table = doc.Tables(doc.Tables.Count)
             usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
             max_width = largura_maxima_cm * 28.35
@@ -295,54 +296,70 @@ def inserir_tabelas_amostras_auto(
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_quadro_no_word(docx_path, excel_path, aba="QUADRO", largura_maxima_cm=16, marcador_personalizado="[INSERIR_QUADRO_AQUI]"):
-    """
-    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
-    """
+def inserir_tabela_quadro_no_word(docx_path, excel_path,marcador_personalizado="[INSERIR_QUADRO_AQUI]", aba="QUADRO", largura_maxima_cm=16, ):
     xlUp = -4162
+
     if not os.path.exists(excel_path):
         raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
 
     excel = Dispatch("Excel.Application")
-    wb = excel.Workbooks.Open(excel_path)
-    sheet = wb.Sheets(aba)
-
-    last_row = sheet.Cells(sheet.Rows.Count, "B").End(xlUp).Row
-
-    intervalo = f"B3:L9"
-    sheet.Range(intervalo).Copy()
-
-    word = Dispatch("Word.Application")
     try:
-        word.Visible = False
-    except AttributeError:
-        pass
-    doc = word.Documents.Open(docx_path)
+        wb = excel.Workbooks.Open(excel_path)
+        if wb is None:
+            excel.Quit()
+            raise Exception(f"Não foi possível abrir o arquivo Excel: {excel_path}")
 
-    word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute(marcador_personalizado):
-        word.Selection.TypeBackspace()  
-        word.Selection.Paste()
+        abas_disponiveis = [s.Name for s in wb.Sheets]
+        if aba not in abas_disponiveis:
+            wb.Close(SaveChanges=False)
+            excel.Quit()
+            raise Exception(
+                f"Aba '{aba}' não encontrada no arquivo Excel: {excel_path}\n"
+                f"Abas disponíveis: {abas_disponiveis}"
+            )
 
-        table = doc.Tables(doc.Tables.Count)
-        table.AutoFitBehavior(2) 
-        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+        sheet = wb.Sheets(aba)
+        intervalo = "B3:L9"
+        sheet.Range(intervalo).Copy()
 
-        max_width = largura_maxima_cm * 28.35
-        final_width = min(usable_width, max_width)
+        word = Dispatch("Word.Application")
+        try:
+            word.Visible = False
+        except AttributeError:
+            pass
+        doc = word.Documents.Open(docx_path)
 
-        table.PreferredWidthType = 1
-        table.PreferredWidth = final_width
-        print("sucesso")
-    else:
-        print("erro")
+        word.Selection.HomeKey(Unit=6)
+        if word.Selection.Find.Execute(marcador_personalizado):
+            word.Selection.TypeBackspace()
+            word.Selection.Paste()
 
-    doc.Save()
-    doc.Close()
-    wb.Close(SaveChanges=False)
-    excel.Quit()
+            table = doc.Tables(doc.Tables.Count)
+            usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
 
-def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", largura_maxima_cm=16, marcador_personalizado="[INSERIR_HOMOG_AQUI]"):
+            max_width = largura_maxima_cm * 28.35
+            final_width = min(usable_width, max_width)
+
+            table.PreferredWidthType = 1
+            table.PreferredWidth = final_width
+            print(f"✅ Tabela '{aba}' inserida com sucesso.")
+        else:
+            print(f"⚠️ Marcador '{marcador_personalizado}' não encontrado no documento.")
+
+        doc.Save()
+        doc.Close()
+        wb.Close(SaveChanges=False)
+        excel.Quit()
+
+    except Exception as e:
+        try:
+            wb.Close(SaveChanges=False)
+        except:
+            pass
+        excel.Quit()
+        raise e
+
+def inserir_tabela_homog_no_word(docx_path, excel_path,marcador_personalizado="[INSERIR_HOMOG_AQUI]", aba="PLANILHA HOMOG", largura_maxima_cm=16, ):
     """
     Insere uma tabela do Excel no Word com tratamento para tabelas com células mescladas
     """
@@ -397,7 +414,7 @@ def inserir_tabela_homog_no_word(docx_path, excel_path, aba="PLANILHA HOMOG", la
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16, marcador_personalizado = "[INSERIR_SANEAMENTO_AQUI]"):
+def inserir_tabela_saneamento_no_word(docx_path, excel_path,marcador_personalizado = "[INSERIR_SANEAMENTO_AQUI]", aba="SANEAMENTO", largura_maxima_cm=16, ):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -443,7 +460,7 @@ def inserir_tabela_saneamento_no_word(docx_path, excel_path, aba="SANEAMENTO", l
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_liquidacao_no_word(docx_path, excel_path, aba="LIQUIDAÇÃO", largura_maxima_cm=16, marcador_personalizado="[INSERIR_LIQUIDACAO_AQUI]"):
+def inserir_tabela_liquidacao_no_word(docx_path, excel_path,marcador_personalizado="[INSERIR_LIQUIDACAO_AQUI]", aba="LIQUIDAÇÃO", largura_maxima_cm=16, ):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """

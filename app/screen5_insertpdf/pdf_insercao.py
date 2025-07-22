@@ -86,12 +86,16 @@ def inserir_imagem_no_placeholder(self, placeholder, caminho_imagem):
             return
     print(f"❌ Placeholder '{placeholder}' não encontrado no documento.")
 
+
 def montar_documento(self, doc):
+    """
+    Monta o documento Word, criando seções por imóvel utilizando
+    self.lista_dados_matriculas já normalizada (nenhuma duplicação).
+    """
+    print(f"📋 Quantidade de matrículas em montar_documento: {len(self.lista_dados_matriculas)}")
     doc = configurar_documento()
     doc.add_page_break()
-
-    for d in self.lista_dados_matriculas:
-        print("Pré-doc:", d)
+    print(f"📋 Quantidade de matrículas em montar_documento depois de configurar: {len(self.lista_dados_matriculas)}")
 
     for i, dados in enumerate(self.lista_dados_matriculas):
         doc = criar_titulo(doc, dados)
@@ -100,17 +104,14 @@ def montar_documento(self, doc):
         doc = adicionar_linha_fina(doc)
         doc = criar_secao_identificacao(doc)
         doc = adicionar_linha_fina(doc)
-        imagem_path = dados.get("imagem", "")
-        doc = criar_secao_croqui(doc, imagem_path=imagem_path)
+        doc = criar_secao_croqui(doc, imagem_path=dados.get("imagem", ""))
         doc = adicionar_linha_fina(doc)
         doc = geometria_terreno(doc, dados)
         doc = adicionar_linha_fina(doc)
         doc = criar_secao_caracteristicas(doc, dados)
         if i < self.qtd_imoveis - 1:
-            p = doc.add_paragraph()
-            run = p.add_run(".")
-            run.font.size = Pt(1)
             doc.add_page_break()
+
     for i, dados in enumerate(self.lista_dados_matriculas):
         doc = adicionar_linha_fina(doc)
         doc = titulo(doc, dados)
@@ -121,11 +122,8 @@ def montar_documento(self, doc):
         doc = area_APA(doc, dados)
         doc = adicionar_linha_fina(doc)
         doc = table_passivo_ambiental(doc, dados)
-        if i == self.qtd_imoveis - 1:
-            doc = campo_assinatura(doc)
-            doc.add_page_break()
-        elif i < self.qtd_imoveis - 1:
-            doc.add_page_break()
+        doc.add_page_break()
+
     doc = inserir_sumario(doc)
     doc.add_page_break()
     doc = adicionar_espaco(doc)
@@ -135,30 +133,15 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = texto_finalidade(doc)
     doc = adicionar_espaco(doc)
-    if hasattr(self, "dados_imoveis") and self.dados_imoveis:
-        for i, dados in enumerate(self.lista_dados_matriculas):
-            if i < len(self.dados_imoveis):
-                nomes = self.dados_imoveis[i].get("nomes", [])
-                cpfs = self.dados_imoveis[i].get("cpfs", [])
-
-                for nome, cpf in zip(nomes, cpfs):
-                    novo_dado = dados.copy()
-                    novo_dado["nome"] = nome
-                    novo_dado["cpf"] = cpf
-                    self.lista_dados_matriculas.append(novo_dado)
-                    for d in self.lista_dados_matriculas:
-                        print("🔎", d.get("nome"), "-", d.get("cpf"), "-", d.get("matricula"))
-        self.lista_dados_matriculas = self.lista_dados_matriculas[len(self.dados_imoveis):]
     doc = texto_proprietario(doc, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
     doc = texto_ressalvas(doc)
-    doc = adicionar_espaco(doc)
     doc = title_imovel(doc)
     doc = localizacao(doc, self.lista_dados_matriculas)
     doc = acesso(doc)
     doc = carac_reg(doc)
     doc.add_page_break()
-    doc = desc_imovel(doc, self.lista_dados_matricula)
+    doc = desc_imovel(doc, self.lista_dados_matriculas)
     doc.add_page_break()
     doc = declividade(doc, imagem_path=getattr(self, "caminho_declividade", None))
     doc.add_page_break()
@@ -178,27 +161,27 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = especificacao(doc)
     doc = grau_especificacao(doc)
-    doc = adicionar_espaco(doc)
+    doc.add_page_break()
     doc = grau_precisao(doc)
     doc = adicionar_espaco(doc)
     doc = grau_precisao2(doc)
     doc.add_page_break()
     doc = resultado(doc)
     doc.add_page_break()
-    doc = encerramento(doc, dados)
+    doc = encerramento(doc, self.lista_dados_matriculas[0] if self.lista_dados_matriculas else {})
     doc.add_page_break()
     doc = inserir_caixa_texto(doc)
     doc.add_page_break()
     doc = anexos_fotos(doc)
     doc.add_page_break()
     doc = anexo_doc(doc)
-    doc.add_page_break()
-    doc = anexo_parametros(doc, self.lista_dados_matricula)
+    doc = adicionar_espaco(doc)
+    doc = anexo_parametros(doc, self.lista_dados_matriculas)
 
     return doc
 
-def gerar_documento(self): 
-    #try:
+def gerar_documento(self):
+    try: 
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -232,7 +215,7 @@ def gerar_documento(self):
 
         doc = configurar_documento()
         doc.save(output_path)
-        time.sleep(1) 
+        time.sleep(1)
 
         texto_capa = "LAUDO DE AVALIAÇÃO Nº #NPROCESSO,\n #DATA_ATUAL, Palmas TO"
         substituicoes = {
@@ -316,23 +299,35 @@ def gerar_documento(self):
                 "#VALOR_TOTAL": dados.get("valor_total", ""),
                 "#VALOR_LIQUIDO": dados.get("valor_liq", ""),
             })
-            substituicoes = {k: str(v) for k, v in substituicoes.items()}
-            substituir_texto(substituicoes)
+            substituir_texto({k: str(v) for k, v in substituicoes.items()})
 
         if self.caminho_car:
             inserir_pdf_no_word(self, self.caminho_car, "#SUBSTITUIR_CAR")
         if self.caminho_cit:
             inserir_pdf_no_word(self, self.caminho_cit, "#SUBSTITUIR_CIT")
+
         self.doc.save(output_path)
 
-        for dados in self.lista_dados_matriculas:
+        # Exibe contagem de matrículas únicas
+        unique_matriculas = set(d.get("matricula") for d in self.lista_dados_matriculas)
+        print("🧾 Total de matrículas carregadas:", len(unique_matriculas))
+
+        # Insere tabelas apenas uma vez por matrícula
+        matriculas_processadas = set()
+        for i, dados in enumerate(self.lista_dados_matriculas):
+            matricula = dados.get("matricula")
+            if matricula in matriculas_processadas:
+                continue
+            matriculas_processadas.add(matricula)
+
             caminho_excel = dados.get("planilha")
             if caminho_excel and os.path.exists(caminho_excel):
                 marcador = f"[INSERIR_TABELA_{i}_AQUI]"
-                marcador_homog = f"[INSERIR_HOMOG_{i}AQUI]"
-                marcador_saneamento = f"[INSERIR_SANEAMENTO_{i}AQUI]"
+                marcador_homog = f"[INSERIR_HOMOG_AQUI]"
+                marcador_saneamento = f"[INSERIR_SANEAMENTO_AQUI]"
                 marcador_quadro = f"[INSERIR_QUADRO_{i+1:02d}_AQUI]"
-                marcador_liq = f"[INSERIR_LIQUIDACAO_{i}AQUI]"
+                marcador_liq = f"[INSERIR_LIQUIDACAO_AQUI]"
+                print(f"📌 Inserindo tabelas para matrícula índice {i}")
                 inserir_tabela_excel_no_word(output_path, caminho_excel, marcador_personalizado=marcador)
                 inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
                 inserir_tabela_depreciacao_no_word(output_path, caminho_excel)
@@ -347,7 +342,7 @@ def gerar_documento(self):
 
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
 
-        if hasattr(self, "imagem_marca_dagua"):
+        if hasattr(self, "imagem_marca_dagua"):  
             imagens_fundo(output_path, self.imagem_marca_dagua)
         if hasattr(self, "imagem_final"):
             inserir_imagem_ultima_pagina(output_path, self.imagem_final)
@@ -355,6 +350,7 @@ def gerar_documento(self):
             inserir_marcadagua_so_na_secao(output_path, self.img_anexo, marcador='#CAIXATEXTO#')
         if hasattr(self, "img_capa"):
             inserir_imagem_capa_atras_texto(output_path, self.img_capa)
+
         inserir_caixa_texto_primeira_pagina(output_path, texto_capa, substituicoes=substituicoes)
 
         self.word_app = win32com.client.Dispatch("Word.Application")
@@ -363,7 +359,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-'''except Exception as e:
+    except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -379,4 +375,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()'''
+        ).open()
