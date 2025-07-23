@@ -54,10 +54,35 @@ def go_next(self):
         )
         dialog.open()
         return False"""
+    
     print("🔍 Dados enviados à tela PDF:")
     for chave, valor in campos.items():
         print(f"{chave}: {valor}")
+
+    dados_identificacao = []
+    if isinstance(self.proponentes, dict):
+        for nome, dados in self.proponentes.items():
+            if isinstance(dados, dict):
+                cpf = dados.get("cpf", "")
+                civil = dados.get("civil", "")
+                tratamento = dados.get("tratamento", "")
+                dados_identificacao.append({
+                    "nome": nome,
+                    "cpf": cpf,
+                    "civil": civil,
+                    "tratamento": tratamento
+                })
+
+    print("\n👤 Dados de Identificação dos Proponentes:")
+    for pessoa in dados_identificacao:
+        print(f" - Nome: {pessoa['nome']}")
+        print(f"   CPF: {pessoa['cpf']}")
+        print(f"   Situação Civil: {pessoa['civil']}")
+        print(f"   Tratamento: {pessoa['tratamento']}")
+        print("")
+    
     tela_pdf = self.manager.get_screen('pdf')
+    tela_pdf.lista_proponentes = dados_identificacao
     tela_pdf.tratamento = campos["Tratamento"]
     tela_pdf.nome = campos["Nome"]
     tela_pdf.cpf = campos["CPF"]
@@ -68,6 +93,7 @@ def go_next(self):
     tela_pdf.solicitante = campos["Solicitante"]
 
     self.manager.current = 'territorio'
+    
     return True
 
 def go_back(self):

@@ -133,7 +133,7 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = texto_finalidade(doc)
     doc = adicionar_espaco(doc)
-    doc = texto_proprietario(doc, self.lista_dados_matriculas)
+    doc = texto_proprietario(doc, self.lista_dados_matriculas, self.lista_proponentes)
     doc = adicionar_espaco(doc)
     doc = texto_ressalvas(doc)
     doc = title_imovel(doc)
@@ -166,7 +166,7 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = grau_precisao2(doc)
     doc.add_page_break()
-    doc = resultado(doc)
+    doc = resultado(doc, self.lista_dados_matriculas)
     doc.add_page_break()
     doc = encerramento(doc, self.lista_dados_matriculas[0] if self.lista_dados_matriculas else {})
     doc.add_page_break()
@@ -181,7 +181,7 @@ def montar_documento(self, doc):
     return doc
 
 def gerar_documento(self):
-    try: 
+    #try: 
         self.imagem_marca_dagua = "models/RODAPE.png"
         self.imagem_final = "models/final.png"
         self.img_capa = "models/capa_do_laudo.png"
@@ -308,11 +308,9 @@ def gerar_documento(self):
 
         self.doc.save(output_path)
 
-        # Exibe contagem de matrículas únicas
         unique_matriculas = set(d.get("matricula") for d in self.lista_dados_matriculas)
         print("🧾 Total de matrículas carregadas:", len(unique_matriculas))
 
-        # Insere tabelas apenas uma vez por matrícula
         matriculas_processadas = set()
         for i, dados in enumerate(self.lista_dados_matriculas):
             matricula = dados.get("matricula")
@@ -323,10 +321,11 @@ def gerar_documento(self):
             caminho_excel = dados.get("planilha")
             if caminho_excel and os.path.exists(caminho_excel):
                 marcador = f"[INSERIR_TABELA_{i}_AQUI]"
-                marcador_homog = f"[INSERIR_HOMOG_AQUI]"
-                marcador_saneamento = f"[INSERIR_SANEAMENTO_AQUI]"
+                marcador_homog = f"[INSERIR_HOMOG_{i}_AQUI]"
+                marcador_saneamento = f"[INSERIR_SANEAMENTO_{i}_AQUI]"
                 marcador_quadro = f"[INSERIR_QUADRO_{i+1:02d}_AQUI]"
-                marcador_liq = f"[INSERIR_LIQUIDACAO_AQUI]"
+                marcador_liq = f"[INSERIR_LIQUIDACAO_{i}_AQUI]"
+                marcador_valores = f"[INSERIR_VALORES_{i}_AQUI]"
                 print(f"📌 Inserindo tabelas para matrícula índice {i}")
                 inserir_tabela_excel_no_word(output_path, caminho_excel, marcador_personalizado=marcador)
                 inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
@@ -338,7 +337,7 @@ def gerar_documento(self):
                 inserir_tabela_homog_no_word(output_path, caminho_excel, marcador_homog)
                 inserir_tabela_saneamento_no_word(output_path, caminho_excel, marcador_saneamento)
                 inserir_tabela_liquidacao_no_word(output_path, caminho_excel, marcador_liq)
-                inserir_tabela_valores_no_word(output_path, caminho_excel)
+                inserir_tabela_valores_no_word(output_path, caminho_excel, marcador_valores)
 
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
 
@@ -359,7 +358,7 @@ def gerar_documento(self):
             y=dp(24)
         ).open()
 
-    except Exception as e:
+"""    except Exception as e:
         print(f"❌ Erro ao gerar documento: {e}")
         try:
             word = win32com.client.GetActiveObject("Word.Application")
@@ -375,4 +374,4 @@ def gerar_documento(self):
         MDSnackbar(
             MDSnackbarText(text=f"Erro: {str(e)}"),
             y=dp(24)
-        ).open()
+        ).open()"""

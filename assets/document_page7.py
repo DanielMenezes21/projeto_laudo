@@ -944,7 +944,7 @@ def grau_precisao2(doc):
 
     return doc
 
-def resultado(doc):
+def resultado(doc, lista_dados_matricula):
     """
     Create a document with a table and text related to the 'Resultado' section.
     """
@@ -973,9 +973,10 @@ def resultado(doc):
     "de 80% em torno do valor central da estimativa. ")
     adicionar_espaco(doc)
 
-    parrun3 = doc.add_paragraph()
-    parrun3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    run3 = parrun3.add_run("[INSERIR_VALORES_AQUI]")
+    for i, dados in enumerate(lista_dados_matricula):
+        parrun3 = doc.add_paragraph()
+        parrun3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        run3 = parrun3.add_run(f"[INSERIR_VALORES_{i}_AQUI]")
 
     return doc
 

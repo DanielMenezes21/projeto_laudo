@@ -18,23 +18,22 @@ def adicionar_espaco(doc):
 
     return doc
 
-def gerar_texto_proprietarios(lista_matriculas):
+def gerar_texto_proprietarios_completo(lista_matriculas, lista_proponentes):
     grupos = []
 
     for item in lista_matriculas:
-        proprietarios = [p.strip() for p in item.get("proprietario", "").split(",") if p.strip()]
-        cpfs = [c.strip() for c in item.get("cpf", "").split(",") if c.strip()]
-        imovel = item.get("nome_imovel", "").strip()
+        proprietarios_nomes = [p.strip() for p in item.get("proprietario", "").split(",") if p.strip()]
         matricula = item.get("matricula", "").strip()
+        imovel = item.get("nome_imovel", "").strip()
 
-        max_len = max(len(proprietarios), len(cpfs))
-        proprietarios += [""] * (max_len - len(proprietarios))
-        cpfs += [""] * (max_len - len(cpfs))
+        for nome in proprietarios_nomes:
+            prop_info = next((p for p in lista_proponentes if p["nome"].strip().lower() == nome.strip().lower()), None)
 
-        for i in range(max_len):
             grupos.append({
-                "nome": proprietarios[i],
-                "cpf": cpfs[i],
+                "nome": nome,
+                "cpf": prop_info.get("cpf", "") if prop_info else "",
+                "civil": prop_info.get("civil", "") if prop_info else "",
+                "tratamento": prop_info.get("tratamento", "") if prop_info else "",
                 "matricula": matricula,
                 "imovel": imovel
             })
@@ -42,26 +41,28 @@ def gerar_texto_proprietarios(lista_matriculas):
     matriculas_dict = defaultdict(list)
     for g in grupos:
         chave = (g['matricula'], g['imovel'])
-        matriculas_dict[chave].append((g['nome'], g['cpf']))
+        matriculas_dict[chave].append(g)
 
-    if len(matriculas_dict) == 1:
-        ((matricula, imovel), dados) = list(matriculas_dict.items())[0]
-        proprietarios_texto = formatar_lista_com_e([
-            f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
-            for nome, cpf in set(dados)
-        ])
-
-        return f"        Em conformidade com o exposto na matrícula de nº {matricula}, {proprietarios_texto}, são os proprietários do imóvel rural denominado {imovel}."
-    
     paragrafos = []
-    for (matricula, imovel), dados in matriculas_dict.items():
-        proprietarios_texto = formatar_lista_com_e([
-            f"{nome}, inscrito sob o CPF nº {cpf}" if cpf else nome
-            for nome, cpf in set(dados)
-        ])
-        paragrafos.append(
-            f"        Em conformidade com o exposto na matrícula de nº {matricula}, {proprietarios_texto}, são os proprietários do imóvel rural denominado {imovel}."
-        )
+    for (matricula, imovel), proprietarios in matriculas_dict.items():
+        if len(proprietarios) == 1:
+            p = proprietarios[0]
+            texto = (
+                f"        Em conformidade com o exposto na matrícula de nº {matricula}, "
+                f"o {p['tratamento']} {p['nome']}, {p['civil']}, inscrito sob o CPF nº {p['cpf']}, "
+                f"é o proprietário do imóvel rural denominado {imovel}."
+            )
+        else:
+            descricoes = [
+                f"{p['tratamento']} {p['nome']}, {p['civil']}, inscrito sob o CPF nº {p['cpf']}"
+                for p in proprietarios
+            ]
+            texto = (
+                f"        Em conformidade com o exposto na matrícula de nº {matricula}, "
+                f"{formatar_lista_com_e(descricoes)}, são os proprietários do imóvel rural denominado {imovel}."
+            )
+        paragrafos.append(texto)
+
     return "\n\n".join(paragrafos)
 
 def formatar_lista_com_e(itens):
@@ -124,13 +125,13 @@ def texto_finalidade(doc):
 
     return doc
 
-def texto_proprietario(doc, lista_matriculas):
+def texto_proprietario(doc, lista_matriculas, lista_proponentes):
     heading = doc.add_paragraph( style='Heading1')
     run = heading.add_run("4 - PROPRIETÁRIO")
     run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 =doc.add_paragraph(" ")
-    texto = gerar_texto_proprietarios(lista_matriculas)
+    texto = gerar_texto_proprietarios_completo(lista_matriculas, lista_proponentes)
     run2 = doc.add_paragraph(texto)
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
@@ -144,7 +145,7 @@ def texto_ressalvas(doc):
     run2 = doc.add_paragraph("        Este Laudo fundamenta-se no que estabelecem as normas técnicas da ABNT"\
     "Avaliação de Bens, NBR 14653 – Parte 1 (Procedimentos Gerais/Revisão 2019) e Parte 3"\
     "(Imóveis Rurais/Revisão 2011), e baseia-se na documentação fornecida referente ao imóvel localizado"\
-    "em #CIDADE_I - #ESTADO_I, situação na qual o #TRATAMENTO #PROPONENTE solicita a avaliação do mesmo." \
+    "em #CIDADE_I - #ESTADO_I, situação na qual o #TRATAMENTO #SOLICITANTE solicita a avaliação do mesmo." \
     " Quanto às edificações e benfeitorias existentes no imóvel são considerados os quantitativos" \
     "de projetos existentes (se existirem), informações constatadas in loco quando da vistoria ao imóvel, " \
     "realizada em {data_av} e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \

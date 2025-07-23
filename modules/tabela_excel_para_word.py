@@ -506,7 +506,7 @@ def inserir_tabela_liquidacao_no_word(docx_path, excel_path,marcador_personaliza
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-def inserir_tabela_valores_no_word(docx_path, excel_path, aba="SANEAMENTO", largura_maxima_cm=16):
+def inserir_tabela_valores_no_word(docx_path, excel_path, marcador_personalizado="[INSERIR_VALORES_AQUI]", aba="SANEAMENTO", largura_maxima_cm=16):
     """
     Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
     """
@@ -531,7 +531,7 @@ def inserir_tabela_valores_no_word(docx_path, excel_path, aba="SANEAMENTO", larg
     doc = word.Documents.Open(docx_path)
 
     word.Selection.HomeKey(Unit=6)  
-    if word.Selection.Find.Execute("[INSERIR_VALORES_AQUI]"):
+    if word.Selection.Find.Execute(marcador_personalizado):
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 

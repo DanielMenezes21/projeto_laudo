@@ -596,8 +596,8 @@ def anexo_parametros(doc, lista_dados_matricula):
     adicionar_espaco(doc)
 
     par38 = doc.add_paragraph()
-    for idx, dados in enumerate(lista_dados_matricula):
-        run38 = par38.add_run(f"[INSERIR_HOMOG_AQUI]")
+    for i, dados in enumerate(lista_dados_matricula):
+        run38 = par38.add_run(f"[INSERIR_HOMOG_{i}_AQUI]")
 
     doc.add_page_break()
     doc.add_section(WD_SECTION.NEW_PAGE)
@@ -620,8 +620,8 @@ def anexo_parametros(doc, lista_dados_matricula):
     adicionar_espaco(doc)
 
     par41 = doc.add_paragraph()
-    for idx, dados in enumerate(lista_dados_matricula):
-        run41 = par41.add_run(f"[INSERIR_SANEAMENTO_AQUI]")
+    for i, dados in enumerate(lista_dados_matricula):
+        run41 = par41.add_run(f"[INSERIR_SANEAMENTO_{i}_AQUI]")
     adicionar_espaco(doc)
 
     par42 = doc.add_paragraph()
@@ -675,8 +675,8 @@ def anexo_parametros(doc, lista_dados_matricula):
     )
     
     par46 = doc.add_paragraph()
-    for idx, dados in enumerate(lista_dados_matricula):
-        run46 = par46.add_run(f"[INSERIR_LIQUIDACAO_AQUI]")
+    for i, dados in enumerate(lista_dados_matricula):
+        run46 = par46.add_run(f"[INSERIR_LIQUIDACAO_{i}_AQUI]")
     adicionar_espaco(doc)
 
     doc.add_page_break()
