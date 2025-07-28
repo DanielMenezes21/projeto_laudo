@@ -1,11 +1,25 @@
 from win32com.client import Dispatch, constants
 import os
 
+import os
+from win32com.client import Dispatch
+from docx import Document
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.shared import Cm
+
 def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_maxima_cm=16, marcador_personalizado="[INSERIR_TABELA_AQUI]"):
     """
-    Insere uma tabela do Excel no Word, usando o caminho do Excel selecionado pelo usuário.
+    Insere uma tabela do Excel no Word e centraliza a tabela usando python-docx.
+    
+    Args:
+        docx_path (str): Caminho do arquivo Word.
+        excel_path (str): Caminho do arquivo Excel.
+        aba (str): Nome da aba do Excel a ser usada.
+        largura_maxima_cm (float): Largura máxima da tabela em centímetros.
+        marcador_personalizado (str): Marcador no documento Word onde a tabela será inserida.
     """
     xlUp = -4162
+    
     if not os.path.exists(excel_path):
         raise FileNotFoundError(f"Arquivo Excel não encontrado: {excel_path}")
 
@@ -22,7 +36,6 @@ def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_
         raise Exception(f"Aba '{aba}' não encontrada no arquivo Excel: {excel_path}\nAbas disponíveis: {abas_disponiveis}")
 
     sheet = wb.Sheets(aba)
-
     last_row = sheet.Cells(sheet.Rows.Count, "B").End(xlUp).Row
     linha_final = None
     for row in range(4, last_row + 1):
@@ -50,19 +63,34 @@ def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_
         word.Selection.TypeBackspace()  
         word.Selection.Paste()
 
-        table = doc.Tables(doc.Tables.Count)
-        usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
+        doc.Save()
+        doc.Close()
+    else:
+        wb.Close(SaveChanges=False)
+        excel.Quit()
+        doc.Close()
+        word.Quit()
+        raise Exception(f"Marcador '{marcador_personalizado}' não encontrado no documento Word.")
 
-        max_width = largura_maxima_cm * 28.35
-        final_width = min(usable_width, max_width)
-
-        table.PreferredWidthType = 1
-        table.PreferredWidth = final_width
-
-    doc.Save()
-    doc.Close()
     wb.Close(SaveChanges=False)
     excel.Quit()
+    word.Quit()
+
+    doc = Document(docx_path)
+    tables = doc.tables 
+    if not tables:
+        raise Exception("Nenhuma tabela encontrada no documento após a inserção.")
+
+    table = tables[-1]
+    
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+    max_width = Cm(largura_maxima_cm)
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = max_width / len(table.columns)  
+
+    doc.save(docx_path)
 
 def inserir_tabela_benfeitoria_no_word(docx_path, excel_path, aba="FATORES", largura_maxima_cm=16):
     """
@@ -536,6 +564,8 @@ def inserir_tabela_valores_no_word(docx_path, excel_path, marcador_personalizado
         word.Selection.Paste()
 
         table = doc.Tables(doc.Tables.Count)
+        table.Range.ParagraphFormat.Alignment = 1 
+        table.Rows.Alignment = 1
         usable_width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin
 
         max_width = largura_maxima_cm * 28.35

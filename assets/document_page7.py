@@ -975,7 +975,7 @@ def resultado(doc, lista_dados_matricula):
 
     for i, dados in enumerate(lista_dados_matricula):
         parrun3 = doc.add_paragraph()
-        parrun3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        parrun3.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run3 = parrun3.add_run(f"[INSERIR_VALORES_{i}_AQUI]")
 
     return doc

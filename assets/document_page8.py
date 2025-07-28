@@ -715,6 +715,9 @@ def anexo_parametros(doc, lista_dados_matricula):
     par61 = doc.add_paragraph()
     run61 = par61.add_run("Sindicato Nacional")
 
+    for par in [par48, par49, par50, par51, par52, par53, par54, par55, par56, par57, par58, par59, par60, par61]:
+        par.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
     doc.add_page_break()
     par62 = doc.add_paragraph("teste")
 

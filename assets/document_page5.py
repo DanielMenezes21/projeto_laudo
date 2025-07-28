@@ -148,7 +148,7 @@ def texto_ressalvas(doc):
     "em #CIDADE_I - #ESTADO_I, situação na qual o #TRATAMENTO #SOLICITANTE solicita a avaliação do mesmo." \
     " Quanto às edificações e benfeitorias existentes no imóvel são considerados os quantitativos" \
     "de projetos existentes (se existirem), informações constatadas in loco quando da vistoria ao imóvel, " \
-    "realizada em {data_av} e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \
+    "realizada em #DATA_VISTORIA e sendo, dessa forma, adotadas na presente avaliação como oficiais, por premissa," \
     " consideradas como válidas.")
     adicionar_espaco(doc)
     run3 = doc.add_paragraph("        Também, utilizamos como referência no decorrer dos trabalhos elementos documentais " \

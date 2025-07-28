@@ -17,6 +17,7 @@ from app.screen4_territorio.solofunction import (
     go_back, go_next1, open_file_manager, 
     open_file_hidrografia, preencher_cidade, 
     abrir_dropdown, open_file_rotas, open_file_solos)
+from app.screen4_territorio.data_picker import  show_modal_date_picker
 
 class SoloScreen(MDScreen):
     def __init__(self, **kwargs):
@@ -70,6 +71,21 @@ class SoloScreen(MDScreen):
             text_color = "yellow",
             size_hint=(1,None),
             pos_hint={"center_x":0.5, "center_y":0.9}
+        )
+
+        self.date_picker = MDButton(
+            MDButtonText(text="Data da vistoria"),
+            size_hint=(0.2, None),
+            pos_hint={"center_x": 0.5, "center_y": 0.9},
+            on_release=lambda x: show_modal_date_picker(self),
+        )
+
+        self.data_vistoria_text = MDTextField(
+            MDTextFieldHintText(text="Data da vistoria"),
+            size_hint=(0.5, None),
+            height=dp(40),
+            pos_hint={"center_x": 0.5, "center_y": 0.88},
+            multiline=False,
         )
 
         self.descricao_imovel = MDTextField(
@@ -230,6 +246,8 @@ class SoloScreen(MDScreen):
         
         self.layout.add_widget(buttons)
         self.layout.add_widget(self.label)
+        self.layout.add_widget(self.date_picker)
+        self.layout.add_widget(self.data_vistoria_text)
         self.layout.add_widget(self.descricao_imovel)
         self.layout.add_widget(self.descricao_cidade)
         self.layout.add_widget(self.atividade_imovel)
@@ -252,4 +270,5 @@ class SoloScreen(MDScreen):
                 self.descricao_cidade.text = descricao
             return True
         return False
+
     

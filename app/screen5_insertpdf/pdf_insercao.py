@@ -240,6 +240,7 @@ def gerar_documento(self):
             "#PROPONENTE": self.nome,
             "#CPF_PROPONENTE": self.cpf,
             "#DATA_ATUAL": self.data_atual,
+            "#DATA_VISTORIA": self.data_vistoria,
             "#CIVIL": self.civil,
             "#CIDADE_I": self.municipio,
             "#ESTADO_I": self.estado,

@@ -102,7 +102,6 @@ def acesso(doc, imagem_acesso=None):
     par2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run2 = par2.add_run("#ROTA_ACESSO")
     
-
     return doc
 
 def carac_reg(doc):
@@ -111,7 +110,7 @@ def carac_reg(doc):
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
-    run1 = doc.add_paragraph("{caracterização}")
+    run1 = doc.add_paragraph("#REGIAO_CIDADE \n #REGIAO_IMOVEL")
     run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
@@ -144,8 +143,9 @@ def desc_imovel(doc, lista_dados_matricula):
     adicionar_espaco(doc)
 
     for i, dados in enumerate(lista_dados_matricula):
-        marcador_tabela = f"[INSERIR_TABELA_{i}_AQUI]"
-        doc.add_paragraph(marcador_tabela)
+        par = doc.add_paragraph()
+        par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        runpar = par.add_run(f"[INSERIR_TABELA_{i}_AQUI]")
 
     adicionar_espaco(doc)
 

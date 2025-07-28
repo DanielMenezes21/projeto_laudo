@@ -27,6 +27,7 @@ def go_next1(self):
         "hidrografia": self.hidrografia_text.text,
         "resumo_solo": self.resumo_solo.text,
         "texto_solos": self.texto_solos.text,
+        "data_vistoria": self.data_vistoria_text.text,
         "rotas": self.rotas_text.text,
     }
 
@@ -56,6 +57,7 @@ def go_next1(self):
     tela_pdf.hidrografia = campos["hidrografia"]
     tela_pdf.resumo_solo = campos["resumo_solo"]
     tela_pdf.texto_solos = campos["texto_solos"]
+    tela_pdf.data_vistoria = campos["data_vistoria"]
     tela_pdf.rotas = campos["rotas"]
 
     if hasattr(self, "caminho_declividade"):
