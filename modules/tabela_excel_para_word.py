@@ -1,8 +1,5 @@
 from win32com.client import Dispatch, constants
 import os
-
-import os
-from win32com.client import Dispatch
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Cm

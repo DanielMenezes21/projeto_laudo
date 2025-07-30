@@ -12,17 +12,17 @@ from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.textfield import MDTextField
 
 def go_next(self):
-    if self.proponente_atual in self.proponentes:
-        self.proponentes[self.proponente_atual]["cpf"] = self.cpf.text
-        self.proponentes[self.proponente_atual]["civil"] = self.civil.text
-        self.proponentes[self.proponente_atual]["tratamento"] = self.tratamento
+    if self.proprietario_atual in self.proprietarios:
+        self.proprietarios[self.proprietario_atual]["cpf"] = self.cpf.text
+        self.proprietarios[self.proprietario_atual]["civil"] = self.civil.text
+        self.proprietarios[self.proprietario_atual]["tratamento"] = self.tratamento
 
-        proponente_data = self.proponentes[self.proponente_atual]
+        proprietario_data = self.proprietarios[self.proprietario_atual]
         campos = {
-            "Tratamento": proponente_data.get("tratamento", ""),
-            "Nome": self.proponente_atual,
-            "CPF": proponente_data.get("cpf", ""),
-            "Situação Civil": proponente_data.get("civil", ""),
+            "Tratamento": proprietario_data.get("tratamento", ""),
+            "Nome": self.proprietario_atual,
+            "CPF": proprietario_data.get("cpf", ""),
+            "Situação Civil": proprietario_data.get("civil", ""),
             "Municipio": self.municipio.text,
             "Estado": self.estado.text,
             "Solicitante": self.solicitante.text
@@ -30,7 +30,7 @@ def go_next(self):
     else:
         campos = {
             "Tratamento": self.tratamento,
-            "Nome": self.proponente.text,
+            "Nome": self.proprietario.text,
             "CPF": self.cpf.text,
             "Situação Civil": self.civil.text,
             "Municipio": self.municipio.text,
@@ -60,8 +60,8 @@ def go_next(self):
         print(f"{chave}: {valor}")
 
     dados_identificacao = []
-    if isinstance(self.proponentes, dict):
-        for nome, dados in self.proponentes.items():
+    if isinstance(self.proprietarios, dict):
+        for nome, dados in self.proprietarios.items():
             if isinstance(dados, dict):
                 cpf = dados.get("cpf", "")
                 civil = dados.get("civil", "")
@@ -73,7 +73,7 @@ def go_next(self):
                     "tratamento": tratamento
                 })
 
-    print("\n👤 Dados de Identificação dos Proponentes:")
+    print("\n👤 Dados de Identificação dos proprietarios:")
     for pessoa in dados_identificacao:
         print(f" - Nome: {pessoa['nome']}")
         print(f"   CPF: {pessoa['cpf']}")
@@ -82,7 +82,7 @@ def go_next(self):
         print("")
     
     tela_pdf = self.manager.get_screen('pdf')
-    tela_pdf.lista_proponentes = dados_identificacao
+    tela_pdf.lista_proprietarios = dados_identificacao
     tela_pdf.tratamento = campos["Tratamento"]
     tela_pdf.nome = campos["Nome"]
     tela_pdf.cpf = campos["CPF"]
@@ -99,23 +99,12 @@ def go_next(self):
 def go_back(self):
     self.manager.current_screen.manager.current = "leitor"
 
-def abrir_seletor_pdf(self, *args):
-        data = formatar_data()
-        data_nome = datetime.now()
-        mes = f'{data_nome.month:02d}. {data.split("de")[1].strip()}'
-        initial_path = r"\\10.0.100.160\\Agropassos\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
-        initial_path = os.path.join(initial_path, mes)
-        if not os.path.exists(initial_path):
-            initial_path = os.path.join(os.path.expanduser("~/Documents"), mes)
-        self.file_manager.show(initial_path)
-
 def fechar_arquivo(self, *args):
     self.file_manager.close()
 
 def extrair_solicitante_do_caminho(caminho_pdf):
     """
     Extrai o nome do solicitante a partir de qualquer parte do caminho.
-    Busca por um padrão do tipo: 'Processo N° 12345 - João da Silva'
     """
     match = re.search(r'Processo\s*N[º°]?\s*\d+\s*-\s*([^\\/]+)', caminho_pdf, re.IGNORECASE)
     if match:
@@ -128,7 +117,7 @@ def on_pdf_selecionado(self, caminho_pdf):
     nomes, cpfs, nome_imovel, municipio, estado, latitude, longitude = extrair_dados_pdf(caminho_pdf)
     solicitante = extrair_solicitante_do_caminho(caminho_pdf)
 
-    self.proponentes = {
+    self.proprietarios = {
         nome: {
             "cpf": cpf,
             "tratamento": "",
@@ -138,9 +127,9 @@ def on_pdf_selecionado(self, caminho_pdf):
         for nome, cpf in zip(nomes, cpfs)
     }
 
-    self.menu_proponente.items = [
-        {"text": nome, "on_release": lambda x=nome: self.selecionar_proponente(x)}
-        for nome in self.proponentes
+    self.menu_proprietario.items = [
+        {"text": nome, "on_release": lambda x=nome: self.selecionar_proprietario(x)}
+        for nome in self.proprietarios
     ]
 
     self.nome_imovel.text = nome_imovel
@@ -150,8 +139,8 @@ def on_pdf_selecionado(self, caminho_pdf):
     self.longitude.text = longitude
     self.solicitante.text = solicitante
 
-    if self.menu_proponente.items:
-        self.menu_proponente.open()
+    if self.menu_proprietario.items:
+        self.menu_proprietario.open()
 
 def extrair_dados_multiplos_pdfs(lista_caminhos_pdf):
     dados_imoveis = []
@@ -264,7 +253,7 @@ def extrair_dados_pdf(caminho_pdf):
     )
 
 def receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imovel, municipio, estado, dados_imoveis=None):
-    tela_dados.proponentes = {
+    tela_dados.proprietarios = {
         nome: {
             "nome": nome,
             "cpf": cpf,
@@ -275,17 +264,16 @@ def receber_dados_pdf(tela_dados, nomes, cpfs, nomes_imovel, municipio, estado, 
         for i, (nome, cpf) in enumerate(zip(nomes, cpfs))
     }
 
-    tela_dados.menu_proponente.items = [
-        {"text": nome, "on_release": lambda x=nome: tela_dados.selecionar_proprietario(x)}
-        for nome in tela_dados.proponentes
+    tela_dados.menu_proprietario.items = [
+        {"text": nome, "on_release": lambda x=None, nome=nome: (print(f"nome selecionado: {nome}"), tela_dados.selecionar_proprietario(nome))[1]}
+        for nome in tela_dados.proprietarios
     ]
 
     tela_dados.municipio.text = municipio
     tela_dados.estado.text = estado
 
-
-    if tela_dados.menu_proponente.items:
-        tela_dados.menu_proponente.open()
+    if tela_dados.menu_proprietario.items:
+        tela_dados.menu_proprietario.open()
     
     if dados_imoveis:
         tela_dados.dados_imoveis = dados_imoveis
@@ -296,7 +284,7 @@ def carregar_pdf_dados(self, caminho_car, caminho_cit):
 
     nome, cpf, nome_imovel, municipio, estado, latitude, longitude = extrair_dados_pdf(caminho_car)
     solicitante = extrair_solicitante_do_caminho(caminho_car)  
-    self.proponente.text = nome
+    self.proprietario.text = nome
     self.cpf.text = cpf
     self.nome_imovel.text = nome_imovel
     self.municipio.text = municipio
@@ -305,7 +293,7 @@ def carregar_pdf_dados(self, caminho_car, caminho_cit):
     self.longitude.text = longitude
     self.solicitante.text = solicitante
 
-    self.proponentes = {
+    self.proprietarios = {
     nome[0] if isinstance(nome, list) else nome: {
         "cpf": cpf[0] if isinstance(cpf, list) else cpf,
         "nome_imovel": nome_imovel
@@ -313,22 +301,29 @@ def carregar_pdf_dados(self, caminho_car, caminho_cit):
 }
 
 def abrir_dialogo_matriculas(self, *args):
-    if hasattr(self, 'dados_imoveis'):  
+    tela_matricula = self.manager.get_screen('matricula')
+    tela_final = self.manager.get_screen('pdf')
+
+    if hasattr(self, 'dados_imoveis'):
         qtd_imoveis = len(self.dados_imoveis)
         print(f"📄 Número de propriedades detectadas: {qtd_imoveis}")
-        tela_matricula = self.manager.get_screen('matricula')
-        tela_final = self.manager.get_screen('pdf')
+        
+        # Atualiza tela_final com os dados
         tela_final.qtd_imoveis = qtd_imoveis
         tela_final.dados_imoveis = self.dados_imoveis
+
+        # Sempre envia os dados do PDF para a tela de matrículas
         tela_matricula.receber_dados_imoveis(
             imoveis=[imovel['nome_imovel'] for imovel in self.dados_imoveis],
             latitudes=[imovel['latitude'] for imovel in self.dados_imoveis],
             longitudes=[imovel['longitude'] for imovel in self.dados_imoveis],
             nomes_proprietarios=[imovel.get('proprietario', '') for imovel in self.dados_imoveis],
-            dados_completos=self.dados_imoveis  
+            dados_completos=self.dados_imoveis
         )
 
-        tela_matricula.criar_botoes_para_matriculas(qtd_imoveis)
+        # Calcula o número total de botões (maior entre dados_imoveis e lista_dados_matriculas)
+        qtd_total = max(qtd_imoveis, len(tela_matricula.lista_dados_matriculas))
+        tela_matricula.criar_botoes_para_matriculas(qtd_total)
         self.manager.current = "matricula"
     else:
         self.entrada_qtd_matriculas = MDTextField(
@@ -341,7 +336,7 @@ def abrir_dialogo_matriculas(self, *args):
         def confirmar_matriculas(x):
             if self.entrada_qtd_matriculas.text.isdigit():
                 qtd = int(self.entrada_qtd_matriculas.text)
-                self.manager.get_screen("matricula").criar_botoes_para_matriculas(qtd)
+                tela_matricula.criar_botoes_para_matriculas(qtd)
                 self.dialogo_matriculas.dismiss()
                 self.manager.current = "matricula"
 

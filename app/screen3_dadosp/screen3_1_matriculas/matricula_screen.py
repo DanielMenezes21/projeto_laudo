@@ -286,8 +286,46 @@ class MatriculaScreen(MDScreen):
         main_layout = MDBoxLayout(orientation="vertical", spacing=25, size_hint_y=None)
         main_layout.bind(minimum_height=main_layout.setter('height'))
 
+        # Preenche lista_dados_matriculas com dados do PDF, se disponíveis
+        if hasattr(self, 'dados_imoveis') and isinstance(self.dados_imoveis, list):
+            self.lista_dados_matriculas = [
+                {
+                    "nome_imovel": imovel.get('nome_imovel', ''),
+                    "matricula": "",
+                    "valor_total": "",
+                    "valor_liq": "",
+                    "latitude": str(imovel.get('latitude', '')),
+                    "longitude": str(imovel.get('longitude', '')),
+                    "area_total": "",
+                    "area_consolidada": "",
+                    "proprietario": imovel.get('proprietario', ''),
+                    "imagem": "",
+                    "planilha": ""
+                } for imovel in self.dados_imoveis
+            ]
+        else:
+            self.lista_dados_matriculas = []
+
+        # Garante que a quantidade mínima de matrículas seja respeitada
+        for i in range(quantidade - len(self.lista_dados_matriculas)):
+            self.lista_dados_matriculas.append({
+                "nome_imovel": "",
+                "matricula": "",
+                "valor_total": "",
+                "valor_liq": "",
+                "latitude": "",
+                "longitude": "",
+                "area_total": "",
+                "area_consolidada": "",
+                "proprietario": "",
+                "imagem": "",
+                "planilha": ""
+            })
+
+        # Cria botões para cada matrícula
         for i in range(quantidade):
-            self._adicionar_grupo_matricula(i+1, main_layout)
+            dados_existentes = self.lista_dados_matriculas[i] if i < len(self.lista_dados_matriculas) else None
+            self._adicionar_grupo_matricula(i + 1, main_layout, dados_existentes)
 
         add_layout = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=dp(60))
         
@@ -308,23 +346,8 @@ class MatriculaScreen(MDScreen):
 
         self.botoes_matriculas.add_widget(main_layout)
         self.botoes_matriculas.add_widget(add_layout)
-
-        self.lista_dados_matriculas.clear()
-        for i in range(quantidade):
-            self.lista_dados_matriculas.append({
-                "nome_imovel": "",
-                "matricula": "",
-                "valor_total": "",
-                "valor_liq": "",
-                "latitude": "",
-                "area_total": "",
-                "area_consolidada": "",
-                "longitude": "",
-                "proprietario": "",
-                "imagem": ""
-            })
-
-    def _adicionar_grupo_matricula(self, numero, layout_pai):
+        
+    def _adicionar_grupo_matricula(self, numero, layout_pai, dados_existentes=None):
         """Cria todos os campos para uma matrícula, incluindo dropdown de múltipla escolha para proprietários"""
         from kivymd.uix.menu import MDDropdownMenu
         from kivymd.uix.boxlayout import MDBoxLayout
@@ -332,17 +355,20 @@ class MatriculaScreen(MDScreen):
 
         grupo = MDBoxLayout(orientation="vertical", spacing=15, size_hint_y=None, height=dp(920))
 
-        dados_imovel = {}
-        if hasattr(self, 'dados_imoveis'):
-            if isinstance(self.dados_imoveis, list) and len(self.dados_imoveis) >= numero:
-                dados_imovel = self.dados_imoveis[numero-1]
-            elif isinstance(self.dados_imoveis, dict):
-                dados_imovel = {
-                    'nome_imovel': self.dados_imoveis.get('imoveis', [''])[min(numero-1, len(self.dados_imoveis.get('imoveis', [])))],
-                    'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
-                    'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes', [])))],
-                    'proprietario': self.dados_imoveis.get('nomes_proprietarios', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_proprietarios',[])))]
-                }
+        if numero - 1 < len(self.lista_dados_matriculas):
+            dados_imovel = self.lista_dados_matriculas[numero - 1]
+        else:
+            dados_imovel = {}
+            if hasattr(self, 'dados_imoveis'):
+                if isinstance(self.dados_imoveis, list) and len(self.dados_imoveis) >= numero:
+                    dados_imovel = self.dados_imoveis[numero-1]
+                elif isinstance(self.dados_imoveis, dict):
+                    dados_imovel = {
+                        'nome_imovel': self.dados_imoveis.get('imoveis', [''])[min(numero-1, len(self.dados_imoveis.get('imoveis', [])))],
+                        'latitude': self.dados_imoveis.get('latitudes', [''])[min(numero-1, len(self.dados_imoveis.get('latitudes', [])))],
+                        'longitude': self.dados_imoveis.get('longitudes', [''])[min(numero-1, len(self.dados_imoveis.get('longitudes',[])))],
+                        'proprietario': self.dados_imoveis.get('nomes_proprietarios', [''])[min(numero-1, len(self.dados_imoveis.get('nomes_proprietarios',[])))]
+                    }
 
         campo_nome = MDTextField(
             MDTextFieldHintText(text=f"Nome do Imóvel {numero}"),
@@ -350,8 +376,8 @@ class MatriculaScreen(MDScreen):
             size_hint_x=0.9
         )
 
-        proponentes_dict = self.manager.get_screen('dados').proponentes
-        nomes_proponentes = list(proponentes_dict.keys())
+        proprietarios_dict = self.manager.get_screen('dados').proprietarios
+        nomes_proprietarios = list(proprietarios_dict.keys())
 
         linha_prop = MDBoxLayout(orientation="horizontal", spacing=10, size_hint_x=0.9)
 
@@ -379,7 +405,7 @@ class MatriculaScreen(MDScreen):
                 "text": nome,
                 "on_release": lambda x=nome: toggle_proprietario(x)
             }
-            for nome in nomes_proponentes
+            for nome in nomes_proprietarios
         ]
 
         btn_menu = MDIconButton(

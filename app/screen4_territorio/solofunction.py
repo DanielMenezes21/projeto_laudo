@@ -19,9 +19,7 @@ def go_back(self):
 
 def go_next1(self):
     campos = {
-        "descricao_imovel": self.descricao_imovel.text,
         "descricao_cidade": self.descricao_cidade.text,
-        "atividade_imovel": self.atividade_imovel.text,
         "regiao_imovel": self.regiao_imovel.text,
         "declividade": self.declividade_text.text,
         "hidrografia": self.hidrografia_text.text,
@@ -49,9 +47,7 @@ def go_next1(self):
         return
     
     tela_pdf = self.manager.get_screen('pdf')
-    tela_pdf.descricao_imovel = campos["descricao_imovel"]
     tela_pdf.descricao_cidade = campos["descricao_cidade"]
-    tela_pdf.atividade_imovel = campos["atividade_imovel"]
     tela_pdf.regiao_imovel = campos["regiao_imovel"]
     tela_pdf.declividade = campos["declividade"]
     tela_pdf.hidrografia = campos["hidrografia"]

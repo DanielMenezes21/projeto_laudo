@@ -18,7 +18,7 @@ def adicionar_espaco(doc):
 
     return doc
 
-def gerar_texto_proprietarios_completo(lista_matriculas, lista_proponentes):
+def gerar_texto_proprietarios_completo(lista_matriculas, lista_proprietarios):
     grupos = []
 
     for item in lista_matriculas:
@@ -27,7 +27,7 @@ def gerar_texto_proprietarios_completo(lista_matriculas, lista_proponentes):
         imovel = item.get("nome_imovel", "").strip()
 
         for nome in proprietarios_nomes:
-            prop_info = next((p for p in lista_proponentes if p["nome"].strip().lower() == nome.strip().lower()), None)
+            prop_info = next((p for p in lista_proprietarios if p["nome"].strip().lower() == nome.strip().lower()), None)
 
             grupos.append({
                 "nome": nome,
@@ -125,13 +125,13 @@ def texto_finalidade(doc):
 
     return doc
 
-def texto_proprietario(doc, lista_matriculas, lista_proponentes):
+def texto_proprietario(doc, lista_matriculas, lista_proprietarios):
     heading = doc.add_paragraph( style='Heading1')
     run = heading.add_run("4 - PROPRIETÁRIO")
     run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
     run1 =doc.add_paragraph(" ")
-    texto = gerar_texto_proprietarios_completo(lista_matriculas, lista_proponentes)
+    texto = gerar_texto_proprietarios_completo(lista_matriculas, lista_proprietarios)
     run2 = doc.add_paragraph(texto)
     run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc

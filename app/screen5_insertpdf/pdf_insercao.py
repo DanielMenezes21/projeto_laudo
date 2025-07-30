@@ -133,7 +133,7 @@ def montar_documento(self, doc):
     doc = adicionar_espaco(doc)
     doc = texto_finalidade(doc)
     doc = adicionar_espaco(doc)
-    doc = texto_proprietario(doc, self.lista_dados_matriculas, self.lista_proponentes)
+    doc = texto_proprietario(doc, self.lista_dados_matriculas, self.lista_proprietarios)
     doc = adicionar_espaco(doc)
     doc = texto_ressalvas(doc)
     doc = title_imovel(doc)
@@ -149,7 +149,7 @@ def montar_documento(self, doc):
     doc.add_page_break()
     doc = pedologia(doc, imagem_path=getattr(self, "caminho_solos", None))
     doc.add_page_break()
-    doc = uso_imovel(doc)
+    doc = uso_imovel(doc, self.lista_dados_matriculas)
     doc = adicionar_espaco(doc)
     doc = benfeitoria(doc)
     doc = diag_mercado(doc)
@@ -237,17 +237,15 @@ def gerar_documento(self):
 
         substituicoes_base = {
             "#TRATAMENTO": self.tratamento,
-            "#PROPONENTE": self.nome,
-            "#CPF_PROPONENTE": self.cpf,
+            "#PROPRIETARIO": self.nome,
+            "#CPF_PROPRIETARIO": self.cpf,
             "#DATA_ATUAL": self.data_atual,
             "#DATA_VISTORIA": self.data_vistoria,
             "#CIVIL": self.civil,
             "#CIDADE_I": self.municipio,
             "#ESTADO_I": self.estado,
             "#SOLICITANTE": self.solicitante,
-            "#DESCRICAO_IMOVEL": self.descricao_imovel,
             "#REGIAO_CIDADE": self.descricao_cidade,
-            "#ATIVIDADE_IMOVEL": self.atividade_imovel,
             "#REGIAO_IMOVEL": self.regiao_imovel,
             "#DECLIVIDADE_I": self.declividade,
             "#HIDROGRAFIA_I": self.hidrografia,
@@ -329,19 +327,21 @@ def gerar_documento(self):
                 marcador_valores = f"[INSERIR_VALORES_{i}_AQUI]"
                 print(f"📌 Inserindo tabelas para matrícula índice {i}")
                 inserir_tabela_excel_no_word(output_path, caminho_excel, marcador_personalizado=marcador)
-                inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
-                inserir_tabela_depreciacao_no_word(output_path, caminho_excel)
-                inserir_tabela_classe_no_word(output_path, caminho_excel)
                 inserir_tabelas_amostras_auto(output_path, caminho_excel, indice_matricula=i)
-                inserir_tabela_situacao_no_word(output_path, caminho_excel)
                 inserir_tabela_quadro_no_word(output_path, caminho_excel, marcador_quadro)
                 inserir_tabela_homog_no_word(output_path, caminho_excel, marcador_homog)
                 inserir_tabela_saneamento_no_word(output_path, caminho_excel, marcador_saneamento)
                 inserir_tabela_liquidacao_no_word(output_path, caminho_excel, marcador_liq)
                 inserir_tabela_valores_no_word(output_path, caminho_excel, marcador_valores)
 
+        print("📊 Inserindo tabelas que só serão inseridas uma vez")
+        inserir_tabela_depreciacao_no_word(output_path, caminho_excel)
+        inserir_tabela_benfeitoria_no_word(output_path, caminho_excel)
+        inserir_tabela_situacao_no_word(output_path, caminho_excel)
+        inserir_tabela_classe_no_word(output_path, caminho_excel)
+        
         inserir_e_atualizar_sumario_no_bookmark(output_path, bookmark_name="SUMARIO")
-
+        
         if hasattr(self, "imagem_marca_dagua"):  
             imagens_fundo(output_path, self.imagem_marca_dagua)
         if hasattr(self, "imagem_final"):

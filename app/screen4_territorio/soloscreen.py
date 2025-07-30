@@ -88,16 +88,6 @@ class SoloScreen(MDScreen):
             multiline=False,
         )
 
-        self.descricao_imovel = MDTextField(
-            MDTextFieldHintText(text="Descrição do imovel"),
-            MDTextFieldHelperText(text="Ex: corregos, grotas, represas, cachoeiras, etc."),
-            size_hint=(1, None),
-            write_tab=False,
-            height=dp(40),
-            pos_hint={"center_x": 0.5, "center_y": 0.8},
-            multiline=False,
-        )
-
         self.descricao_cidade = MDTextField(
             MDTextFieldHintText(text="Descrição da cidade"),
             MDTextFieldHelperText(text="aperte a tecla 'Enter' para preencher"),
@@ -117,16 +107,6 @@ class SoloScreen(MDScreen):
             write_tab=False,
             height=dp(40),
             pos_hint={"center_x": 0.5, "center_y": 0.7},
-            multiline=False,
-        )
-
-        self.atividade_imovel = MDTextField(
-            MDTextFieldHintText(text="Atividade do imovel"),
-            MDTextFieldHelperText(text="Ex: Pecuaria, agricultura, etc."),
-            size_hint=(1, None),
-            write_tab=False,
-            height=dp(40),
-            pos_hint={"center_x": 0.5, "center_y": 0.6},
             multiline=False,
         )
 
@@ -248,9 +228,7 @@ class SoloScreen(MDScreen):
         self.layout.add_widget(self.label)
         self.layout.add_widget(self.date_picker)
         self.layout.add_widget(self.data_vistoria_text)
-        self.layout.add_widget(self.descricao_imovel)
         self.layout.add_widget(self.descricao_cidade)
-        self.layout.add_widget(self.atividade_imovel)
         self.layout.add_widget(self.regiao_imovel)
         self.layout.add_widget(declividade)
         self.layout.add_widget(hidrografia)

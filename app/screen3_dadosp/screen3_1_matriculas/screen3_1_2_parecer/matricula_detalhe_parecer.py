@@ -330,8 +330,8 @@ class MatriculaParecerScreen(MDScreen):
                 "detalhes_passivo": self.campo_detalhes_passivo.text if self.passivo_ambiental_sim else ""
             }
             if self.detalhes_screen:
-                from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.detalhes_function import coletar_checkboxes
-                dados_detalhes = coletar_checkboxes(self.detalhes_screen)
+                from app.screen3_dadosp.screen3_1_matriculas.screen3_1_1_detalhes.detalhes_function import coletar_dados
+                dados_detalhes = coletar_dados(self.detalhes_screen)
                 for campo, valor in dados_detalhes.items():
                     dados_atualizados[campo] = valor
             

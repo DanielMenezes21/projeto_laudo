@@ -129,6 +129,7 @@ def desc_imovel(doc, lista_dados_matricula):
         p_app = dados.get("p_app", '')
         a_app = dados.get("a_app", '')
         observacoes = dados.get("observacoes_imovel",'')
+        atividade_imovel = dados.get("atividade_imovel", "")
 
         run1 = doc.add_paragraph(f"Trata-se de um imóvel rural de Matrícula nº {matricula}, " \
         f"com área total de {area_total} ha, destes, {p_reserva} são separados para Reserva Legal, " \
@@ -136,8 +137,8 @@ def desc_imovel(doc, lista_dados_matricula):
         f"ocupa uma área {p_app}, totalizando {a_app} ha da integralidade do imóvel.")
         run1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-    run2 = doc.add_paragraph("#ATIVIDADE_IMOVEL")
-    run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        run2 = doc.add_paragraph(f"{atividade_imovel}")
+        run2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     run3 = doc.add_paragraph("Uma melhor percepção do imóvel pode ser obtida através da tabela e das imagens a seguir:")
     run3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     adicionar_espaco(doc)
@@ -147,55 +148,64 @@ def desc_imovel(doc, lista_dados_matricula):
         par.alignment = WD_ALIGN_PARAGRAPH.CENTER
         runpar = par.add_run(f"[INSERIR_TABELA_{i}_AQUI]")
 
+        imagens_satelite(doc, lista_dados_matricula)
+
     adicionar_espaco(doc)
-
-    table2 = doc.add_table(rows=3,cols=2)
-    table2.autofit
-    table2.width = Cm(16)
-    set_table_fixed_width(table2)
-    table2.style = 'Table Grid'
-
-    table2.rows[0].height = Cm(0.5)
-    table2.rows[2].height = Cm(0.5)
-
-    titlecell = table2.rows[0].cells[0]
-    titlecell.merge(table2.rows[0].cells[1])
-    titlecell.text = "IMAGENS DE SATÉLITE DA PROPRIEDADE RURAL"
-    titlecell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    titlecell.paragraphs[0].runs[0].bold = True
-    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
-    titlecell._tc.get_or_add_tcPr().append(shading)
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>' 
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    titlecell._tc.get_or_add_tcPr().append(borders)
-
-    image_cell_1 = table2.rows[1].cells[0]
-    p_img = image_cell_1.paragraphs[0]
-    run_img = p_img.add_run()
-    run_img.add_picture("captura_teste.png", width=Cm(8), height=Cm(4.84))
-    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    description_cell_1 = table2.rows[2].cells[0]
-    description_cell_1.text = "{descricao_1}"
-    description_cell_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    image_cell_2 = table2.rows[1].cells[1]
-    p_img = image_cell_2.paragraphs[0]
-    run_img = p_img.add_run()
-    run_img.add_picture("captura_teste.png", width=Cm(8), height=Cm(4.84))
-    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    description_cell_2 = table2.rows[2].cells[1]
-    description_cell_2.text = "{descricao_2}"
-    description_cell_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
     return doc
+
+def imagens_satelite(doc, lista_dados_matricula):
+    for dados in lista_dados_matricula:
+        matricula = dados.get("matricula", "")
+        descricao_1 = dados.get("descricao_imagem_1", "Descrição da imagem 1")
+        descricao_2 = dados.get("descricao_imagem_2", "Descrição da imagem 2")
+        img_one = dados.get("imagem_1", "")
+        img_two = dados.get("imagem_2", "")
+
+        table2 = doc.add_table(rows=3,cols=2)
+        table2.autofit
+        table2.width = Cm(16)
+        set_table_fixed_width(table2)
+        table2.style = 'Table Grid'
+
+        table2.rows[0].height = Cm(0.5)
+        table2.rows[2].height = Cm(0.5)
+
+        titlecell = table2.rows[0].cells[0]
+        titlecell.merge(table2.rows[0].cells[1])
+        titlecell.text = f"IMAGENS DE SATÉLITE DA PROPRIEDADE RURAL MATRICULA {matricula}"
+        titlecell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        titlecell.paragraphs[0].runs[0].bold = True
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+        titlecell._tc.get_or_add_tcPr().append(shading)
+        borders = parse_xml(
+            f'<w:tcBorders {nsdecls("w")}>' 
+            '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '</w:tcBorders>'
+        )
+        titlecell._tc.get_or_add_tcPr().append(borders)
+
+        image_cell_1 = table2.rows[1].cells[0]
+        p_img = image_cell_1.paragraphs[0]
+        run_img = p_img.add_run()
+        run_img.add_picture(f"{img_one}", width=Cm(8), height=Cm(4.84))
+        p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        description_cell_1 = table2.rows[2].cells[0]
+        description_cell_1.text = f"{descricao_1}"
+        description_cell_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        image_cell_2 = table2.rows[1].cells[1]
+        p_img = image_cell_2.paragraphs[0]
+        run_img = p_img.add_run()
+        run_img.add_picture(f"{img_two}", width=Cm(8), height=Cm(4.84))
+        p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        description_cell_2 = table2.rows[2].cells[1]
+        description_cell_2.text = f"{descricao_2}"
+        description_cell_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
 def declividade(doc, imagem_path=None):
     heading = doc.add_paragraph( style='Heading 2')
@@ -250,16 +260,20 @@ def pedologia(doc, imagem_path=None):
     paragraph2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     return doc
 
-def uso_imovel(doc):
+def uso_imovel(doc, lista_dados_matriculas):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.4.4 – Potencial de Utilização do Imóvel")
     for run in heading.runs:
         run.font.size = Pt(12)
         run.font.color.rgb = RGBColor(0, 0, 0)
         run.font.name = "Cambria"
+    for dados in lista_dados_matriculas:
+        matricula = dados.get("matricula", "")
+        potencial_imovel = dados.get("atividade_potencial", "")
 
-    paragraph = doc.add_paragraph("O imóvel é utilizado para #ATIVIDADE_IMOVEL")
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        paragraph = doc.add_paragraph(f"O imóvel de matrícula {matricula} tem potencial de utilização para {potencial_imovel}.")
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
     return doc
 
 def benfeitoria(doc):
@@ -344,7 +358,7 @@ def adicionar_estado_conservacao_com_tabela(cell):
     borders = parse_xml(
         f'<w:tcBorders {nsdecls("w")}>'
         '<w:top w:val="nil"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+        '<w:left w:val="nil"/>'
         '<w:bottom w:val="nil"/>'
         '<w:right w:val="nil"/>'
         '</w:tcBorders>'
