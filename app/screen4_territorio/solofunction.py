@@ -17,6 +17,68 @@ import os
 def go_back(self):
     self.manager.current_screen.manager.current = "dados"
 
+def abrir_dialogo_benfeitoria(self, *args):
+    if not hasattr(self, 'lista_dados_matriculas') or not self.lista_dados_matriculas:
+        print("❌ Nenhuma matrícula disponível")
+        return
+
+    layout_popup = MDBoxLayout(orientation="vertical", spacing=10, size_hint_y=None, height=dp(100))
+
+    layout_popup.add_widget(MDLabel(
+        text="Selecione uma matrícula",
+        halign="center",
+        size_hint_y=None,
+        height=dp(30)
+    ))
+
+    self.dropdown_button = MDButton(
+        MDButtonText(text="Escolher matrícula"),
+        size_hint=(1, None),
+        pos_hint={"center_x": 0.5},
+    )
+
+    layout_popup.add_widget(self.dropdown_button)
+
+    menu_items = [
+        {
+            "text": f"{dado.get('nome_imovel', 'Imóvel')} - {dado.get('matricula', 'Sem matrícula')}",
+            "on_release": lambda x=None, idx=i: selecionar_matricula(self, idx)
+        }
+        for i, dado in enumerate(self.lista_dados_matriculas)
+    ]
+
+    self.menu_benfeitorias = MDDropdownMenu(
+        caller=self.dropdown_button,
+        items=menu_items,
+        width_mult=5
+    )
+
+    self.dropdown_button.on_release = lambda *a: self.menu_benfeitorias.open()
+
+    # Botão de fechar
+    fechar_btn = MDButton(
+        MDButtonText(text="Fechar"),
+        on_release=lambda x: self.dialog.dismiss()
+    )
+
+    self.dialog = MDDialog(
+        MDDialogHeadlineText(text="Benfeitorias por matrícula"),
+        MDDialogContentContainer(layout_popup),
+        MDDialogButtonContainer(fechar_btn),
+    )
+
+    self.dialog.open()
+
+def selecionar_matricula(self, indice_matricula):
+    self.menu_benfeitorias.dismiss()
+    self.dialog.dismiss()
+    tela_benfeitoria = self.manager.get_screen("benfeitoria")
+    tela_benfeitoria.definir_matricula(indice_matricula, self.lista_dados_matriculas[indice_matricula])
+    self.manager.current = "benfeitoria"
+
+def go_photograph_report(self):
+    self.manager.current_screen.manager.current = "photographic_report"
+
 def go_next1(self):
     campos = {
         "descricao_cidade": self.descricao_cidade.text,

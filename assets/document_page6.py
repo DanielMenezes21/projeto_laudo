@@ -88,9 +88,9 @@ def localizacao(doc, lista_dados_matriculas):
 
     return doc
 
-def acesso(doc, imagem_acesso=None):
+def acesso(doc):
     heading = doc.add_paragraph( style='Heading 2')
-    run = heading.add_run("6.2 - ROTA DE ACESSO MATRÌCULA {mat}")
+    run = heading.add_run("6.2 - ROTA DE ACESSO ")
     run.font.name = "Cambria"
     run.font.color.rgb = RGBColor(0, 0, 0)
 
@@ -156,10 +156,10 @@ def desc_imovel(doc, lista_dados_matricula):
 def imagens_satelite(doc, lista_dados_matricula):
     for dados in lista_dados_matricula:
         matricula = dados.get("matricula", "")
-        descricao_1 = dados.get("descricao_imagem_1", "Descrição da imagem 1")
-        descricao_2 = dados.get("descricao_imagem_2", "Descrição da imagem 2")
-        img_one = dados.get("imagem_1", "")
-        img_two = dados.get("imagem_2", "")
+        descricao_1 = dados.get("description_img_one", "Descrição da imagem 1")
+        descricao_2 = dados.get("description_img_two", "Descrição da imagem 2")
+        img_one = dados.get("img_one", "")
+        img_two = dados.get("img_two", "")
 
         table2 = doc.add_table(rows=3,cols=2)
         table2.autofit
@@ -276,7 +276,7 @@ def uso_imovel(doc, lista_dados_matriculas):
 
     return doc
 
-def benfeitoria(doc):
+def benfeitoria(doc, lista_dados_matriculas):
     heading = doc.add_paragraph( style='Heading 2')
     run = heading.add_run("6.4.5 – Benfeitorias")
     for run in heading.runs:
@@ -284,66 +284,78 @@ def benfeitoria(doc):
         run.font.color.rgb = RGBColor(0, 0, 0)
         run.font.name = "Cambria"
 
-    paragraph = doc.add_paragraph("O imóvel possui as seguintes benfeitorias: ")
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    table = doc.add_table(rows=4, cols=2)
-    table.style = 'Table Grid'
-    adicionar_espaco(doc)
+    for dados in lista_dados_matriculas:
+        matricula = dados.get("matricula", "")
+        nome_imovel = dados.get("nome_imovel", "")
+        descricao_benfeitoria = dados.get("descricao_benfeitoria", "")
+        area = dados.get("area", "")
+        comprimento = dados.get("comprimento", "")
+        largura = dados.get("largura", "")
+        altura = dados.get("altura", "")
+        imagem_benfeitoria = dados.get("imagem_benfeitoria", "")
 
-    cell_1_1 = table.cell(0, 0)
-    cell_1_2 = table.cell(0, 1)
-    cell_1_1.text = 'BENFEITORIA'
-    cell_1_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cell_1_1.paragraphs[0].runs[0].bold = True
-    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
-    cell_1_1._tc.get_or_add_tcPr().append(shading)
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>' 
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    cell_1_1._tc.get_or_add_tcPr().append(borders)
+        paragraph = doc.add_paragraph(f"No imóvel {nome_imovel} de matricula nº {matricula} foi observado a seguinte benfeitoria: ")
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        table = doc.add_table(rows=4, cols=2)
+        table.style = 'Table Grid'
+        adicionar_espaco(doc)
 
-    cell_1_2.text = 'DESCRIÇÃO'
-    cell_1_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cell_1_2.paragraphs[0].runs[0].bold = True
-    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
-    cell_1_2._tc.get_or_add_tcPr().append(shading)
-    borders = parse_xml(
-        f'<w:tcBorders {nsdecls("w")}>'
-        '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        '</w:tcBorders>'
-    )
-    cell_1_2._tc.get_or_add_tcPr().append(borders)
+        cell_1_1 = table.cell(0, 0)
+        cell_1_2 = table.cell(0, 1)
+        cell_1_1.text = 'BENFEITORIA'
+        cell_1_1.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cell_1_1.paragraphs[0].runs[0].bold = True
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+        cell_1_1._tc.get_or_add_tcPr().append(shading)
+        borders = parse_xml(
+            f'<w:tcBorders {nsdecls("w")}>' 
+            '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '</w:tcBorders>'
+        )
+        cell_1_1._tc.get_or_add_tcPr().append(borders)
 
-    cell_benfeitoria = table.cell(1, 0).merge(table.cell(3, 0))
+        cell_1_2.text = 'DESCRIÇÃO'
+        cell_1_2.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cell_1_2.paragraphs[0].runs[0].bold = True
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="4EA65D"/>')
+        cell_1_2._tc.get_or_add_tcPr().append(shading)
+        borders = parse_xml(
+            f'<w:tcBorders {nsdecls("w")}>'
+            '<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+            '</w:tcBorders>'
+        )
+        cell_1_2._tc.get_or_add_tcPr().append(borders)
 
-    cell_dimensoes = table.cell(1, 1)
-    par = cell_dimensoes.paragraphs[0]
-    par.add_run('Comprimento: 20,0 m\n')
-    par.add_run('Largura: 10,0 m\n')
-    par.add_run('Altura: 10,0 m\n')
-    par.add_run('Área Total: 200,0 m²')
+        cell_benfeitoria = table.cell(1, 0).merge(table.cell(3, 0))
 
-    cell_desc = table.cell(2, 1)
-    cell_desc.text = (
-        'O galpão é ideal para armazenamento e organização de bags de fertilizantes e sementes para plantio, '
-        'além de alocar os maquinários da propriedade.'
-    )
+        cell_dimensoes = table.cell(1, 1)
+        par = cell_dimensoes.paragraphs[0]
+        par.add_run(f'Comprimento: {comprimento} m\n')
+        par.add_run(f'Largura: {largura} m\n')
+        par.add_run(f'Altura: {altura} m\n')
+        par.add_run(f'Área Total: {area} m²')
 
-    cell_ava = table.cell(3, 1)
-    adicionar_estado_conservacao_com_tabela(cell_ava)
+        cell_desc = table.cell(2, 1)
+        cell_desc.text = (
+            f'{descricao_benfeitoria}.'
+        )
 
-    return doc
+        cell_ava = table.cell(3, 1)
+        adicionar_estado_conservacao_com_tabela(cell_ava, lista_dados_matriculas)
 
-def adicionar_estado_conservacao_com_tabela(cell):
+        return doc
+
+def adicionar_estado_conservacao_com_tabela(cell, lista_dados_matriculas):
     """Insere uma mini-tabela com estado de conservação dentro da célula"""
+    for dados in lista_dados_matriculas:
+        estado = dados.get("estado")
+
     p = cell.paragraphs[0]
     p.add_run('Estado de conservação:')
 
@@ -560,3 +572,16 @@ def adicionar_estado_conservacao_com_tabela(cell):
         '</w:tcBorders>'
     )
     tcPr.append(borders)
+
+    if estado == "bom":
+        target_cell = cell1_2
+    elif estado == "mediano":
+        target_cell = cell2_4
+    elif estado == "ruim":
+        target_cell = cell1_6
+    else:
+        target_cell = None
+
+    if target_cell:
+        shade = parse_xml(r'<w:shd {} w:fill="4EA65D"/>'.format(nsdecls('w')))
+        target_cell._tc.get_or_add_tcPr().append(shade)

@@ -248,12 +248,36 @@ def inserir_caixa_texto(doc):
 
     return doc
 
-def anexos_fotos(doc):
+def anexos_fotos(doc, imagens_detalhadas=None):
     heading = doc.add_paragraph(style='Heading 1')
     run = heading.add_run("ANEXO I - RELATÓRIO FOTOGRÁFICO")
-    for run in heading.runs:
-        run.font.size = Pt(12)
-        run.font.color.rgb = RGBColor(0, 0, 0)
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(0, 0, 0)
+
+    if imagens_detalhadas:
+        for dados in imagens_detalhadas:
+            caminho_img = dados.get("imagem", "")
+            if os.path.exists(caminho_img):
+                tipo = dados.get("tipo", "").capitalize()
+                descricao = dados.get("descricao", "").strip()
+
+                doc.add_paragraph(f"Tipo: {tipo}")
+                doc.add_paragraph(f"Descrição: {descricao}")
+
+                if tipo.lower() == "estrutura":
+                    largura = dados.get("largura", "")
+                    comprimento = dados.get("comprimento", "")
+                    altura = dados.get("altura", "")
+                    area = dados.get("area", "")
+                    doc.add_paragraph(
+                        f"Dimensões: {largura}m x {comprimento}m x {altura}m | Área: {area}m²"
+                    )
+
+                par = doc.add_paragraph()
+                par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                par.add_run().add_picture(caminho_img, width=Cm(14))
+
+                doc.add_paragraph()  # espaço entre imagens
 
     return doc
 

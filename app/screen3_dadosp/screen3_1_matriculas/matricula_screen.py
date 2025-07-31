@@ -241,8 +241,11 @@ class MatriculaScreen(MDScreen):
         print(f"🔄 Salvando dados para tela PDF: {self.lista_dados_matriculas}")
         print(f"🔢 Quantidade de matrículas em lista_dados_matriculas: {len(self.lista_dados_matriculas)}")
         tela_pdf = self.manager.get_screen('pdf')
+        tela_territorio = self.manager.get_screen('territorio')
         if hasattr(tela_pdf, "receber_dados_matriculas"):
             tela_pdf.receber_dados_matriculas(self.lista_dados_matriculas)
+        if hasattr(tela_territorio, "receber_dados_matriculas"):
+            tela_territorio.receber_dados_matriculas(self.lista_dados_matriculas)
 
 
     def receber_dados_imoveis(self, imoveis, latitudes, longitudes, dados_completos=None, nomes_proprietarios=None):

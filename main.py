@@ -6,6 +6,8 @@ from app.screen2_manager.manager_screen import ManagerScreen
 from app.screen3_dadosp.dadosscreen import DadosScreen
 from app.screen3_dadosp.screen3_1_matriculas.matricula_screen import MatriculaScreen
 from app.screen4_territorio.soloscreen import SoloScreen
+from app.screen4_territorio.screen_benfeitoria.improvement_screen import ImprovementScreen
+from app.screen4_territorio.screen_photographic.report_image import ReportImageScreen
 from app.screen5_insertpdf.pdfscreen import PDFInsert
 from kivy.uix.screenmanager import (SlideTransition, 
 FadeTransition, SwapTransition, WipeTransition,
@@ -34,6 +36,8 @@ class MainApp(MDApp):
         sm.add_widget(ManagerScreen(name="manager"))
         sm.add_widget(DadosScreen(name='dados'))
         sm.add_widget(SoloScreen(name='territorio'))
+        sm.add_widget(ImprovementScreen(name='benfeitoria'))
+        sm.add_widget(ReportImageScreen(name='photographic_report'))
         sm.add_widget(PDFInsert(name='pdf'))
         return sm
 

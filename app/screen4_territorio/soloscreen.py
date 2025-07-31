@@ -16,12 +16,17 @@ from kivy.core.window import Window
 from app.screen4_territorio.solofunction import (
     go_back, go_next1, open_file_manager, 
     open_file_hidrografia, preencher_cidade, 
-    abrir_dropdown, open_file_rotas, open_file_solos)
+    abrir_dropdown, open_file_rotas, open_file_solos,
+    abrir_dialogo_benfeitoria, go_photograph_report)
 from app.screen4_territorio.data_picker import  show_modal_date_picker
 
 class SoloScreen(MDScreen):
+    def receber_dados_matriculas(self, lista_dados_matriculas):
+        self.lista_dados_matriculas = lista_dados_matriculas
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.lista_dados_matriculas = []
         self.root = r"\\10.0.100.160\\Agropassos\\1. AVALIAÇÕES\\01. AVALIAÇÕES SICREDI\\01. RURAL"
         if not os.path.exists(self.root):
             self.root = os.path.join(os.path.expanduser("~/Documents"))
@@ -216,7 +221,22 @@ class SoloScreen(MDScreen):
             on_release = lambda x: open_file_rotas(self)
         )
         rotas.add_widget(self.rotas_imagem)
-        
+
+        self.improvement_button = MDButton(
+            MDButtonText(text="Benfeitorias"),
+            MDButtonIcon(icon="hammer-wrench"),
+            size_hint=(0.2, None),
+            on_release=lambda x: abrir_dialogo_benfeitoria(self),
+        )
+
+        self.report_button = MDButton(
+            MDButtonText(text="Relatório fotográfico"),
+            MDButtonIcon(icon="camera"),
+            size_hint=(0.2, None),
+            pos_hint={"center_x": 0.5, "center_y": 0.1},
+            on_release=lambda x: go_photograph_report(self),
+        )
+
         self.caminho_declividade = ''
         self.caminho_hidrografia = ''
         self.caminho_rotas = ''
@@ -235,6 +255,8 @@ class SoloScreen(MDScreen):
         self.layout.add_widget(solo)
         self.layout.add_widget(self.texto_solos)
         self.layout.add_widget(rotas)
+        self.layout.add_widget(self.improvement_button)
+        self.layout.add_widget(self.report_button)
 
         self.scroll.add_widget(self.layout)
         self.add_widget(self.scroll)
@@ -248,5 +270,3 @@ class SoloScreen(MDScreen):
                 self.descricao_cidade.text = descricao
             return True
         return False
-
-    
