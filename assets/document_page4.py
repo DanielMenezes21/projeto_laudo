@@ -45,4 +45,4 @@ def inserir_e_atualizar_sumario_no_bookmark(docx_path, bookmark_name="SUMARIO"):
 
     doc.Save()
     doc.Close(False)
-    word.Quit()
+    #word.Quit()

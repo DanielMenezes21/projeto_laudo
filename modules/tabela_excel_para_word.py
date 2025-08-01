@@ -66,12 +66,12 @@ def inserir_tabela_excel_no_word(docx_path, excel_path, aba="AMOSTRAS", largura_
         wb.Close(SaveChanges=False)
         excel.Quit()
         doc.Close()
-        word.Quit()
+        #word.Quit()
         raise Exception(f"Marcador '{marcador_personalizado}' não encontrado no documento Word.")
 
     wb.Close(SaveChanges=False)
     excel.Quit()
-    word.Quit()
+    #word.Quit()
 
     doc = Document(docx_path)
     tables = doc.tables 

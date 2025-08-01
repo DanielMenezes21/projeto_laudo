@@ -44,7 +44,7 @@ def inserir_caixa_texto_primeira_pagina(docx_path, texto, width=400, height=100,
     finally:
         try:
             doc.Close(False)
-            word.Quit()
+            #word.Quit()
         except Exception as close_err:
             print(f"⚠️ Erro ao tentar fechar o Word: {close_err}")
 
@@ -81,6 +81,6 @@ def inserir_imagem_capa_atras_texto(docx_path, img_capa):
     finally:
         try:
             doc.Close(False)
-            word.Quit()
+            #word.Quit()
         except Exception as close_err:
             print(f"⚠️ Erro ao tentar fechar o Word: {close_err}")

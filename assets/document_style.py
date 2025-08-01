@@ -38,7 +38,7 @@ def inserir_imagem_ultima_pagina(docx_path, img_fim):
         print(f"❌ Erro ao inserir imagem final: {e}")
     finally:
         doc.Close(False)
-        word.Quit()
+        #word.Quit()
 
 def imagens_fundo(docx_path, img_marca, ignorar_secao=None):
     try:
@@ -80,4 +80,4 @@ def imagens_fundo(docx_path, img_marca, ignorar_secao=None):
         print(f"❌ Erro ao inserir marca d'água: {e}")
     finally:
         doc.Close(False)
-        word.Quit()
+        #word.Quit()

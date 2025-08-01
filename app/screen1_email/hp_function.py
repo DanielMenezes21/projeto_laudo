@@ -21,18 +21,23 @@ def next_screen(self, instance):
         self.manager.current_screen.manager.current = "leitor"
 
 def download_file(self, instance):
-        self.progress.active = True
+    self.progress.active = True
 
+    def run_download():
         gmail_service = EmailAutomator.login_gmail()
-        query = self.text_field.text
-        if not query:
-            query = " " 
+        if not gmail_service:
+            Clock.schedule_once(lambda dt: self.show_dialog(
+                "Erro de Conexão",
+                "❌ Não foi possível conectar ao Gmail. Verifique sua internet ou credenciais."
+            ), 0)
+            Clock.schedule_once(lambda dt: setattr(self.progress, 'active', False), 0)
+            return
 
-        def run_download():
-            EmailAutomator.baixar_anexos(gmail_service, query=query)
-            Clock.schedule_once(lambda dt: after_download(self), 5)
+        query = self.text_field.text or " "
+        EmailAutomator.baixar_anexos(gmail_service, query=query)
+        Clock.schedule_once(lambda dt: after_download(self), 5)
 
-        Thread(target=run_download).start()
+    Thread(target=run_download).start()
 
 def after_download(self):
         self.progress.active = False
@@ -43,7 +48,7 @@ def show_file_manager(self):
     initial_path = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
     initial_path = os.path.join(initial_path, mes)
     if not os.path.exists(initial_path):
-        initial_path = os.path.join(os.path.expanduser("~/Documents"), mes)
+        initial_path = os.path.join(os.path.expanduser("~/Documents"))
     self.file_manager = MDFileManager(
         exit_manager=lambda *args: close_file_manager(self, *args),
         select_path=lambda path: select_pdf_file(self, path),

@@ -9,10 +9,15 @@ from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivy.clock import Clock
 import os
+from datetime import datetime
+from modules.data_folder import formatar_data
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from kivy.core.window import Window
 
+data = formatar_data()
+data_nome = datetime.now()
+mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
 class ImprovementScreen(MDScreen):
     def definir_matricula(self, indice, dados_matricula):
         self.indice_matricula = indice
@@ -102,12 +107,16 @@ class ImprovementScreen(MDScreen):
         self.content_box.add_widget(self.botao_concluido)
 
     def abrir_file_manager(self):
+        initial_path = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        initial_path = os.path.join(initial_path, mes)
+        if not os.path.exists(initial_path):
+            initial_path = os.path.join(os.path.expanduser("~/Documents"))
         self.file_manager = MDFileManager(
             exit_manager=self.fechar_file_manager,
             select_path=self.selecionar_imagem,
             preview=True
         )
-        self.file_manager.show(os.path.expanduser("~"))  
+        self.file_manager.show(initial_path)  
 
     def fechar_file_manager(self, *args):
         self.file_manager.close()
@@ -150,6 +159,7 @@ class ImprovementScreen(MDScreen):
         self.dados_matricula["imagem_benfeitoria"] = getattr(self, "caminho_imagem", "")
 
         print(f"✅ Benfeitoria salva para matrícula {self.dados_matricula.get('matricula', '')}")
+        print(f"Dados da benfeitoria: {self.dados_matricula}")
 
         # Acessa a tela 'territorio' para obter a lista completa e imprimi-la
         tela_territorio = self.manager.get_screen('territorio')

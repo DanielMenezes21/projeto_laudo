@@ -9,8 +9,13 @@ from kivymd.uix.dialog import MDDialog, MDDialogContentContainer, MDDialogButton
 from kivy.uix.image import AsyncImage
 from kivy.metrics import dp
 from kivymd.app import MDApp
+from datetime import datetime
+from modules.data_folder import formatar_data
 import os
 
+data = formatar_data()
+data_nome = datetime.now()
+mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
 class ReportImageScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,12 +61,16 @@ class ReportImageScreen(MDScreen):
                 break
 
     def abrir_file_manager(self, *args):
+        initial_path = r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL"
+        initial_path = os.path.join(initial_path, mes)
+        if not os.path.exists(initial_path):
+            initial_path = os.path.join(os.path.expanduser("~/Documents"))
         self.file_manager = MDFileManager(
             exit_manager=self.fechar_file_manager,
             select_path=self.adicionar_imagem,
             preview=True
         )
-        self.file_manager.show(os.path.expanduser("~"))
+        self.file_manager.show(initial_path)
 
     def fechar_file_manager(self, *args):
         if hasattr(self, "file_manager"):

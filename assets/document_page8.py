@@ -199,7 +199,7 @@ def inserir_marcadagua_so_na_secao(docx_path, imagem_path=None, marcador='#CAIXA
         print(f"❌ Erro ao inserir imagem e caixa de texto: {e}")
     finally:
         doc.Close(False)
-        word.Quit()
+        #word.Quit()
 
 def inserir_caixa_texto(doc):
     table1 = doc.add_table(rows=1, cols=1)
@@ -275,9 +275,9 @@ def anexos_fotos(doc, imagens_detalhadas=None):
 
                 par = doc.add_paragraph()
                 par.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                par.add_run().add_picture(caminho_img, width=Cm(14))
+                par.add_run().add_picture(caminho_img, width=Cm(5), height=Cm(5))
 
-                doc.add_paragraph()  # espaço entre imagens
+                doc.add_paragraph()  
 
     return doc
 
