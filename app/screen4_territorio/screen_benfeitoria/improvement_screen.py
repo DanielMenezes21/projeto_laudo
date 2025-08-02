@@ -17,7 +17,7 @@ from kivy.core.window import Window
 
 data = formatar_data()
 data_nome = datetime.now()
-mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+mes = f"{data_nome.month:02d}. {data.split('de')[1].strip()}"
 class ImprovementScreen(MDScreen):
     def definir_matricula(self, indice, dados_matricula):
         self.indice_matricula = indice

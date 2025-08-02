@@ -15,7 +15,7 @@ from kivy.clock import mainthread
 
 data = formatar_data()
 data_nome = datetime.now()
-mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+mes = f"{data_nome.month:02d}. {data.split('de')[1].strip()}"
 
 def next_screen(self, instance):
         self.manager.current_screen.manager.current = "leitor"

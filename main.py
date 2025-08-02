@@ -42,4 +42,5 @@ class MainApp(MDApp):
         return sm
 
 if __name__ == '__main__':
+    print("Current Working Directory:", os.getcwd())
     MainApp().run()

@@ -57,7 +57,7 @@ class EmailAutomator:
 
             data = formatar_data()
             data_nome = datetime.now()
-            mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+            mes = f"{data_nome.month:02d}. {data.split('de')[1].strip()}"
 
             safe_subject = re.sub(r'[\\/*?:"<>|]', "_", subject)
             folder_path = os.path.join(r"\\10.0.100.160\\Agropassos\1. AVALIAÇÕES\01. AVALIAÇÕES SICREDI\01. RURAL", mes, safe_subject)

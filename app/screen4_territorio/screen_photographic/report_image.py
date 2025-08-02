@@ -15,7 +15,7 @@ import os
 
 data = formatar_data()
 data_nome = datetime.now()
-mes = f'{data_nome.month:02d}. {data.split('de')[1].strip()}'
+mes = f"{data_nome.month:02d}. {data.split('de')[1].strip()}"
 class ReportImageScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
